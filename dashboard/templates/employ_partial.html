@@ -1,0 +1,166 @@
+
+<style>
+
+
+.activity-card {
+  max-height: 300px; /* می‌تونی این مقدار رو تغییر بدی */
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+  direction: rtl;
+}
+
+
+</style>
+
+<body class="bg-light">
+
+
+<div class="container mt-4">
+<hr>
+    <h2 class="mb-4 text-center">📋 داشبورد فعالیت پرسنل</h2>
+
+    <div class="row">
+        <!-- 🔹 فعالیت‌ها بر اساس نوع -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">📊 فعالیت‌ها بر اساس نوع</div>
+               <div class="activity-card">
+                <div class="card-body">
+                    <canvas id="typeChart" height="150"></canvas>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 👤 فعالیت کاربران -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">👥 فعالیت کاربران</div>
+                <div class="activity-card">
+                <div class="card-body">
+                    <canvas id="userChart" height="150"></canvas>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- ✅ کاربران فعال هفته اخیر -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">✅ کاربران فعال هفته اخیر</div>
+                <div class="activity-card">
+                <ul class="list-group list-group-flush">
+                    {% for user in active_users %}
+                        <li class="list-group-item">
+                            {{ user.created_by__username }} - {{ user.count }} فعالیت
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">کاربر فعالی در هفته اخیر وجود ندارد.</li>
+                    {% endfor %}
+                </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ❌ کاربران غیرفعال -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">❌ کاربران غیرفعال</div>
+                <div class="activity-card">
+                <ul class="list-group list-group-flush">
+                    {% for username in inactive_users %}
+                        <li class="list-group-item">{{ username }}</li>
+                    {% empty %}
+                        <li class="list-group-item">همه کاربران فعال بوده‌اند.</li>
+                    {% endfor %}
+                </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌟 فعالیت‌های پرتکرار -->
+    <div class="card mt-4 shadow mb-5">
+        <div class="card-header bg-dark text-white">🌟 فعالیت‌های پرتکرار</div>
+        <div class="activity-card">
+        <ul class="list-group list-group-flush">
+            {% for activity in top_activities %}
+                <li class="list-group-item">
+                    {{ activity.title }} ({{ activity.activity_type }}) - {{ activity.count }} بار
+                </li>
+            {% empty %}
+                <li class="list-group-item">هیچ فعالیتی ثبت نشده است.</li>
+            {% endfor %}
+        </ul>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // نمودار فعالیت بر اساس نوع
+    const activityByType = {{ activity_by_type|safe }};
+    const typeLabels = activityByType.map(item => item.activity_type);
+    const typeCounts = activityByType.map(item => item.count);
+
+    new Chart(document.getElementById('typeChart'), {
+        type: 'bar',
+        data: {
+            labels: typeLabels,
+            datasets: [{
+                label: 'تعداد',
+                data: typeCounts,
+                backgroundColor: 'rgba(13,110,253,0.7)',
+                borderColor: 'rgba(13,110,253,1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // نمودار فعالیت کاربران
+    const activityByUser = {{ activity_by_user|safe }};
+    const userLabels = activityByUser.map(item => item.created_by__username);
+    const userCounts = activityByUser.map(item => item.count);
+
+    new Chart(document.getElementById('userChart'), {
+        type: 'bar',
+        data: {
+            labels: userLabels,
+            datasets: [{
+                label: 'تعداد',
+                data: userCounts,
+                backgroundColor: 'rgba(25,135,84,0.7)',
+                borderColor: 'rgba(25,135,84,1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+

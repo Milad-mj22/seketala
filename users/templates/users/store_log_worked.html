@@ -1,0 +1,317 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block title %}تاریخچه انبار{% endblock title %}
+
+{% block content %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/persian.datepicker.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+
+    
+    <script src="{% static 'js/jquery-3.2.1.slim.min.js' %}"></script>
+    <script src="{% static 'js/persian.date.js' %}"></script>
+    <script src="{% static 'js/persian.datepicker.js' %}"></script>
+
+<div class="container mt-4">
+  <div class="card shadow-sm rounded-3 mb-4">
+    <div class="card-body d-flex align-items-center justify-content-between">
+      <h1 class="h4 m-0">تاریخچه انبار</h1>
+      {% if logs %}<span class="badge badge-light">کل نتایج: {{ logs.paginator.count }}</span>{% endif %}
+    </div>
+  </div>
+
+  <!-- فیلترها -->
+  <div class="card shadow-sm rounded-3 mb-4">
+    <div class="card-body">
+      <form id="filterForm" method="GET" class="row g-3">
+        <div class="col-md-2">
+          <label class="small text-muted mb-1">شماره فاکتور</label>
+          <input type="text" name="receipt_number" class="form-control" placeholder="مثلاً 1458" value="{{ request.GET.receipt_number }}">
+        </div>
+
+        <div class="col-md-2">
+          <label class="small text-muted mb-1">کاربر</label>
+          <select name="user" id="userDropdown" class="form-control">
+            <option value="">انتخاب کاربر</option>
+            <option value="select_all">انتخاب همه کاربران</option>
+            {% for user in users %}
+              <option value="{{ user.id }}" {% if user.id == default_user %}selected{% endif %}>{{ user.username }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="small text-muted mb-1">نوع تغییر</label>
+          <select name="change_type" class="form-control">
+            <option value="">افزودن / برداشت</option>
+            <option value="ADD" {% if default_change_type == "ADD" %}selected{% endif %}>افزودن</option>
+            <option value="REMOVE" {% if default_change_type == "REMOVE" %}selected{% endif %}>برداشت</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="small text-muted mb-1">از تاریخ</label>
+          <input type="text" id="date_from" name="date_from" class="form-control" placeholder="YYYY/MM/DD" value="{{ default_date_from }}">
+        </div>
+
+        <div class="col-md-2">
+          <label class="small text-muted mb-1">تا تاریخ</label>
+          <input type="text" id="date_to" name="date_to" class="form-control" placeholder="YYYY/MM/DD" value="{{ default_date_to }}">
+        </div>
+
+        <div class="col-md-2">
+          <label class="small text-muted mb-1">انبار</label>
+          <select name="warehouse" id="warehouseDropdown" class="form-control">
+            <option value="">انتخاب انبار</option>
+            <option value="select_all">انتخاب همه انبارها</option>
+            {% for warehouse in warehouses %}
+              <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- مواد اولیه به صورت کشویی مدرن (همان لاجیک قبلی اما با استایل) -->
+        <div class="col-12">
+          <label class="small text-muted mb-2 d-block">مواد اولیه</label>
+          <div class="custom-dropdown">
+            <button type="button" id="dropdownButton" class="form-control d-flex align-items-center justify-content-between">
+              <span>انتخاب ماده اولیه</span>
+              <span class="caret">▾</span>
+            </button>
+            <div id="dropdownContent" class="dropdown-content">
+              <label class="dd-item">
+                <input type="checkbox" id="selectAll"> انتخاب همه
+              </label>
+              {% for material in raw_materials %}
+                <label class="dd-item">
+                  <input type="checkbox" name="raw_materials" value="{{ material.id }}"> {{ material.name }}
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="mt-2 small text-muted">
+            <strong>مواد انتخاب‌شده:</strong>
+            <span id="selectedMaterials">انتخاب نشده است</span>
+          </div>
+        </div>
+
+        <div class="col-12 d-flex gap-2 mt-2">
+          <button type="submit" class="btn btn-primary">اعمال فیلتر</button>
+          <a href="?" class="btn btn-outline-secondary">پاک کردن فیلترها</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- جدول -->
+  <div class="card shadow-sm rounded-3">
+    <div class="table-responsive">
+      <table class="table table-hover table-striped mb-0">
+        <thead class="thead-light">
+          <tr>
+            <th class="text-center">کاربر</th>
+            <th class="text-center">عمل</th>
+            <th class="text-center">مقدار</th>
+            <th class="text-center">تاریخ</th>
+            <th>ماده اولیه</th>
+            <th>انبار</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+            <tr>
+              <td class="text-center">{{ log.user.user.username }}</td>
+              <td class="text-center">
+                {% if log.change_type == "ADD" %}
+                  <span class="badge badge-soft-success">افزودن</span>
+                {% else %}
+                  <span class="badge badge-soft-danger">برداشت</span>
+                {% endif %}
+              </td>
+              <td class="text-center font-weight-bold">{{ log.amount }}</td>
+              <td class="text-center text-muted">{{ log.jalali_date }}</td>
+              <td>
+                <div class="font-weight-bold">{{ log.inventory.inventory_raw_material.name }}</div>
+              </td>
+              <td><span class="badge badge-soft-secondary">{{ log.inventory.warehouse.name }}</span></td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">موردی یافت نشد</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- صفحه‌بندی -->
+    {% if logs.paginator.num_pages > 1 %}
+    <div class="card-footer bg-light">
+      <div class="d-flex flex-column align-items-center gap-2">
+        <nav aria-label="Page navigation">
+          <ul class="pagination pagination-sm m-0">
+            {% if logs.number > 1 %}
+              <li class="page-item"><a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">«</a></li>
+            {% endif %}
+            {% if logs.has_previous %}
+              <li class="page-item"><a class="page-link" href="?page={{ logs.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">‹</a></li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">‹</span></li>
+            {% endif %}
+
+            {% for num in logs.paginator.page_range %}
+              {% if num >= logs.number|add:"-2" and num <= logs.number|add:"2" %}
+                {% if logs.number == num %}
+                  <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                  <li class="page-item"><a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a></li>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+            {% if logs.has_next %}
+              <li class="page-item"><a class="page-link" href="?page={{ logs.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">›</a></li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">›</span></li>
+            {% endif %}
+            {% if logs.number < logs.paginator.num_pages %}
+              <li class="page-item"><a class="page-link" href="?page={{ logs.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">»</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+
+        <form method="get" class="d-flex align-items-center">
+          <input type="number" name="page" min="1" max="{{ logs.paginator.num_pages }}" class="form-control form-control-sm mr-2" style="width:110px" placeholder="شماره صفحه" required>
+          <button type="submit" class="btn btn-sm btn-outline-primary">برو</button>
+          {% for key, value in request.GET.items %}
+            {% if key != "page" %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}
+          {% endfor %}
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- استایل سبک و سازگار -->
+<style>
+  .custom-dropdown{ position:relative; }
+  .custom-dropdown .dropdown-content{
+    position:absolute; inset-inline-start:0; top:100%; z-index:1000;
+    min-width: 260px; max-height: 260px; overflow:auto; display:none;
+    background:#fff; border:1px solid rgba(0,0,0,.125); border-radius:.5rem; padding:.5rem;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+  }
+  .custom-dropdown .dropdown-content.show{ display:block; }
+  .custom-dropdown .dd-item{ display:flex; align-items:center; gap:.5rem; padding:.25rem .5rem; border-radius:.35rem; }
+  .custom-dropdown .dd-item:hover{ background:rgba(0,0,0,.03); }
+
+  /* Badge نرم (Bootstrap 4/5 سازگار) */
+  .badge-soft-success{ background:rgba(40,167,69,.12); color:#28a745; border:1px solid rgba(40,167,69,.25); }
+  .badge-soft-danger{  background:rgba(220,53,69,.12); color:#dc3545; border:1px solid rgba(220,53,69,.25); }
+  .badge-soft-secondary{ background:rgba(108,117,125,.12); color:#6c757d; border:1px solid rgba(108,117,125,.25); }
+
+  /* بهبود جدول */
+  .table td, .table th{ vertical-align:middle; }
+</style>
+
+<!-- اسکریپت‌ها (بعد از ساخت DOM اجرا می‌شوند) -->
+<script>
+  (function(){
+    // Helper: تبدیل رقم فارسی به انگلیسی
+    function convertPersianDigitsToEnglish(input){
+      if(!input) return "";
+      const p=['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'], e=['0','1','2','3','4','5','6','7','8','9'];
+      return input.replace(/[۰-۹]/g, c => e[p.indexOf(c)]);
+    }
+
+    // امن: فقط اگر عنصر وجود داشت، event بزن
+    function on(id, evt, cb){
+      var el = document.getElementById(id);
+      if(el) el.addEventListener(evt, cb);
+    }
+
+    // Persian datepicker (با مقادیر پیش‌فرض)
+    if (window.$ && $.fn && $.fn.persianDatepicker){
+      var defaultDateFrom = '{{ default_date_from|default:"" }}';
+      var defaultDateTo   = '{{ default_date_to|default:"" }}';
+      $('#date_from').persianDatepicker({
+        format:'YYYY/MM/DD', autoClose:true,
+        initialValue: !!defaultDateFrom, selectedBefore: !!defaultDateFrom, initialValueType:'persian'
+      });
+      $('#date_to').persianDatepicker({
+        format:'YYYY/MM/DD', autoClose:true,
+        initialValue: !!defaultDateTo, selectedBefore: !!defaultDateTo, initialValueType:'persian'
+      });
+    }
+
+    // دراپ‌داون مواد اولیه
+    on('dropdownButton', 'click', function(){
+      var dd = document.getElementById('dropdownContent');
+      if (dd) dd.classList.toggle('show');
+    });
+    window.addEventListener('click', function(e){
+      var btn = document.getElementById('dropdownButton');
+      var dd = document.getElementById('dropdownContent');
+      if (!btn || !dd) return;
+      if (!btn.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('show');
+    });
+
+    // انتخاب همه / شمارش انتخاب‌شده‌ها
+    function updateSelectedMaterials(){
+      var selectAll = document.getElementById('selectAll');
+      var checks = document.querySelectorAll('input[name="raw_materials"]');
+      var labels = [];
+      checks.forEach(function(ch){
+        if (ch.checked) labels.push(ch.parentElement.textContent.trim());
+      });
+      document.getElementById('selectedMaterials').textContent =
+        (selectAll && selectAll.checked) ? 'انتخاب همه' : (labels.join(', ') || 'انتخاب نشده است');
+    }
+    on('selectAll','change',function(){
+      var checks = document.querySelectorAll('input[name="raw_materials"]');
+      checks.forEach(function(ch){ ch.checked = document.getElementById('selectAll').checked; });
+      updateSelectedMaterials();
+    });
+    document.addEventListener('change', function(e){
+      if (e.target && e.target.name === 'raw_materials'){
+        // اگر همه انتخاب شدند، برچسب selectAll را آپدیت کن
+        var checks = document.querySelectorAll('input[name="raw_materials"]');
+        var allChecked = Array.from(checks).every(ch => ch.checked);
+        var selAll = document.getElementById('selectAll');
+        if (selAll) selAll.checked = allChecked;
+        updateSelectedMaterials();
+      }
+    });
+
+    // Select All برای user/warehouse (ایمن)
+    function setupSelectAll(selectId){
+      on(selectId, 'change', function(e){
+        var dd = e.target;
+        var selectAllOpt = dd.querySelector('option[value="select_all"]');
+        if (!selectAllOpt) return;
+        if (selectAllOpt.selected){
+          // انتخاب همه گزینه‌ها (به جز select_all)
+          Array.from(dd.options).forEach(function(op, idx){
+            if (op.value !== 'select_all') op.selected = true;
+          });
+        } else {
+          // اگر همه دستی انتخاب شدند، select_all را sync کن
+          var allSelected = Array.from(dd.options).filter(op => op.value !== 'select_all').every(op => op.selected);
+          selectAllOpt.selected = allSelected;
+        }
+      });
+    }
+    setupSelectAll('userDropdown');
+    setupSelectAll('warehouseDropdown');
+
+    // جلوگیری از ارسال فیلدهای خالی
+    var ff = document.getElementById('filterForm');
+    if (ff) ff.addEventListener('submit', function(){
+      var inputs = ff.querySelectorAll('input, select');
+      inputs.forEach(function(i){ if(!i.value) i.disabled = true; });
+    });
+  })();
+</script>
+
+{% endblock content %}

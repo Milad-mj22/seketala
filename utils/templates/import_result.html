@@ -1,0 +1,58 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-5" dir="rtl">
+  <div class="card shadow-lg p-4 rounded-4" style="background-color: #fdfdfd;">
+    <h3 class="fw-bold mb-4 text-success" style="text-align: right;">📋 نتیجه‌ی بارگذاری مشتریان</h3>
+
+    <!-- Created Buyers -->
+    <div class="mb-4">
+      <label style="text-align: right; display: block;" class="fw-bold text-primary">✔️ خریداران جدید ({{ created }})  تعداد اقایان ({{male_count}}), تعداد بانوان ({{female_count}}) , غیر قابل تشخیص ({{not_detected}})</label>
+      {% if created_names %}
+      <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 12px; padding: 10px; background: #f0f9ff;">
+        <ul class="list-group list-group-flush">
+          {% for name in created_names %}
+            <li class="list-group-item text-end" style="text-align: right; display: block;">{{ name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Updated Buyers -->
+    <div class="mb-4">
+      <label style="text-align: right; display: block;" class="fw-bold text-warning">🔄 خریداران موجود یا بروزرسانی‌شده ({{ updated }})</label>
+      {% if update_names %}
+      <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 12px; padding: 10px; background: #fffbe6;">
+        <ul class="list-group list-group-flush">
+          {% for name in update_names %}
+            <li class="list-group-item text-end" style="text-align: right; display: block;">{{ name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Skipped Buyers -->
+    <div class="mb-4">
+      <label style="text-align: right; display: block;" class="fw-bold text-danger">❌ خریداران ردشده ({{ skipped }})</label>
+      {% if skipped_names %}
+      <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 12px; padding: 10px; background: #fff0f0;">
+        <ul class="list-group list-group-flush">
+          {% for name in skipped_names %}
+            <li class="list-group-item text-end" style="text-align: right; display: block;">{{ name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Back button -->
+<div class="text-center my-4 w-100">
+  <a href="{% url 'import_buyers_csv' %}" class="btn btn-outline-secondary rounded-pill px-4 py-2">
+    🔙 بازگشت به فرم بارگذاری
+  </a>
+</div>
+  </div>
+</div>
+{% endblock %}

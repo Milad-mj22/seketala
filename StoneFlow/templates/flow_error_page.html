@@ -1,0 +1,29 @@
+{% extends "users/base.html" %}
+
+{% block title %}
+    صفحه خطا
+{% endblock title %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card p-5 shadow-lg text-center" style="max-width: 500px; width: 100%; border-radius: 20px;">
+        <div class="mb-4">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="12" fill="#dc3545"/>
+            <text x="12" y="17" text-anchor="middle" fill="white" font-size="16" font-family="Arial" font-weight="bold">!</text>
+        </svg>
+        </div>
+
+        <h2 class="text-danger mb-3">خطا در ذخیره اطلاعات</h2>
+
+        {% if text %}
+            <p class="text-muted mb-4">{{ text }}</p>
+        {% else %}
+            <p class="text-muted mb-4">مشکلی در پردازش درخواست شما رخ داده است. لطفاً دوباره تلاش کنید.</p>
+        {% endif %}
+
+        <!-- دکمه بازگشت به صفحه قبلی -->
+        <a href="javascript:history.back()" class="btn btn-outline-danger px-4 py-2">بازگشت به صفحه قبل</a>
+    </div>
+</div>
+{% endblock content %}

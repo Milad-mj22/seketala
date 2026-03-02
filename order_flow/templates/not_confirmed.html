@@ -1,0 +1,26 @@
+
+{% extends "show_flow.html" %}
+
+{% block title %} Home Page {% endblock title %}
+{% block content2 %}
+
+{% load static %}
+
+
+
+<!-- {% if not is_confirmed %} -->
+    <div class="alert alert-danger text-center">
+        <i class="fas fa-exclamation-circle"></i> 
+        {{message}}
+        
+    </div>
+<!-- {% endif %} -->
+
+<div class="text-end">
+    <button type="submit" class="btn btn-primary btn-sm" >
+        مرحله قبل
+    </button>
+</div>
+
+
+{% endblock %}

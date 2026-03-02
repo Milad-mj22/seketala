@@ -1,0 +1,33 @@
+{# partials/coop_cards.html #}
+{% load static %}
+{% load custom_filters %}
+
+{% for coop in coops %}
+        <div class="col">
+            <div class="card card-hover h-100 shadow-sm border-0">
+                <!-- ✅ تصویر بالا -->
+                {% if coop.material.image %}
+                    <img src="{{ coop.material.image.url }}" class="card-img-top" alt="{{ coop.material.name }}" style="object-fit: cover; height: 200px;">
+                {% else %}
+                    <img src="{% static 'images/no-image.png' %}" class="card-img-top" alt="بدون تصویر" style="object-fit: cover; height: 200px;">
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-box-seam me-1"></i> {{ coop.material.name }}</h5>
+                    <p class="card-text mb-1"><strong>وضعیت:</strong> <span class="badge bg-secondary">{{ coop.state }}</span></p>
+                    <p class="card-text mb-1"><strong>کاربر:</strong> {{ coop.user.username }}</p>
+                    <p class="card-text mb-1"><strong>مقدار:</strong> {{ coop.quantity }}</p>
+                    <p class="card-text text-muted"><small><i class="bi bi-clock"></i> تاریخ ایجاد : {{ coop.submitted_at|to_jalali  }}</small></p>
+                    <a href="{% url 'coop_detail' coop.id %}" class="btn btn-sm btn-outline-primary mt-2 w-100">
+                        مشاهده جزئیات <i class="bi bi-arrow-left-short"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-warning text-center" role="alert">
+                کوپی برای این وضعیت وجود ندارد.
+            </div>
+        </div>
+{% endfor %}

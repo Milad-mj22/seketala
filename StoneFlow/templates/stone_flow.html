@@ -1,0 +1,105 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block title %}پروسه مراحل انبار{% endblock title %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/store.css' %}">
+<link rel="stylesheet" href="{% static 'css/order_flow.css' %}">
+
+
+
+
+
+
+
+
+<style>
+
+.steps-card {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+}
+
+.step-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.step-btns a {
+  flex: 1 1 auto;
+  min-width: 150px;
+  text-decoration: none;
+}
+
+.step-btns button {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  border: none;
+  border-radius: 0.75rem;
+  transition: background 0.3s ease, transform 0.2s;
+}
+
+.step-btns button:hover {
+  background: linear-gradient(135deg, #43a047, #1b5e20);
+  transform: translateY(-2px);
+}
+
+.step-header {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .step-btns {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+</style>
+
+
+
+<body>
+
+
+  
+
+<div class="steps-card">
+  <div class="step-header">مراحل پروسه تولید سنگ</div>
+  <div class="step-btns">
+    {% for step in steps %}
+      <a href="/stone_flow/{{ step.url_name }}/{{ order_id|default:"-1" }}/">
+        <button>مرحله {{ step.order }}: {{ step.title }}</button>
+      </a>
+    {% endfor %}
+
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+{% block content2 %}{% endblock content2 %}
+
+{% block scripts %}{% endblock %}
+
+{% endblock %}
+
+</body>

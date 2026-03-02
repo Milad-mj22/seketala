@@ -1,0 +1,15 @@
+{% extends "users/base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="alert alert-danger text-center p-4">
+        <h4>آیا مطمئن هستید که می‌خواهید راننده <strong>{{ driver.user.get_full_name }}</strong> را حذف کنید؟</h4>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">بله، حذف شود</button>
+            <a href="{% url 'driver_list' %}" class="btn btn-secondary">خیر، بازگشت</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

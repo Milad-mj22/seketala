@@ -1,0 +1,234 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title %}
+{% block content %}
+
+{% load static %}
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/store.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/order_flow.css' %}">
+
+    <title>Real-Time SMS Messages</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 70% 70%; /* First column is 30% of the container width */
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .column {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            height: calc(100vh - 40px); /* Full screen height, minus padding */
+            overflow-y: auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 2rem;
+        }
+
+        h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .message {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #666;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            width: 80%;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            display: block;
+            margin: 0 auto 10px;
+        }
+        h3 {
+            text-align: center; /* Centers the text horizontally */
+            width: 100%; /* Optional, ensures it takes up the full width */
+            margin: 0 auto; /* Optional, for centering within the container */
+        }   
+
+        #messages.connected {
+            text-align: center;
+            color: green;
+        }
+        /* Center align the page title */
+h1.page-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #7d7c7c;
+    margin-bottom: 0;
+}
+
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr; /* Stack columns on small screens */
+                padding: 10px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- <h1 class="page-title">درخواستی</h1> -->
+    <!-- <div class="card page-title-card shadow-lg rounded-lg p-4 mb-4">
+        <h1 class="page-title">پیامک برخط</h1>
+    </div> -->
+    <!-- <h2>Real-Time SMS Messages</h2> -->
+    <div class="container">
+
+
+
+        <div class="column" id="liveMessages">
+            <h3>پیام های در لحظه</h3>
+            <div id="messages">بارگزاری پیام ها</div>
+        </div>
+        <div class="column">
+
+
+            <!-- <div class="column"> -->
+                <!-- <h3>Get Total Deposit</h3> -->
+                <button onclick="getTotalDeposit()">مجموع روزانه</button>
+                <div id="totalDeposit" style="margin-top: 10px;">جمع کل </div>
+            <!-- </div> -->
+
+            <h3>تعداد پیام های اخیر جهت نمایش</h3>
+            <input type="number" id="smsCount" value=10>
+            <button onclick="loadPreviousMessages()">بارگزاری پیام ها</button>
+            <div id="previousMessages"></div>
+        </div>
+    </div>
+
+    <script>
+        const liveMessagesContainer = document.getElementById("messages");
+        const previousMessagesContainer = document.getElementById("previousMessages");
+
+        var socket = new WebSocket("ws://" + window.location.host + "/ws/api_updates/");
+
+        socket.onopen = function () {
+            liveMessagesContainer.innerHTML = "سرور متصل";
+            liveMessagesContainer.classList.add('connected');  // Add the styling class
+        };
+
+        socket.onmessage = function (event) {
+            try {
+                const data = JSON.parse(event.data);
+                const sender = data.new_sms?.data?.sender || "Unknown";
+                const messageContent = data.new_sms?.data?.message || "No content";
+                const messageHtml = `<div class="message"><strong>Sender:</strong> ${sender}<br><strong>Message:</strong> ${messageContent}<br><span class="timestamp">${new Date().toLocaleString()}</span></div>`;
+                liveMessagesContainer.innerHTML += messageHtml;
+                liveMessagesContainer.scrollTop = liveMessagesContainer.scrollHeight;
+            } catch (error) {
+                console.error("Error parsing message:", error);
+            }
+        };
+
+        function loadPreviousMessages() {
+            const count = document.getElementById("smsCount").value;
+            previousMessagesContainer.innerHTML = `Loading last ${count} messages...`;
+            fetch(`/api/load_messages/${count}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch messages");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Received data:", data);
+                    if (Array.isArray(data.messages)) {
+                        previousMessagesContainer.innerHTML = data.messages.map(msg => {
+                            const timestamp = msg.received_at || msg.timestamp;
+                            return `<div class="message">
+                                <strong>Sender:</strong> ${msg.sender}<br>
+                                <strong>Message:</strong> ${msg.message}<br>
+                                <span class="timestamp">${timestamp}</span>
+                            </div>`;
+                        }).join("");
+                    } else {
+                        previousMessagesContainer.innerHTML = "No messages available.";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading previous messages:", error);
+                    previousMessagesContainer.innerHTML = "Error loading messages.";
+                });
+        }
+
+    
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function getTotalDeposit() {
+        fetch('/api/get_total_deposit/')
+            .then(response => response.json())
+            .then(data => {
+                const totalDepositDiv = document.getElementById("totalDeposit");
+                if (data.success) {
+                    const formattedTotal = formatNumber(data.total);
+                    totalDepositDiv.innerHTML = `Total Deposit: ${formattedTotal}`;
+                } else {
+                    totalDepositDiv.innerHTML = "Error calculating deposit.";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching total deposit:", error);
+                totalDepositDiv.innerHTML = "Error calculating deposit.";
+            });
+    }
+
+
+
+    </script>
+</body>
+
+{% endblock %}

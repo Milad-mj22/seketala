@@ -1,0 +1,43 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="card shadow rounded-4 p-4" style="direction: rtl;">
+  <h4 class="mb-4 fw-bold text-center text-primary">🎯 مدیریت سطح دسترسی نقش‌ها به آیتم‌های منو</h4>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="table-container">
+      <table class="table table-bordered text-center align-middle access-table">
+        <thead>
+          <tr>
+            <th>🎭 نقش</th>
+            {% for item in menu_items %}
+              <th><i class="{{ item.icon }}"></i><br>{{ item.title }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for role in roles %}
+            <tr>
+              <td class="user-col">{{ role.name }}</td>
+              {% for item in menu_items %}
+                <td>
+                  <input type="checkbox"
+                         name="access_{{ role.id }}_{{ item.id }}"
+                         {% if item.id in role_access|get_item:role.id %}checked{% endif %}>
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-center mt-4">
+      <button type="submit" class="save-btn">💾 ذخیره تغییرات</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

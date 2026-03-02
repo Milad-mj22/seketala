@@ -1,0 +1,10 @@
+{% extends "users/base.html" %}
+{% block content %}
+  <h2>حذف گزارش</h2>
+  <p>آیا مطمئن هستید که می‌خواهید این گزارش را حذف کنید؟</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">بله، حذف شود</button>
+    <a href="{% url 'daily_report' %}" class="btn btn-secondary">لغو</a>
+  </form>
+{% endblock %}

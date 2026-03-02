@@ -1,0 +1,329 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+
+
+
+
+<script>
+  function toggleSelectOptions() {
+    var fieldType = document.getElementById("id_field_type");
+    var selectOptionsDiv = document.getElementById("select-options-field");
+
+    if (fieldType && (fieldType.value === "select" || fieldType.value === "multi_select")) {
+      selectOptionsDiv.style.display = "block";
+    } else {
+      selectOptionsDiv.style.display = "none";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    toggleSelectOptions();  // بار اول اجرا شود
+    var fieldTypeSelect = document.getElementById("id_field_type");
+    if (fieldTypeSelect) {
+      fieldTypeSelect.addEventListener("change", toggleSelectOptions);
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const labelInput = document.getElementById("id_field_type");
+    const showAttrDiv = document.getElementById("show-attr-div");
+
+    function toggleShowAttr() {
+      if (labelInput && labelInput.value.trim() === "show_attr") {
+        showAttrDiv.style.display = "block";
+      } else {
+        showAttrDiv.style.display = "none";
+      }
+    }
+
+    if (labelInput) {
+      labelInput.addEventListener("input", toggleShowAttr);
+      toggleShowAttr();  // برای بارگذاری اولیه
+    }
+  });
+</script>
+
+
+<style>
+ .alert-custom {
+        direction: rtl;
+        text-align: right;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 15px;
+        font-weight: 500;
+        position: relative;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .alert-custom i {
+        margin-left: 10px;
+        font-size: 18px;
+    }
+
+    .alert-success-custom {
+        background-color: #e6f9f0;
+        color: #027a4e;
+        border: 1px solid #6fe2b3;
+    }
+
+    .alert-error-custom {
+        background-color: #fdecea;
+        color: #a94442;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-custom .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: inherit;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+        .toolbar {
+        background: linear-gradient(to right, #007bff, #6610f2);
+        color: white;
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        animation: slideFadeIn 0.8s ease forwards;
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    .toolbar .btn {
+        margin: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .toolbar .btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(255,255,255,0.2);
+    }
+
+
+
+
+</style>
+
+
+
+
+
+
+{% if messages %}
+    {% for message in messages %}
+        {% if 'create_coop_feature_success' in message.tags %}
+            <div class="alert-custom alert-success-custom">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ message }}</span>
+                <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+            </div>
+        {% elif 'create_coop_feature_error' in message.tags %}
+            <div class="alert-custom alert-error-custom">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>{{ message }}</span>
+                <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+
+
+
+
+<div class="card shadow-sm p-4 mb-4" style="direction: rtl; text-align: right;">
+  <!-- <h5 class="mb-4 fw-bold">افزودن ویژگی جدید به حواله معدن</h5> -->
+
+
+<div class="container-fluid p-0 m-0">
+
+<div class="card shadow-sm rounded-4 p-4 mb-4 text-center" style="direction: rtl;">
+    <h3 class="fw-bold text-primary">مدیریت ویژگی‌های حواله معدن</h3>
+</div>
+
+
+
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="row g-3">
+      
+      <!-- عنوان ویژگی -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card p-3">
+          <label for="{{ form.label.id_for_label }}" class="form-label">عنوان ویژگی</label>
+          {{ form.label|add_class:"form-control text-end" }}
+
+          {% if form.field_type.value == "multi_select" %}
+              <div class="form-text text-info small">
+                  چند گزینه را با کاما جدا کنید (مثلاً: قرمز,آبی,سبز)
+              </div>
+          {% elif form.field_type.value == "image" %}
+              <div class="form-text text-info small">
+                  این فیلد برای بارگذاری تصویر کاربر است.
+              </div>
+          {% endif %}
+
+
+        </div>
+      </div>
+
+      <!-- نوع فیلد -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card p-3">
+          <label for="{{ form.field_type.id_for_label }}" class="form-label">نوع فیلد</label>
+          {{ form.field_type|add_class:"form-select text-end" }}
+        </div>
+      </div>
+
+
+
+      <div class="col-lg-3 col-md-6" id="select-options-field" style="display: none;">
+        <div class="card p-3">
+          <label for="{{ form.select_options.id_for_label }}" class="form-label">گزینه‌های منوی کشویی</label>
+          {{ form.select_options|add_class:"form-control text-end" }}
+          <div class="form-text text-danger small">مقادیر را با کاما جدا کنید (مثلاً: کوچک,متوسط,بزرگ)</div>
+        </div>
+      </div>
+
+
+  <div class="col-lg-3 col-md-6" id="show-attr-div" style="display: none;">
+    <div class="card p-3">
+      <label for="show_attr_dropdown" class="form-label">انتخاب آیتم</label>
+      <select name="show_attr_value" id="show_attr_dropdown" class="form-select text-end">
+        {% for item in show_attr_items %}
+          <option value="{{ item.attribute.label }}">{{ item.attribute.label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+
+
+
+
+
+      <!-- مرحله نمایش -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card p-3">
+          <label for="{{ form.step.id_for_label }}" class="form-label">مرحله نمایش</label>
+          {{ form.step|add_class:"form-select text-end" }}
+        </div>
+      </div>
+
+
+
+
+      <!-- مقدار پیش‌فرض -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card p-3">
+          <label for="{{ form.default_value.id_for_label }}" class="form-label">مقدار پیش‌فرض</label>
+          {{ form.default_value|add_class:"form-control text-end" }}
+        </div>
+      </div>
+
+      <!-- الزامی؟ -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card p-3">
+          <label class="form-label d-block mb-2">الزامی؟</label>
+          <div class="form-check d-flex justify-content-end align-items-center gap-2">
+            <label class="form-check-label" for="{{ form.required.id_for_label }}">
+              بله
+            </label>
+            {{ form.required|add_class:"form-check-input ms-2" }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <div class="text-end mt-4">
+      <button type="submit" class="btn btn-success px-4">
+        <i class="fas fa-plus ms-1"></i> ثبت ویژگی
+      </button>
+    </div>
+  </form>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const dropdown = document.getElementById("show_attr_dropdown");
+    const defaultInput = document.getElementById("id_default_value");
+
+    if (dropdown && defaultInput) {
+      // زمانی که کاربر انتخاب می‌کند
+      dropdown.addEventListener("change", function () {
+        defaultInput.value = dropdown.options[dropdown.selectedIndex].text;
+      });
+
+      // اگر از قبل چیزی انتخاب شده، آن را هم ست کن
+      defaultInput.value = dropdown.options[dropdown.selectedIndex]?.text || "";
+    }
+  });
+</script>
+
+
+</div>
+
+
+
+    <div class="card p-3 text-end" style="direction: rtl;">
+        <h5 class="mb-3">ویژگی‌های موجود</h5>
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>عنوان</th>
+                    <th>نوع</th>
+                    <th>الزامی</th>
+                    <th>مرحله نمایش</th>  <!-- 👈 اضافه شد -->
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attr in attributes %}
+                <tr>
+                    <td>{{ attr.label }}</td>
+                    <td>{{ attr.get_field_type_display }}</td>
+                    <td>{{ attr.required|yesno:"بله,خیر" }}</td>
+                     <td>{{ attr.get_step_display|default:attr.step }}</td>  <!-- 👈 اگر choices تعریف شده -->
+                    <td>
+                        <form method="post" class="d-inline-block">
+                            {% csrf_token %}
+                            <input type="hidden" name="edit_id" value="{{ attr.id }}">
+                            <!-- <button type="submit" class="btn btn-sm btn-warning">ویرایش</button> -->
+                        </form>
+                        <form method="post" class="d-inline-block" onsubmit="return confirm('آیا از حذف مطمئن هستید؟');">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_id" value="{{ attr.id }}">
+                            <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">هیچ ویژگی‌ای ثبت نشده است.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+

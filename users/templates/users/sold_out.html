@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت وضعیت فروش</title>
+</head>
+<body>
+    <h2>مدیریت وضعیت فروش در شعب</h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">ذخیره</button>
+    </form>
+
+    <h3>لیست محصولات فروخته‌شده:</h3>
+    <ul>
+        {% for item in sold_out_items %}
+            <li>{{ item.branch.name }} - {{ item.product.name }} - 
+                {% if item.is_sold_out %}
+                    <strong style="color: red;">فروخته شده</strong>
+                {% else %}
+                    <strong style="color: green;">موجود</strong>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

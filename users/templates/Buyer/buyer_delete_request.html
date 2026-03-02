@@ -1,0 +1,55 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block content %}
+{% load custom_filters %}
+
+<div class="container mt-5">
+  <div class="card shadow-sm rounded-4 border-0">
+    <div class="card-header bg-white py-4">
+      <h4 class="mb-0 text-center fw-bold">درخواست‌های حذف مشتریان در انتظار بررسی</h4>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle text-center mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>نام </th>
+              <th>نام خانوادگی</th>
+              <th>ملیت</th>
+              <th>شماره تلفن</th>
+              <th>زمان درخواست</th>
+              <th>عملیات</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for req in requests %}
+            <tr>
+              <td class="fw-semibold text-primary">
+                {{ req.first_name }}
+              </td>
+              <td>{{ req.first_name }}</td>
+              <td>{{ req.nationality.name }}</td>
+              <td>{{ req.phone_number }}</td>
+              <td>{{ req.requested_at|to_jalali }}</td>
+              <td>
+                <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-2">
+                  <a href="{% url 'confirm_delete_buyer_request' req.id %}" class="btn btn-success btn-sm px-3">
+                    ✔ تأیید حذف
+                  </a>
+                  <form action="{% url 'reject_buyer_delete' req.id %}" method="post" class="d-flex gap-2 align-items-center">
+                    {% csrf_token %}
+                    <input type="text" name="comment" placeholder="دلیل رد" class="form-control form-control-sm w-auto" required>
+                    <button type="submit" class="btn btn-danger btn-sm px-3">✖ رد</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

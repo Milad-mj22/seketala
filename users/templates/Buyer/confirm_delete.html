@@ -1,0 +1,16 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title %}
+{% block content %}
+
+
+<div class="container mt-5 text-center">
+    <h3 class="text-danger mb-4">آیا مطمئن هستید که می‌خواهید این مشتری را حذف کنید؟</h3>
+    <p>نام مشتری: <strong>{{ buyer.first_name }} {{ buyer.last_name }}</strong></p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">بله، حذف شود</button>
+        <a href="{% url 'buyer_list' %}" class="btn btn-secondary">انصراف</a>
+    </form>
+</div>
+{% endblock %}

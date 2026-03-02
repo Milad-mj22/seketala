@@ -1,0 +1,124 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<style>
+  .fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modern-card {
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease-in-out;
+  }
+
+  .modern-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .btn-modern {
+    border-radius: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+  }
+
+  .rtl {
+    direction: rtl;
+    text-align: right;
+  }
+</style>
+
+<div class="container mt-5 rtl fade-in">
+
+  <div class="card modern-card p-4 mb-4 text-center bg-light">
+    <h2 class="fw-bold text-primary">مدیریت ویژگی‌های خریدار</h2>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|yesno:'success,danger' }} alert-dismissible fade show rtl" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card modern-card p-4 mb-5">
+    <form method="post" class="rtl">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="{{ form.label.id_for_label }}" class="form-label">عنوان ویژگی</label>
+          {{ form.label|add_class:"form-control text-end" }}
+        </div>
+        <div class="col-md-4">
+          <label for="{{ form.field_type.id_for_label }}" class="form-label">نوع فیلد</label>
+          {{ form.field_type|add_class:"form-select text-end" }}
+        </div>
+        <div class="col-md-4">
+          <label for="{{ form.required.id_for_label }}" class="form-label d-block">الزامی؟</label>
+          <div class="form-check">
+            {{ form.required|add_class:"form-check-input ms-2" }}
+            <label class="form-check-label" for="{{ form.required.id_for_label }}">بله</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-end mt-4">
+        {% if form.instance.id %}
+          <input type="hidden" name="attr_id" value="{{ form.instance.id }}">
+          <button type="submit" class="btn btn-warning btn-modern">ویرایش ویژگی</button>
+        {% else %}
+          <button type="submit" class="btn btn-success btn-modern">افزودن ویژگی جدید</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <div class="card modern-card p-4 mb-5">
+    <h5 class="mb-3 text-primary">ویژگی‌های ثبت‌شده</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover text-center align-middle rtl">
+        <thead class="table-dark">
+          <tr>
+            <th>عنوان</th>
+            <th>نوع</th>
+            <th>الزامی</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for attr in attributes %}
+            <tr>
+              <td>{{ attr.label }}</td>
+              <td>{{ attr.get_field_type_display }}</td>
+              <td>{{ attr.required|yesno:"بله,خیر" }}</td>
+              <td>
+                <div class="d-flex justify-content-center gap-2">
+                  <form method="post" action="{% url 'buyer_attr_manage' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="attr_id" value="{{ attr.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">ویرایش</button>
+                  </form>
+                  <a href="{% url 'delete_buyer_attribute' attr.id %}"
+                     class="btn btn-sm btn-outline-danger"
+                     onclick="return confirm('آیا از حذف مطمئن هستید؟');">حذف</a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4">ویژگی‌ای ثبت نشده است.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

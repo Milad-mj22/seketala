@@ -1,0 +1,107 @@
+{% extends "users/base.html" %}
+{% block content %}
+{% load custom_filters %}
+{% load static %}
+
+<style>
+  .job-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-top: 40px;
+  }
+
+  .job-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e6e6e6;
+  }
+
+  .info-label {
+    font-weight: bold;
+    color: #555;
+  }
+
+  .info-value {
+    color: #333;
+  }
+
+  .action-btns {
+    margin-top: 20px;
+    text-align: center;
+  }
+    .rtl {
+    direction: rtl;
+    text-align: right;
+  }
+</style>
+
+<div class="container" dir="rtl">
+  <div class="job-card">
+    <h3 class="text-center text-primary fw-bold mb-4">📄 جزئیات پیش‌فاکتور</h3>
+
+    <div class="job-info-row">
+      <div class="info-label">کد پیش‌فاکتور:</div>
+      <div class="info-value rtl">#{{ preinvoice.id }}</div>
+    </div>
+    <div class="job-info-row">
+      <div class="info-label">نام مشتری:</div>
+      <div class="info-value rtl">{{ preinvoice.customer }}</div>
+    </div>
+    <div class="job-info-row">
+      <div class="info-label">تاریخ ثبت:</div>
+      <div class="info-value rtl">{{ preinvoice.created_at|to_jalali  }}</div>
+    </div>
+    <div class="job-info-row">
+      <div class="info-label">توضیحات:</div>
+      <div class="info-value rtl">{{ preinvoice.note|default:"-" }}</div>
+    </div>
+
+    <div class="mt-4">
+      <h5 class="fw-bold text-secondary mb-3 rtl">🧾 اقلام پیش‌فاکتور:</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>محصول</th>
+              <th>تعداد</th>
+              <th>قیمت واحد</th>
+              <th>مبلغ کل</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in preinvoice.items.all %}
+            <tr>
+              <td>{{ item.coop.material.name }}</td>
+              <td>{{ item.coop.quantity }}</td>
+              <td>{{ item.unit_price|floatformat:0 }} ریال</td>
+              <td>{{ item.total_price|floatformat:0 }} ریال</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4">هیچ موردی ثبت نشده است.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-3 text-end fw-bold text-dark">
+      جمع کل: {{ preinvoice.total_price|floatformat:0 }} ریال
+    </div>
+
+    <div class="action-btns">
+      {% if preinvoice.is_sell %}
+        <div class="info-label">فروش رفته است</div>
+      {% else %}
+        <a href="{% url 'sell_preinvoice' preinvoice.id %}" class="btn btn-success btn-sm mx-1">💰 تبدیل به فروش</a>
+      {% endif %}
+      <a href="{% url 'user_preinvoices' %}" class="btn btn-secondary btn-sm mx-1">⬅️ بازگشت</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

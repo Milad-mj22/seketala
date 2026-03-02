@@ -1,0 +1,60 @@
+{% extends "users/base.html" %}
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container mt-5">
+  <h2 class="mb-4">نمایش نتایج فرم‌ها</h2>
+
+  <!-- Step 1: Select form -->
+  <form method="get" class="mb-4">
+    <label for="formSelect" class="form-label">انتخاب فرم:</label>
+    <select id="formSelect" name="form" class="form-select" onchange="this.form.submit()">
+      <option value="">-- فرم را انتخاب کنید --</option>
+      {% for form in forms %}
+        <option value="{{ form.id }}" {% if selected_form and form.id == selected_form.id %}selected{% endif %}>
+          {{ form.title }}
+        </option>
+      {% endfor %}
+    </select>
+  </form>
+
+  <!-- Step 2: Select submission/user -->
+  {% if selected_form %}
+    <form method="get" class="mb-4">
+      <input type="hidden" name="form" value="{{ selected_form.id }}">
+      <label for="submissionSelect" class="form-label">انتخاب کاربر ارسال‌کننده فرم:</label>
+      <select id="submissionSelect" name="submission" class="form-select" onchange="this.form.submit()">
+        <option value="">-- کاربر را انتخاب کنید --</option>
+        {% for submission in submissions %}
+          <option value="{{ submission.id }}" {% if selected_submission and submission.id == selected_submission.id %}selected{% endif %}>
+            {{ submission.user.username }} - {{ submission.submitted_at|date:"Y/m/d H:i" }}
+          </option>
+        {% endfor %}
+      </select>
+    </form>
+  {% endif %}
+
+  <!-- Step 3: Show answers -->
+  {% if answers %}
+    <h4>نتایج فرم برای {{ selected_submission.user.username }}</h4>
+    <table class="table table-bordered text-right">
+      <thead class="table-light">
+        <tr>
+          <th>فیلد</th>
+          <th>مقدار</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for answer in answers %}
+          <tr>
+            <td>{{ answer.field.label }}</td>
+            <td>{{ answer.value }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

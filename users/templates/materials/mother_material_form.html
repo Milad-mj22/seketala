@@ -1,0 +1,63 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block content %}
+
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        body {
+            font-family: Vazir, Tahoma, sans-serif;
+            background-color: #f8fafc;
+            padding: 2rem;
+            direction: rtl;
+        }
+        h2 {
+            text-align: right;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        form.card {
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            background: white;
+            max-width: 600px;
+            margin: auto;
+        }
+        .btn-success, .btn-secondary {
+            border-radius: 12px;
+        }
+        .btn-secondary {
+            margin-right: 10px;
+        }
+        label {
+            font-weight: 600;
+            margin-top: 10px;
+            display: block;
+            color: #555;
+        }
+        input, textarea, select {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            padding: 8px 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h2>{{ title }}</h2>
+    <form method="post" enctype="multipart/form-data" class="card p-4 shadow-sm">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-flex justify-content-end mt-4">
+            <a href="{% url 'mother_material_list' %}" class="btn btn-secondary">بازگشت</a>
+            <button type="submit" class="btn btn-success">ذخیره</button>
+        </div>
+    </form>
+</div>
+</body>
+{% endblock %}

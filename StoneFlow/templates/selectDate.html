@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تاریخ شمسی</title>
+
+    <link rel="stylesheet" href="{% static 'css/persian.datepicker.css' %}">
+</head>
+<body class="container mt-5">
+
+    <h3>تاریخ شمسی</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" id="datepicker" name="date" class="form-control" placeholder="تاریخ را انتخاب کنید">
+        <br>
+        <button type="submit" class="btn btn-primary">ارسال</button>
+    </form>
+
+    <!-- jQuery -->
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+
+    <!-- Persian Date and Datepicker (Local versions) -->
+    <script src="{% static 'js/persian.date.js' %}"></script>
+    <script src="{% static 'js/persian.datepicker.js' %}"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#datepicker").persianDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                initialValue: false
+            });
+        });
+    </script>
+
+</body>
+</html>

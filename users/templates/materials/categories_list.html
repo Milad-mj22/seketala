@@ -1,0 +1,47 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block content %}
+
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لیست دسته‌ها</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="">
+  <div class="w-full max-w-5xl p-8">
+
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">دسته‌بندی مواد</h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {% for category in categories %}
+        <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
+
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-800">{{ category.name }}</h2>
+              <p class="text-gray-500 mt-1 text-sm line-clamp-2">{{ category.description }}</p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-2 mt-4 sm:mt-0">
+              <a href="{% url 'category_detail' category.id %}"
+                 class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition text-sm font-medium">
+                 نمایش مواد
+              </a>
+              <a href="{% url 'add_material_to_category' category.id %}"
+                 class="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition text-sm font-medium">
+                 افزودن ماده
+              </a>
+            </div>
+          </div>
+
+        </div>
+      {% empty %}
+        <p class="text-gray-500 text-center col-span-full">هیچ دسته‌بندی‌ای موجود نیست.</p>
+      {% endfor %}
+    </div>
+
+  </div>
+</body>
+{% endblock %}

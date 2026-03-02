@@ -1,0 +1,164 @@
+{% load static %}
+
+<html lang="fa" dir="rtl" style="overflow: hidden;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منوی رستوران</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            font-family: 'IRANSans', sans-serif;
+        }
+        .back_vid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
+        .logoimg {
+            width: 150px;
+            display: block;
+            margin: 20px auto;
+        }
+        .menu {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 30px auto;
+            width: 80%;
+        }
+        .pr {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pr-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fbc02d;
+        }
+        .pr-price {
+            font-size: 18px;
+            color: #e57373;
+        }
+        .pr-desc {
+            font-size: 14px;
+            color: #ccc;
+            margin-top: 10px;
+        }
+        .food-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px; /* Move the icon to the left */
+            opacity: 0.7; /* Transparent look */
+        }
+        .cl-co {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .cl-co > div {
+            width: 30%;
+            margin-bottom: 20px;
+        }
+        .pr-up {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            flex: 1;
+            text-align: right; /* Right-align the text details */
+        }
+    </style>
+</head>
+
+<body>
+
+    <video autoplay=true muted loop class="back_vid">
+        <source src="{% static 'pic/back.mov' %}">
+    </video>
+    <div class="back">
+        <img src="{% static 'pic/logo.png' %}" alt="لوگو" class="logoimg">
+        <div class="menu">
+
+            <!-- Row 1: Pizza Single -->
+            <div class="cl-co">
+                <div class="co1">
+                    <h3 class="text-center text-light">پیتزا ها</h3>
+                    {% for product in pizza_single %}
+                    <div class="pr">
+                        <img src="{% static 'pic/icons/pizza_icon.png' %}" alt="Pizza Icon" class="food-icon">
+                        <div class="pr-up">
+                            <div class="pr-title">
+                                {{ product.name }}
+                            </div>
+                            <div class="pr-price">
+                                {{ product.price }}
+                            </div>
+                            <div class="pr-desc">
+                                {{ product.description }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Row 2: Pizza Double -->
+                <div class="co2">
+                    <h3 class="text-center text-light">همبرگر ها</h3>
+                    {% for product in pizza_double %}
+                    <div class="pr">
+                        <img src="{% static 'pic/icons/burger_icon.png' %}" alt="Burger Icon" class="food-icon">
+                        <div class="pr-up">
+                            <div class="pr-title">
+                                {{ product.name }}
+                            </div>
+                            <div class="pr-price">
+                                {{ product.price }}
+                            </div>
+                            <div class="pr-desc">
+                                {{ product.description }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Row 3: More Food (if any) -->
+                <div class="co3">
+                    <h3 class="text-center text-light">غذاهای دیگر</h3>
+                    {% for product in other_foods %}
+                    <div class="pr">
+                        <img src="{% static 'pic/icons/other_food_icon.png' %}" alt="Other Food Icon" class="food-icon">
+                        <div class="pr-up">
+                            <div class="pr-title">
+                                {{ product.name }}
+                            </div>
+                            <div class="pr-price">
+                                {{ product.price }}
+                            </div>
+                            <div class="pr-desc">
+                                {{ product.description }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

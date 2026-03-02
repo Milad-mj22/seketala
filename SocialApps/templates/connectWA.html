@@ -1,0 +1,16 @@
+{% extends "users/base.html" %}
+{% block title %}   اتصال واتساپ{% endblock title %}
+
+{% load static %}
+{% block content %}
+  {% if is_logged_in %}
+    <h2>You are already connected to WhatsApp ✅</h2>
+  {% else %}
+    <h2>Scan the QR code to connect WhatsApp</h2>
+    {% if qr_image_base64 %}
+      <img src="{{ qr_image_base64 }}" alt="QR Code" width="300">
+    {% else %}
+      <p>QR code could not be generated.</p>
+    {% endif %}
+  {% endif %}
+{% endblock %}

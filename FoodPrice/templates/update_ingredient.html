@@ -1,0 +1,131 @@
+{% extends "users/base.html" %}
+{% block title %}ویرایش ماده اولیه{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'B Nazanin';
+        direction: rtl;
+        background-color: #f3f3f3;
+    }
+
+    .edit-container {
+        max-width: 450px;
+        margin: 30px auto;
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        text-align: right;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: 600;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+
+    .btn-submit {
+        width: 100%;
+        background-color: #1e8f55;
+        color: #fff;
+        padding: 12px;
+        border-radius: 12px;
+        border: none;
+        font-size: 1.1rem;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+        background-color: #146c40;
+        transform: translateY(-2px);
+    }
+
+    .info-text {
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .price-preview {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: -5px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="edit-container">
+    <h2>ویرایش ماده اولیه: {{ raw_material.name }}</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="info-text">آخرین قیمت ثبت شده: {{ last_price }} تومان</div>
+
+        <label>مقدار مصرف:</label>
+        <input type="number" step="0.001" name="quantity" value="{{ ingredient.quantity }}">
+
+        <label>درصد ضایعات:</label>
+        <input type="number" step="0.01" name="wastage_percent" value="{{ ingredient.wastage_percent }}">
+
+        <label>قیمت واحد (تومان، برای بروزرسانی):</label>
+        <input
+            type="number"
+            step="0.01"
+            name="price"
+            id="price-input"
+            placeholder="اگر وارد نشود از آخرین قیمت استفاده می‌شود">
+        <div id="price-preview" class="price-preview"></div>
+
+        <button type="submit" class="btn-submit">ثبت تغییرات</button>
+    </form>
+</div>
+
+<script>
+    function formatPriceWithGroups(value) {
+        if (!value) return "";
+        const num = Number(value);
+        if (isNaN(num)) return "";
+        // 3-digit grouping, Persian digits + تومان
+        return num.toLocaleString("fa-IR") + " تومان";
+    }
+
+    const priceInput = document.getElementById("price-input");
+    const pricePreview = document.getElementById("price-preview");
+
+    if (priceInput && pricePreview) {
+        // show initial value if exists
+        if (priceInput.value) {
+            pricePreview.textContent = "قیمت وارد شده: " +
+                formatPriceWithGroups(priceInput.value);
+        }
+
+        priceInput.addEventListener("input", function () {
+            const val = this.value;
+            const formatted = formatPriceWithGroups(val);
+            if (formatted) {
+                pricePreview.textContent = "قیمت وارد شده: " + formatted;
+            } else {
+                pricePreview.textContent = "";
+            }
+        });
+    }
+</script>
+{% endblock %}

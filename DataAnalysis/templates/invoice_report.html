@@ -1,0 +1,289 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+:root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --primary: #4f46e5;
+    --text: #111827;
+    --muted: #6b7280;
+    --radius: 14px;
+}
+
+body {
+    background: var(--bg);
+}
+
+.page {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 16px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+input[type="date"] {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+}
+
+button {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    background: var(--primary);
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+button.secondary {
+    background: #eef2ff;
+    color: var(--primary);
+}
+
+.card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #f9fafb;
+}
+
+th, td {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+tr {
+    border-bottom: 1px solid #f1f1f1;
+}
+
+tr.clickable {
+    cursor: pointer;
+}
+
+tr.clickable:hover {
+    background: #f5f7ff;
+}
+
+/* مودال */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    z-index: 9999;
+}
+
+.modal-content {
+    position: absolute; /* بسیار مهم */
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: fadeUp 0.2s ease;
+}
+
+.modal h3 {
+    margin-bottom: 10px;
+}
+
+.modal p {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 6px 0;
+}
+
+@keyframes fadeUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
+
+<div class="page">
+
+    <div class="header">
+        <h1>Invoice Report</h1>
+
+        <form method="get" class="actions">
+            <input type="date" name="date" value="{{ selected_date }}">
+            <button type="submit">Filter</button>
+
+            <a href="{% url 'download_invoice_excel' %}?date={{ selected_date }}">
+                <button type="button" class="secondary">Raw Excel</button>
+            </a>
+
+            <a href="{% url 'download_invoice_summary_excel' %}?date={{ selected_date }}">
+                <button type="button" class="secondary">Sepidar Format</button>
+            </a>
+        </form>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Invoice</th>
+                    <th>Name</th>
+                    <th>Total</th>
+                    <th>Discount</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                <tr class="clickable"
+                    onclick="openModal(event, '{{ invoice.invoice_number }}')">
+                    <td>{{ invoice.invoice_number }}</td>
+                    <td>{{ invoice.name }}</td>
+                    <td>{{ invoice.total_price }}</td>
+                    <td>{{ invoice.discount }}</td>
+                    <td>{{ invoice.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align:center; padding:30px;">
+                        No invoices found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="invoiceModal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+
+        <h3 id="m_invoice"></h3>
+        <p><strong>Name:</strong> <span id="m_name"></span></p>
+        <p><strong>Phone:</strong> <span id="m_phone"></span></p>
+        <p><strong>Nahveh:</strong> <span id="m_nahveh"></span></p>
+        <p><strong>Date:</strong> <span id="m_date"></span></p>
+        <p><strong>Total:</strong> <span id="m_total"></span></p>
+        <p><strong>Discount :</strong> <span id="m_disc"></span></p>
+
+        <hr style="margin:16px 0">
+
+        <table style="width:100%; font-size:14px;">
+            <thead>
+                <tr>
+                    <th>Food</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                    <th>Discount</th>
+                </tr>
+            </thead>
+            <tbody id="m_items"></tbody>
+        </table>
+
+        <br>
+        <button onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<script>
+const INVOICE_API_URL = "{% url 'invoice_detail_api' 'INVOICE_NUMBER' %}";
+
+function openModal(event, invoiceNumber) {
+    const url = INVOICE_API_URL.replace("INVOICE_NUMBER", invoiceNumber);
+    const modal = document.getElementById("invoiceModal");
+    const modalContent = modal.querySelector(".modal-content");
+
+    // موقعیت کلیک
+    let x = event.clientX;
+    let y = event.clientY;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error("Failed to load invoice");
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById("m_invoice").innerText =
+                "Invoice #" + data.invoice_number;
+            document.getElementById("m_name").innerText = data.name;
+            document.getElementById("m_phone").innerText = data.phone;
+            document.getElementById("m_nahveh").innerText = data.nahveh;
+            document.getElementById("m_date").innerText = data.created_at;
+            document.getElementById("m_total").innerText = data.total_price;
+            document.getElementById("m_disc").innerText = data.discount;
+
+            const itemsBody = document.getElementById("m_items");
+            itemsBody.innerHTML = "";
+            data.items.forEach(item => {
+                itemsBody.innerHTML += `
+                    <tr>
+                        <td>${item.food_name}</td>
+                        <td>${item.price}</td>
+                        <td>${item.quantity}</td>
+                        <td>${item.total}</td>
+       
+                    </tr>
+                `;
+            });
+
+            // جلوگیری از خروج مودال از صفحه
+            const modalWidth = 600;
+            const modalHeight = modalContent.offsetHeight || 400;
+
+            if (x + modalWidth > window.innerWidth) x = window.innerWidth - modalWidth - 20;
+            if (y + modalHeight > window.innerHeight) y = window.innerHeight - modalHeight - 20;
+
+            modalContent.style.left = x + "px";
+            modalContent.style.top = y + "px";
+
+            modal.style.display = "block";
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Could not load invoice details");
+        });
+}
+
+function closeModal() {
+    document.getElementById("invoiceModal").style.display = "none";
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container mt-5"  style="text-align: right; display: block;">
+  <h2  style="text-align: right; display: block;">{{ title }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success mt-2">ذخیره</button>
+    <a href="{% url 'category_list' %}" class="btn btn-secondary mt-2">بازگشت</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "users/base.html" %}
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container mt-5">
+    <h2 class="mb-4">فرم‌ها</h2>
+
+    {% if forms %}
+        <div class="list-group">
+            {% for item in forms %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ item.form.title }}</strong>
+                        <div class="text-muted">{{ item.form.description }}</div>
+                    </div>
+
+                    {% if item.can_submit %}
+                        <a href="{% url 'submit_form' item.form.id %}" class="btn btn-success btn-sm">ارسال فرم</a>
+                    {% else %}
+                        <span class="badge bg-secondary">اجازه ارسال ندارید</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning">هیچ فرمی وجود ندارد.</div>
+    {% endif %}
+</div>
+
+{% endblock %}

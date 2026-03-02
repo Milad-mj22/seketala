@@ -1,0 +1,140 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>داشبورد</title>
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+
+  <!-- اضافه کردن jQuery قبل از Bootstrap -->
+  <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+  <!-- اضافه کردن Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="container mt-4" id="dashboard-content">
+    <!-- در ابتدا این بخش با Ajax لود می‌شود -->
+  </div>
+
+  <div class="text-center my-3" id="loading" style="display: none;">
+    <div class="spinner-border text-primary"></div>
+    <p>در حال بارگذاری...</p>
+  </div>
+
+  <script>
+    let nextPageIndex = 0;
+    const sections = [
+      // "{% url 'coop_dashboard_partial' %}",
+      "{% url 'buyer_dashboard_partial' %}",
+      "{% url 'dashboard_employ_activity' %}",
+      "{% url 'preinvoice_user_report' %}",
+      
+      "{% url 'preinvoice_ration_sell_user_report' %}",
+      
+      
+      // صفحات دیگر...
+    ];
+
+    let loading = false;
+
+    // بارگذاری بخش اول به صورت Ajax
+    $(document).ready(function () {
+      loadNextSection();  // بارگذاری اولین بخش
+    });
+
+    // اسکرول برای بارگذاری بقیه بخش‌ها
+    window.addEventListener('scroll', () => {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
+        if (!loading && nextPageIndex < sections.length) {
+          loadNextSection();
+        }
+      }
+    });
+
+function loadNextSection() {
+  if (nextPageIndex >= sections.length) return;
+
+  loading = true;
+  $("#loading").show();
+
+  $.get(sections[nextPageIndex], function (html) {
+    $("#dashboard-content").append(html);
+    loading = false;
+    nextPageIndex++;
+    $("#loading").hide();
+
+    // ✅ بررسی اگر هنوز اسکرول ایجاد نشده، بخش بعدی را هم بارگذاری کن
+    if ((window.innerHeight >= document.body.scrollHeight) && nextPageIndex < sections.length) {
+      loadNextSection();
+    }
+  });
+}
+
+
+
+
+
+    
+  </script>
+
+
+
+
+
+<script>
+function renderEmployeeCharts(activityByType, activityByUser) {
+    const typeLabels = activityByType.map(item => item.activity_type);
+    const typeCounts = activityByType.map(item => item.count);
+
+    const userLabels = activityByUser.map(item => item.created_by__username);
+    const userCounts = activityByUser.map(item => item.count);
+
+    new Chart(document.getElementById('typeChart'), {
+        type: 'bar',
+        data: {
+            labels: typeLabels,
+            datasets: [{
+                label: 'تعداد',
+                data: typeCounts,
+                backgroundColor: 'rgba(13,110,253,0.7)',
+                borderColor: 'rgba(13,110,253,1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: { x: { beginAtZero: true } }
+        }
+    });
+
+    new Chart(document.getElementById('userChart'), {
+        type: 'bar',
+        data: {
+            labels: userLabels,
+            datasets: [{
+                label: 'تعداد',
+                data: userCounts,
+                backgroundColor: 'rgba(25,135,84,0.7)',
+                borderColor: 'rgba(25,135,84,1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: { x: { beginAtZero: true } }
+        }
+    });
+}
+</script>
+
+
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends "show_flow.html" %}
+
+{% block title %} Home Page {% endblock title %}
+{% block content2 %}
+
+{% load static %}
+
+
+<style>
+    /* Ensure table takes full width */
+    .full-width-table {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Remove padding/margin if necessary */
+    .container-fluid, .table-responsive {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .table {
+    width: 100vw !important;
+}
+/* Force input fields to fit inside the table cell */
+.table input[type="number"] {
+    width: 100% !important;
+    padding: 2px !important;
+    margin: 0 !important;
+    text-align: center; /* Align text to look better */
+    box-sizing: border-box; /* Prevents overflow */
+}
+
+/* Prevent table from stretching */
+.table td {
+    padding: 5px !important; 
+    white-space: nowrap; /* Prevents unnecessary line breaks */
+}
+
+
+
+
+/* Ensure the table takes full width */
+.table {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 40px;
+}
+
+/* Fix columns to avoid unnecessary white space */
+.table th, .table td {
+    white-space: nowrap;
+}
+
+/* Make sure inputs adjust to the column */
+.table input[type="number"] {
+    width: 100% !important;
+    min-width: 50px;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* Make it better for small screens */
+@media (max-width: 768px) {
+    .table {
+        font-size: 12px; /* Smaller font for small screens */
+    }
+    .table th, .table td {
+        padding: 5px; /* Reduce padding to save space */
+    }
+}
+
+
+
+
+
+
+
+
+.btn-warning {
+    background-color: #ffc107 !important; /* Bootstrap warning color */
+    border: none;
+    color: #212529; /* Dark text for better contrast */
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 8px; /* Rounded edges */
+    transition: all 0.3s ease-in-out;
+    text-decoration: none;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.btn-warning:hover {
+    background-color: #ff9800 !important; /* Darker orange on hover */
+    color: white;
+    transform: scale(1.05); /* Slight enlargement */
+}
+
+.btn-warning:focus {
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+}
+
+
+
+
+
+
+
+</style>
+
+<body>
+
+    {% if messages %}
+    <div class="alert alert-success" id="success-message">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+
+    {% endif %}
+
+<div class="container-fluid p-0 m-0">  <!-- Removed padding/margin -->
+    <div class="card page-title-card shadow-lg rounded-lg p-4 mb-4">
+        <h1 class="page-title">مانده</h1>
+    </div>
+  
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="user-info">
+            <div class="avatar">
+                {{ request.user.username|first|upper }} 
+            </div>
+            <div class="user-details">
+                <p><strong>کاربر:</strong> {{ request.user.username }}</p>
+                <p><strong>سمت:</strong> {{ user_role }}</p>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>نام ماده اولیه</th>
+                        <th>درخواستی</th>
+                        <th>ارسالی</th>
+                        <th>تحویلی</th>
+                        <th>مانده</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usage in material_usages.items %}zz
+                    <tr>
+                        <td>{{ usage.0 }}</td>
+                        <td>{{ usage.1.quantity_used |floatformat:"-4" }}</td>
+                        <td>{{ usage.1.step2_quantity|floatformat:"-4"  }}</td>
+                        <td>{{ usage.1.step3_quantity |floatformat:"-4" }}</td>
+                            {% if not is_confirmed %}
+                            <td>
+                                <input type="number" name="materials_sent[]"
+                                       value="0" 
+                                       class="text-center"
+                                       step="any">
+                            
+                                <input type="hidden" name="materials_names[]" value="{{ usage.0 }}">
+                            </td>
+                            {% else %}
+                            <td>{{ usage.1.step4_quantity|floatformat:"-4"  }}</td>
+                            {% endif %}
+
+
+
+                     
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+
+        {% if can_submit %}
+        {% if not is_confirmed %}
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary btn-sm">ثبت مانده</button>
+            </div>
+        {% else %}
+        <div class="confirmation-bar">
+            <i class="fas fa-check-circle"></i>
+            تأیید شده توسط {{ is_confirmed.confirmed_by.user.username }}
+            <a href="{% url 'edit_request' order_id step_number %}" class="btn btn-warning btn-sm">ویرایش</a>
+
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="confirmation-bar">
+            {% if is_confirmed %}
+            <i class="fas fa-check-circle"></i>
+            تأیید شده توسط  {{ is_confirmed.confirmed_by.user.username }}
+            {% else %}
+            <i class="fas fa-error-circle"></i>
+            دسترسی ندارید در انتظار تایید
+            {% endif %}
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+</body>
+{% endblock %}

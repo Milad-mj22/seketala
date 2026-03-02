@@ -1,0 +1,528 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title %}
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/store.css' %}">
+<script src="{% static 'js/all.min.js' %}"></script>
+<html lang="fa" dir="rtl"></html>
+
+
+
+
+
+<style>
+
+
+.camera-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        video, img, canvas {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+        .btn-custom {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease-in-out;
+        }
+        .btn-custom:hover {
+            transform: scale(1.05);
+        }
+        .preview {
+            filter: blur(4px);
+            opacity: 0.7;
+        }
+
+
+</style>
+
+
+<script>
+
+    function validateForm(event) {
+        const receiptNumber = document.getElementById('receipt_number').value.trim();
+       
+        return true;
+    }
+
+
+    function toggleSubmaterials(id) {
+        var submaterials = document.getElementById(id);
+        if (submaterials.style.display === "none" || submaterials.style.display === "") {
+            submaterials.style.display = "block";
+        } else {
+            submaterials.style.display = "none";
+        }
+    }
+
+    function filterMaterials() {
+        const input = document.getElementById('search-bar');
+        const filter = input.value.toLowerCase();
+        const cards = document.querySelectorAll('.card');
+        let hasVisibleItem = false;
+
+        cards.forEach(card => {
+            const cardText = card.innerText.toLowerCase();
+            const submaterials = card.querySelector('.submaterials');
+
+            if (cardText.includes(filter)) {
+                card.style.display = "";  // Show the card
+                hasVisibleItem = true;
+
+                if (submaterials) {
+                    submaterials.style.display = "block";  // Show submaterials
+                    const subCards = submaterials.querySelectorAll('.submaterials .card');
+
+                    subCards.forEach(subCard => {
+                        const subCardText = subCard.innerText.toLowerCase();
+                        if (subCardText.includes(filter)) {
+                            subCard.style.display = "";  // Show subCard if it matches
+                        } else {
+                            subCard.style.display = "none";  // Hide subCard if it doesn't match
+                        }
+                    });
+                }
+            } else {
+                card.style.display = "none";  // Hide the card
+                if (submaterials) {
+                    submaterials.style.display = "none";  // Hide submaterials
+                    
+                }
+            }
+        });
+
+        // Scroll to the first match
+        // if (hasVisibleItem) {
+        //     const firstMatch = document.querySelector('.card:not([style*="display: none"])');
+        //     if (firstMatch) {
+        //         firstMatch.scrollIntoView({ behavior: 'smooth' });
+        //     }
+        // }
+    }
+
+    function handleSearchInput() {
+        const input = document.getElementById('search-bar');
+        const value = input.value.trim();
+        
+        // Close all submaterials when search bar is cleared
+        if (value === "") {
+            const allSubmaterials = document.querySelectorAll('.submaterials');
+            allSubmaterials.forEach(submaterials => {
+                submaterials.style.display = "none";
+            });
+
+            // Show all cards when search bar is cleared
+            const allCards = document.querySelectorAll('.card');
+            allCards.forEach(card => {
+                card.style.display = "";  // Show all cards
+            });
+        }
+
+        // Apply filter regardless of whether search bar is cleared or not
+        filterMaterials();
+    }
+
+    function closeAllTabs() {
+        const allSubmaterials = document.querySelectorAll('.submaterials');
+        allSubmaterials.forEach(submaterials => {
+            submaterials.style.display = "none";
+        });
+    }
+
+
+
+
+
+
+    function changeValue(inputId, increment) {
+    const input = document.getElementById(inputId);
+    let value = parseFloat(input.value) || 0;
+    value += increment;
+    if (value < 0) {
+      value = 0; // Prevent negative values
+    }
+    input.value = value.toFixed(1);
+  }
+
+    // Disable the submit button initially
+    function enableSubmitButton() {
+        const warehouseSelect = document.getElementById('warehouse');
+        const submitBtn = document.getElementById('submit-btn');
+
+        if (warehouseSelect.value !== "") {
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Prevent form submission to show which elements are greater than zero
+    // function handleSubmit(event) {
+    //     event.preventDefault(); // Prevent form submission
+
+    //     const inputs = document.querySelectorAll('.digit-input');
+    //     let materials = [];
+    //     inputs.forEach(input => {
+    //     const value = parseFloat(input.value);
+    //     if (value > 0) {
+    //         const materialName = input.name;
+    //         materials.push({ name: materialName, value: value });
+    //     }
+    //     });
+
+    //     const warehouseSelect = document.getElementById('warehouse');
+    //     const warehouseName = warehouseSelect.options[warehouseSelect.selectedIndex].text;
+
+    //     if (materials.length > 0) {
+    //     // const confirmMessage = `${warehouseName} هستید شما در حال اضافه کردن موارد زیر به انبار : :\n` + 
+    //     const confirmMessage = `شما در حال اضافه کردن موارد زیر به انبار ${warehouseName} هستید :  \n` + 
+    //                             materials.map(m => `${m.name}: ${m.value}`).join('\n');
+    //     if (confirm(confirmMessage)) {
+    //         event.target.submit(); // If confirmed, submit the form
+    //     }
+    //     } else {
+    //     alert("No items greater than zero were selected.");
+    //     }
+    // }
+
+
+
+
+
+
+
+    function handleSubmit(event) {
+        event.preventDefault(); // جلوگیری از ارسال فرم
+
+        const inputs = document.querySelectorAll('.digit-input');
+        let materials = [];
+        inputs.forEach(input => {
+            const value = parseFloat(input.value);
+            if (value > 0) {
+                const materialName = input.name;
+                materials.push({ name: materialName, value: value });
+            }
+        });
+
+        if (materials.length === 0) {
+            alert("No items greater than zero were selected.");
+            return false; // جلوگیری از ارسال فرم
+        }
+
+
+
+        const receiptNumber = document.getElementById('receipt_number').value.trim();
+
+        if (receiptNumber === "") {
+            alert("لطفاً شماره فیش را وارد کنید.");
+            return false;
+        }
+
+        // چک عدد صحیح بودن
+        if (!/^\d+$/.test(receiptNumber)) {
+            alert("شماره فیش باید یک عدد صحیح باشد.");
+            return false;
+        }
+
+
+
+
+
+
+
+
+        const warehouseSelect = document.getElementById('warehouse');
+        const warehouseName = warehouseSelect.options[warehouseSelect.selectedIndex].text;
+
+        const confirmMessage = `شما در حال اضافه کردن موارد زیر به انبار ${warehouseName} هستید :  \n` + 
+                            materials.map(m => `${m.name}: ${m.value}`).join('\n');
+
+        if (confirm(confirmMessage)) {
+            // اگر فرم واقعی ارسال می‌شود (بدون AJAX)
+            event.target.submit();
+
+            // یا اگر از AJAX استفاده می‌کنی، اینجا ارسال AJAX را بگذار و در صورت موفقیت ریدایرکت کن
+
+            // مثال فرضی:
+            /*
+            $.post('/your-url/', $('#your-form').serialize(), function(response){
+                if(response.success){
+                    alert('مقادیر با موفقیت ثبت شد');
+                    window.location.href = "{% url 'success_page' %}";
+                }
+            });
+            */
+        } else {
+            return false; // کاربر لغو کرد، ارسال نکن
+        }
+    }
+
+
+
+
+
+
+
+    // Change value function for increment/decrement buttons
+    function changeValue(inputId, increment) {
+        const input = document.getElementById(inputId);
+        let value = parseFloat(input.value) || 0;
+        value += increment;
+        if (value < 0) {
+        value = 0; // Prevent negative values
+        }
+        input.value = value.toFixed(1);
+    }
+
+
+
+    // document.addEventListener('DOMContentLoaded', function() {
+    // const form = document.querySelector('form');
+
+
+    // form.addEventListener('submit', function(event) {
+    //     event.preventDefault();
+
+    //     // Show success popup (can use Bootstrap modal or simple alert)
+    //     // alert('مقادیر مورد نظر با موفقیت اضافه گردید')
+
+    //     // Wait for a few seconds (e.g., 2 seconds) then redirect
+    //     setTimeout(function() {
+    //         window.location.href = "{% url 'success_page' %}";
+    //     }, 2000);  // 2-second delay
+    //     });
+    // });
+
+
+
+
+    let videoStream = null;
+    function openCamera() {
+    const video = document.getElementById('video');
+    const captureBtn = document.getElementById('capture-btn');
+    const constraints = {
+        video: {
+            facingMode: "environment", // استفاده از دوربین پشت
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+        }
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(stream => {
+            video.srcObject = stream;
+            video.style.display = "block";
+            captureBtn.style.display = "block";
+        })
+        .catch(err => {
+            alert("عدم دسترسی به دوربین: " + err);
+        });
+}
+
+    function captureImage() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const capturedImage = document.getElementById('capturedImage');
+        // const submitBtn = document.getElementById('submit-btn');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = canvas.toDataURL('image/png');
+        capturedImage.src = imageData;
+        capturedImage.style.display = "block";
+        video.style.display = "none";
+
+        document.getElementById('captured_image').value = imageData;
+        // submitBtn.style.display = "block";
+
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            videoStream = null;
+        }
+    }
+
+
+
+
+
+    document.getElementById('cameraInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const img = document.getElementById('preview');
+                img.src = URL.createObjectURL(file);
+                img.style.display = "block";
+            }
+        });
+
+
+
+
+
+</script>
+
+
+<div class="container">
+    <div class="card page-title-card shadow-lg rounded-lg p-4 mb-4">
+        <h1 class="page-title">افزودن به انبار</h1>
+    </div>
+
+    <!-- Search Bar with Close All Tabs Button -->
+    <div class="mb-4 d-flex align-items-center">
+        <input type="text" id="search-bar" oninput="handleSearchInput()" class="form-control" placeholder="جستجو بر اساس نام یا توضیحات...">
+        <button type="button" onclick="closeAllTabs()" class="btn btn-light ms-2" style="margin-right: 5px;">
+            <i class="fa-solid fa-refresh"></i> <!-- Refresh -->
+        </button>
+    </div>
+
+    <form method="post" onsubmit="return handleSubmit(event) && validateForm(event)">>
+        {% csrf_token %}
+
+        <div class="mb-4 d-flex align-items-center" style="width: 100%;">
+            <label for="receipt_number" class="form-label" style="flex: 0 0 150px; font-weight: bold; direction: rtl;">
+                شماره فاکتور
+            </label>
+            <input type="text" id="receipt_number" name="receipt_number" class="form-control shadow-sm" style="flex: 1; direction: rtl; text-align: right;" required>
+        </div>
+
+        <!-- Materials -->
+        <div>
+           {% for mother_material in mother_materials %}
+    <div class="card p-2 mb-3">
+        <a href="javascript:void(0);" onclick="toggleSubmaterials('submaterials-{{ mother_material.id }}')" style="text-decoration: none; color: inherit;">
+            <div class="d-flex align-items-center">
+                {% if mother_material.image %}
+                <div>
+                    <img src="{{ mother_material.image.url }}" alt="{{ mother_material.name }}" style="max-width: 100px; max-height: 100px;  margin-left: 10px;margin-right: 10px;">
+                </div>
+                {% endif %}
+                <div>
+                        <strong>{{ mother_material.describe }}</strong> : {{ mother_material.name }}
+                    </div>
+            </div>
+        </a>
+
+        <div id="submaterials-{{ mother_material.id }}" class="submaterials mt-2" style="display: none;">
+            {% for field in mother_material.mother_material.all %}
+                <div class="col mt-2">
+                    <div class="card shadow-sm border rounded-lg">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                {% if field.image %}
+                                    <!-- <img src="{{ field.image.url }}" alt="{{ field.name }}"
+                                         class="img-thumbnail mr-3" style="width: 60px; height: 60px; object-fit: cover;"> -->
+
+
+                                <div>
+                                    <img src="{{ field.image.url }}" alt="{{ field.name }}" style="max-width: 100px; max-height: 100px;  margin-left: 10px;margin-right: 10px;">
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-1">  {{ mother_material.describe }} |  {{ field.describe }}: {{ field.name }}</h6>
+                                </div>
+                            </div>
+
+                            <div class="input-wrapper mt-2">
+                                <button type="button" class="btn btn-decrement" onclick="changeValue('{{ field.id }}_input', -1)">-</button>
+                                <input class="form-control digit-input d-inline-block" type="text" step="1"
+                                       id="{{ field.id }}_input" name="{{ field.name }}" value="0"
+                                       style="width: 100px; display: inline-block;">
+                                <button type="button" class="btn btn-increment" onclick="changeValue('{{ field.id }}_input', 1)">+</button>
+                                <span class="input-group-text d-inline-block ml-2">{{ field.unit }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+
+        </div>
+
+        <!-- Warehouse Dropdown -->
+        <div class="mb-4 d-flex align-items-center" style="width: 100%;">
+            <label for="warehouse" class="form-label" style="flex: 0 0 150px; font-weight: bold; direction: rtl;">
+                انتخاب انبار
+            </label>
+            <select id="warehouse" name="warehouse" class="form-select shadow-sm" style="flex: 1; direction: rtl; text-align: right;" onchange="enableSubmitButton()">
+                <option value="" disabled selected>انتخاب انبار...</option>
+                {% for warehouse in warehouses %}
+                    <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+
+
+
+
+        <div class="camera-container">
+           
+        
+            <!-- <form id="captureForm" action="upload.php" method="POST"> -->
+                <video id="video" autoplay style="display: none;"></video>
+                <canvas id="canvas" style="display: none;"></canvas>
+                <img id="capturedImage" src="" class="preview" style="display: none;">
+        
+                <input type="hidden" name="captured_image" id="captured_image">
+        
+                <button type="button" class="btn btn-primary btn-custom mb-2" onclick="openCamera()">🎥 تصویر برداری</button>
+                <button type="button" class="btn btn-success btn-custom mb-2" id="capture-btn" onclick="captureImage()" style="display: none;">📸 ثبت تصویر</button>
+           
+            <!-- </form> -->
+        </div>
+
+
+
+<!-- 
+        <input type="file" accept="image/*" capture="environment" id="cameraInput">
+        <img id="preview" style="display:none; width: 100%; max-width: 400px; margin-top: 20px;">
+     -->
+
+
+
+
+        <!-- Submit Button -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-block" id="submit-btn" disabled>ثبت</button>
+        </div>
+
+
+
+
+
+
+
+    </form>
+</div>
+
+
+<script>
+  function changeValue(inputId, increment) {
+    const input = document.getElementById(inputId);
+    let value = parseFloat(input.value) || 0;
+    value += increment;
+    if (value < 0) {
+      value = 0; // Prevent negative values
+    }
+    input.value = value.toFixed(1);
+  }
+
+</script>
+
+
+
+
+
+{% endblock %}

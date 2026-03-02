@@ -1,0 +1,16 @@
+{% extends "users/base.html" %}
+
+{% block title %}
+    Error
+{% endblock title %}
+
+{% block content %}
+<div class="container text-center" style="margin-top: 50px;">
+    <div class="card shadow-lg p-4 mb-4">
+        <h1 class="text-danger">خطا در ذخیره اطلاعات </h1>
+        <p>مشکلی در پردازش درخواست شما رخ داده است. لطفاً دوباره تلاش کنید.</p>
+        <p>{{text}}</p>
+        <a href="{% url 'users-home' %}" class="btn btn-primary">بازگشت به صفحه اصلی</a>
+    </div>
+</div>
+{% endblock content %}

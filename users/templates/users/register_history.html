@@ -1,0 +1,73 @@
+
+{% extends "users/base.html" %}
+{% block title %}صفحه اصلی{% endblock title %}
+{% block content %}
+{% load static %}
+
+<html lang="fa">
+
+<head>
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/store.css' %}">
+
+
+    
+    <script src="{% static 'js/jquery-3.2.1.slim.min.js' %}"></script>
+    <script src="{% static 'js/persian.date.js' %}"></script>
+    <script src="{% static 'js/persian.datepicker.js' %}"></script>
+    
+
+</head>
+
+
+
+
+
+<table style="margin-top: 30px;">
+    <thead>
+        <tr>
+            <th class="text-center">ردیف</th>
+            <th class="text-center">تاریخ</th>
+            <th class="text-center">ساعت ورود</th>
+            <th class="text-center">ساعت خروج</th>
+            <th class="text-center">ساعت کارکرد</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for username, work_times in user_time_data.items %}
+            
+            {% for cnt, data in work_times.items %}
+                <tr>
+                    <td class="text-center">{{ cnt }}</td>
+                    <td class="text-center">{{ data.date }}</td>
+                    <td class="text-center">{{ data.jalali_time_in }}</td>
+                    <td class="text-center">{{ data.jalali_time_out }}</td>
+                    <td class="text-center">{{ data.total_work_time  }}</td>
+
+                </tr>
+            {% endfor %}
+
+        {% endfor %}
+
+
+
+
+
+    </tbody>
+            <td class="text-center">{{ total_work_time  }}</td>
+            <h5 class="mb-0">{{ total_work  }}</h5>
+
+</table>
+
+
+
+
+
+
+
+
+{% endblock %}

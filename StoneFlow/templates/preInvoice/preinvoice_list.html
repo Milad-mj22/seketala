@@ -1,0 +1,111 @@
+{% extends "users/base.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+  .job-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+  }
+
+  .job-table th, .job-table td {
+    vertical-align: middle;
+  }
+
+  .btn-sm {
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: #f3f9ff;
+  }
+</style>
+
+<div class="container mt-5" dir="rtl">
+  <div class="job-card">
+    <h3 class="text-center text-primary mb-4 fw-bold">📦 لیست پیش‌فاکتورهای صادر شده</h3>
+
+
+
+<!-- فیلترها -->
+<div class="card mb-4 shadow-sm border-0" style="border-radius: 16px;">
+  <div class="card-body">
+    <form method="get" class="row gy-2 gx-3 align-items-center">
+      <div class="col-md-5">
+        <label for="customer" class="form-label fw-bold text-primary">👤 انتخاب مشتری</label>
+        <select name="customer" id="customer" class="form-select select2">
+          <option value="">-- همه مشتری‌ها --</option>
+          {% for customer in customers %}
+            <option value="{{ customer.id }}" {% if customer.id|stringformat:"s" == selected_customer %}selected{% endif %}>
+              {{ customer }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label for="date" class="form-label fw-bold text-primary">📅 تاریخ صدور</label>
+        <input type="date" name="date" id="date" class="form-control" value="{{ selected_date }}">
+      </div>
+
+      <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-outline-primary w-100 fw-bold">
+          🔎 اعمال فیلتر
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover job-table text-center align-middle">
+        <thead class="table-primary">
+          <tr>
+            <th>کد</th>
+            <th>مشتری</th>
+            <th>تاریخ</th>
+            <th>توضیحات</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for invoice in preinvoices %}
+          <tr>
+            <td class="fw-bold text-dark">#{{ invoice.id }}</td>
+            <td>{{ invoice.customer }}</td>
+            <td>{{ invoice.created_at|date:"Y/m/d H:i" }}</td>
+            <td>{{ invoice.note|truncatewords:10 }}</td>
+            <td>
+              <a href="{% url 'preinvoice_detaaaail' invoice.id %}" class="btn btn-info btn-sm text-white">🔍 جزئیات</a>
+
+              <form method="post" action="{% url 'sell_preinvoice' invoice.id %}" class="d-inline" onsubmit="return confirm('آیا از تبدیل این پیش‌فاکتور به فروش نهایی مطمئن هستید؟');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success btn-sm">💰 فروش</button>
+              </form>
+
+              <form method="post" action="{% url 'delete_preinvoice' invoice.id %}" class="d-inline" onsubmit="return confirm('آیا از حذف این پیش‌فاکتور مطمئن هستید؟');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">🗑 حذف</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-muted">هیچ پیش‌فاکتوری ثبت نشده است.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

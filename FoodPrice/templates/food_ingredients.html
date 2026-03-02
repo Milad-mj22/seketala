@@ -1,0 +1,274 @@
+{% extends "users/base.html" %}
+{% block title %}مواد اولیه {{ food.name }}{% endblock %}
+
+{% block content %}
+<style>
+body {
+    font-family: 'B Nazanin';
+    direction: rtl;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header */
+.page-title {
+    text-align: center;
+    font-size: 2rem;
+    margin: 20px 0;
+    color: #333;
+    font-weight: bold;
+}
+
+.total-cost {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+/* Grid */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    padding: 10px;
+}
+
+.grid-item {
+    background: linear-gradient(145deg, #ffffff, #e6e6e6);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 8px 8px 20px rgba(0,0,0,0.1), -8px -8px 20px rgba(255,255,255,0.9);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.grid-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 12px 12px 25px rgba(198,238,21,0.3), -12px -12px 25px rgba(255,255,255,0.8);
+}
+
+.card-title {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #222;
+    font-weight: 700;
+}
+
+/* Buttons */
+.btn-primary, .btn-delete {
+    display: inline-block;
+    margin: 5px 5px;
+    padding: 8px 20px;
+    font-size: 0.95rem;
+    border-radius: 25px;
+    border: none;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #4caf50;
+}
+.btn-primary:hover { transform: translateY(-2px); }
+
+.btn-delete {
+    background-color: #ff5252;
+}
+.btn-delete:hover { transform: translateY(-2px); }
+
+/* Floating add button */
+.add-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    width: 55px;
+    height: 55px;
+    font-size: 2rem;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.add-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px rgba(76,175,80,0.7);
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.modal-box {
+    background: rgba(255,255,255,0.95);
+    width: 90%;
+    max-width: 360px;
+    padding: 25px;
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(0,0,0,0.25);
+}
+
+.modal-title { font-size: 1.4rem; font-weight: bold; margin-bottom: 15px; color: #333; }
+.modal-buttons { margin-top: 20px; display: flex; justify-content: space-between; gap: 10px; }
+.btn-cancel, .btn-confirm {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+.btn-cancel { background-color: #777; }
+.btn-confirm { background-color: #ff5252; }
+.btn-cancel:hover, .btn-confirm:hover { transform: translateY(-2px); }
+
+/* Table bottom */
+.summary-table {
+    width: 95%;
+    max-width: 600px;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+}
+
+.summary-table th, .summary-table td {
+    padding: 12px 15px;
+    text-align: center;
+}
+
+.summary-table th {
+    background-color: #4caf50;
+    color: white;
+    font-weight: bold;
+}
+
+.summary-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.summary-table tr:hover {
+    background-color: #e0f2e9;
+}
+</style>
+
+<h2 class="page-title">{{ food.name }}</h2>
+<div class="total-cost">
+    جمع کل هزینه‌ها:
+    <span class="price" data-value="{{ total_cost }}"></span> تومان
+</div>
+
+<div class="grid-container">
+    {% for ingredient in food.ingredients.all %}
+    <div class="grid-item">
+        <h3 class="card-title">{{ ingredient.raw_material_price.raw_material.name }}</h3>
+        <p>مقدار: {{ ingredient.quantity }} {{ ingredient.raw_material_price.raw_material.unit }}</p>
+        <p>ضایعات: {{ ingredient.wastage_percent }}%</p>
+        <p>
+            قیمت واحد:
+            <span class="price"
+                  data-value="{{ ingredient.raw_material_price.newest_price }}"></span>
+            تومان
+        </p>
+        <p>
+            هزینه کل:
+            <span class="price"
+                  data-value="{{ ingredient.total_cost }}"></span>
+            تومان
+        </p>
+
+        <a href="{% url 'update_ingredient' ingredient.id %}" class="btn-primary">ویرایش</a>
+        <button class="btn-delete" onclick="openDeleteModal({{ ingredient.id }}, '{{ ingredient.raw_material_price.raw_material.name }}')">حذف</button>
+    </div>
+    {% empty %}
+    <p>این غذا هنوز هیچ ماده اولیه‌ای ندارد.</p>
+    {% endfor %}
+</div>
+
+<!-- جمع شونده پایین صفحه -->
+<table class="summary-table">
+    <thead>
+        <tr>
+            <th>جمع مقدار</th>
+            <th>جمع ضایعات</th>
+            <th>جمع هزینه کل</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ total_quantity }}</td>
+            <td>{{ total_wastage }}%</td>
+            <td>
+                <span class="price" data-value="{{ total_cost }}"></span> تومان
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<button class="add-button" onclick="window.location.href='{% url 'add_ingredient' food.id %}'">+</button>
+
+<!-- Delete Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="modal-title">حذف ماده اولیه</div>
+        <p id="deleteText">آیا از حذف مطمئن هستید؟</p>
+        <form method="POST" id="deleteForm">
+            {% csrf_token %}
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="closeDeleteModal()">لغو</button>
+                <button type="submit" class="btn-confirm">حذف</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openDeleteModal(ingredientId, ingredientName) {
+    document.getElementById("deleteText").innerText =
+        "آیا از حذف «" + ingredientName + "» مطمئن هستید؟";
+    document.getElementById("deleteForm").action =
+        "/FoodManagment/ingredients/" + ingredientId + "/delete/";
+    document.getElementById("deleteModal").style.display = "flex";
+}
+function closeDeleteModal() {
+    document.getElementById("deleteModal").style.display = "none";
+}
+
+// ---- Price formatting for all prices on page ----
+function formatPriceWithGroups(value) {
+    if (value === null || value === undefined || value === "") return "";
+    const num = Number(value);
+    if (isNaN(num)) return "";
+    return num.toLocaleString("fa-IR");
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const priceElements = document.querySelectorAll(".price");
+    priceElements.forEach(function (el) {
+        const raw = el.getAttribute("data-value");
+        const formatted = formatPriceWithGroups(raw);
+        if (formatted) {
+            el.textContent = formatted;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "show_flow.html" %}
+
+{% block title %} Home Page {% endblock title %}
+{% block content2 %}
+
+{% load static %}
+
+<style>
+    /* Ensure table takes full width */
+    .full-width-table {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Remove padding/margin if necessary */
+    .container-fluid, .table-responsive {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .table {
+    width: 100vw !important;
+}
+/* Force input fields to fit inside the table cell */
+.table input[type="number"] {
+    width: 100% !important;
+    padding: 2px !important;
+    margin: 0 !important;
+    text-align: center; /* Align text to look better */
+    box-sizing: border-box; /* Prevents overflow */
+}
+
+/* Prevent table from stretching */
+.table td {
+    padding: 5px !important; 
+    white-space: nowrap; /* Prevents unnecessary line breaks */
+}
+
+
+
+
+/* Ensure the table takes full width */
+.table {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 40px;
+}
+
+/* Fix columns to avoid unnecessary white space */
+.table th, .table td {
+    white-space: nowrap;
+}
+
+/* Make sure inputs adjust to the column */
+.table input[type="number"] {
+    width: 100% !important;
+    min-width: 50px;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* Make it better for small screens */
+@media (max-width: 768px) {
+    .table {
+        font-size: 12px; /* Smaller font for small screens */
+    }
+    .table th, .table td {
+        padding: 5px; /* Reduce padding to save space */
+    }
+}
+
+
+
+</style>
+
+
+<body>
+
+<div class="container-fluid p-0 m-0">  <!-- Removed padding/margin -->
+    <div class="card page-title-card shadow-lg rounded-lg p-4 mb-4">
+            <h1 class="page-title"> ویرایش مرحله {{step_number}}</h1>
+        </div>
+    
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="step_number" value="{{ step_number }}">
+
+        <!-- New Food Name Field on one line with right-aligned label -->
+
+            <div class="user-info">
+                <div class="avatar">
+                    {{ request.user.username|first|upper }} 
+                </div>
+                <div class="user-details">
+                    <p><strong>کاربر:</strong> {{ request.user.username }}</p>
+                    <p><strong>سمت:</strong> {{ user_role }}</p>
+                </div>
+            </div>
+            
+
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>نام ماده اولیه</th>
+                            <th>واحد</th>
+                            <th>مقدار اولیه</th>
+                            <th>مقدار جدید</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for usage in material_usages.items %}
+                    <tr>
+                        <td>{{ usage.0 }}</td>
+                        <td>{{ usage.1.unit }}</td>
+                        <td>{{ usage.1.step_quantity |floatformat:"-4"  }}</td>
+                        <td>
+                            <input type="number" name="materials_sent[]"
+                                value="{{ usage.1.step_quantity|floatformat:"-4"  }}" 
+                                class="text-center"
+                                step="any">
+                        
+                            <input type="hidden" name="materials_new[]" value="{{ usage.1.quantity_new }}">
+                        </td>
+
+                        <input type="hidden" name="materials_names[]" value="{{ usage.0 }}">
+                        <input type="hidden" name="materials_units[]" value="{{ usage.1.unit }}">
+                        <input type="hidden" name="materials_quantities[]" value="{{ usage.1.quantity_used }}">
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+        
+
+        {% if can_submit %}
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary btn-sm">ثبت ویرایش</button>
+            </div>
+
+        {% endif %}
+    </form>
+</div>
+
+</body>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "users/base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  .form-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    direction: rtl;
+    text-align: right;
+  }
+
+  .form-label {
+    font-weight: bold;
+  }
+
+  .form-control {
+    text-align: right;
+  }
+
+  .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+
+</style>
+
+<div class="container mt-5" dir="rtl">
+    <div class="form-wrapper">
+        <div class="card shadow p-4 rounded-4" style="max-width: 600px; margin: auto;">
+            <h4 class="text-center text-primary mb-4">{{ title }}</h4>
+
+            <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="mb-3 text-end">
+                <label class="form-label fw-bold">{{ field.label }}</label>
+                {{ field|add_class:"form-control text-end" }}
+                {% for error in field.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success px-4">💾 ذخیره</button>
+                <a href="{% url 'job_list' %}" class="btn btn-secondary px-4">بازگشت</a>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

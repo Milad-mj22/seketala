@@ -1,0 +1,260 @@
+<!-- templates/factor_list.html -->
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لیست فاکتورها</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @font-face {
+            font-family: 'Vazir';
+            src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        body {
+            font-family: 'Vazir', sans-serif;
+        }
+        
+        /* Loader animation */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-7xl" x-data="factorManager()" x-init="init()">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">لیست فاکتورها</h1>
+                    <p class="text-gray-600 mt-2">مدیریت و مشاهده تمام فاکتورهای شما</p>
+                </div>
+                <div class="bg-blue-50 px-4 py-2 rounded-lg">
+                    <span class="text-blue-600 font-semibold">کد کاربری: {{ user_code }}</span>
+                </div>
+            </div>
+            
+            <!-- Filter Tabs -->
+            <div class="flex space-x-4 space-x-reverse mt-6 border-b border-gray-200">
+                <button 
+                    @click="loadTodayFactors()" 
+                    :class="{'border-b-2 border-blue-500 text-blue-600': activeTab === 'today', 'text-gray-500': activeTab !== 'today'}"
+                    class="px-4 py-2 font-medium transition-colors duration-200"
+                >
+                    <i class="fas fa-calendar-day ml-2"></i>
+                    فاکتورهای امروز
+                </button>
+                <button 
+                    @click="loadAllFactors()" 
+                    :class="{'border-b-2 border-blue-500 text-blue-600': activeTab === 'all', 'text-gray-500': activeTab !== 'all'}"
+                    class="px-4 py-2 font-medium transition-colors duration-200"
+                >
+                    <i class="fas fa-list ml-2"></i>
+                    همه فاکتورها
+                </button>
+            </div>
+        </div>
+
+        <!-- Factors Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="factors-grid">
+            <template x-for="invoice in invoices" :key="invoice.id">
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border border-gray-100">
+                    <!-- Card Header -->
+                    <div class="bg-gradient-to-l from-blue-500 to-blue-600 px-6 py-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-white font-semibold text-lg" x-text="'#' + invoice.invoice_number"></span>
+                            <span class="bg-white/20 text-white px-3 py-1 rounded-full text-sm" x-text="formatDate(invoice.created_at)"></span>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-6">
+                        <!-- Customer Info -->
+                        <div class="mb-4">
+                            <div class="flex items-center text-gray-700 mb-2">
+                                <i class="fas fa-user w-5 h-5 text-gray-400 ml-2"></i>
+                                <span class="font-medium" x-text="invoice.name"></span>
+                            </div>
+                            <div class="flex items-center text-gray-600 text-sm">
+                                <i class="fas fa-phone w-5 h-5 text-gray-400 ml-2"></i>
+                                <span x-text="invoice.phone"></span>
+                            </div>
+                        </div>
+
+                        <!-- Payment Summary -->
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-600">مبلغ کل:</span>
+                                <span class="font-bold text-gray-800" x-text="formatNumber(invoice.total_price) + ' ریال'"></span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-600">پرداخت شده:</span>
+                                <span class="font-semibold text-green-600" x-text="formatNumber(invoice.paid_amount) + ' ریال'"></span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">باقی مانده:</span>
+                                <span class="font-semibold text-orange-600" x-text="formatNumber(invoice.remaining) + ' ریال'"></span>
+                            </div>
+                        </div>
+
+                        <!-- Payment Methods -->
+                        <template x-if="Object.keys(invoice.payment_methods).length > 0">
+                            <div class="space-y-2 mb-4">
+                                <p class="text-sm font-medium text-gray-700">پرداخت‌ها:</p>
+                                <template x-for="(amount, method) in invoice.payment_methods" :key="method">
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="px-2 py-1 bg-gray-100 rounded-full text-gray-600" x-text="getPaymentMethodName(method)"></span>
+                                        <span class="font-medium" x-text="formatNumber(amount) + ' ریال'"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <!-- Action Button -->
+                        <a :href="'/data_analysis/factors/' + invoice.id + '/'" 
+                           class="block w-full text-center bg-blue-50 hover:bg-blue-100 text-blue-600 font-medium py-3 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-edit ml-2"></i> مدیریت پرداخت
+                        </a>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div x-show="loading" class="flex justify-center py-8">
+            <div class="loader"></div>
+        </div>
+
+        <!-- End of List Message -->
+        <div x-show="!hasMore && invoices.length > 0" class="text-center py-8 text-gray-500">
+            <i class="fas fa-check-circle text-green-500 text-2xl mb-2"></i>
+            <p>تمام فاکتورها بارگذاری شدند</p>
+        </div>
+
+        <!-- Empty State -->
+        <div x-show="!loading && invoices.length === 0" class="text-center py-12">
+            <i class="fas fa-receipt text-gray-300 text-5xl mb-4"></i>
+            <p class="text-gray-500 text-lg">هیچ فاکتوری یافت نشد</p>
+            <p class="text-gray-400 text-sm mt-2">کد کاربری: {{ user_code }}</p>
+        </div>
+    </div>
+
+    <!-- Alpine.js for interactivity -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <script>
+    function factorManager() {
+        return {
+            invoices: [],
+            page: 1,
+            loading: false,
+            hasMore: true,
+            activeTab: 'today',
+            filter: 'today',
+            
+            init() {
+                this.loadFactors();
+                this.setupInfiniteScroll();
+            },
+            
+            loadTodayFactors() {
+                this.activeTab = 'today';
+                this.filter = 'today';
+                this.resetAndLoad();
+            },
+            
+            loadAllFactors() {
+                this.activeTab = 'all';
+                this.filter = 'all';
+                this.resetAndLoad();
+            },
+            
+            resetAndLoad() {
+                this.invoices = [];
+                this.page = 1;
+                this.hasMore = true;
+                this.loadFactors();
+            },
+            
+            async loadFactors() {
+                if (this.loading || !this.hasMore) return;
+                
+                this.loading = true;
+                
+                try {
+                    const response = await fetch(`/data_analysis/api/factors/?page=${this.page}&filter=${this.filter}`);
+                    const data = await response.json();
+                    
+                    if (data.invoices.length > 0) {
+                        this.invoices = [...this.invoices, ...data.invoices];
+                        this.page++;
+                        this.hasMore = data.has_more;
+                    } else {
+                        this.hasMore = false;
+                    }
+                } catch (error) {
+                    console.error('Error loading factors:', error);
+                } finally {
+                    this.loading = false;
+                }
+            },
+            
+            setupInfiniteScroll() {
+                window.addEventListener('scroll', () => {
+                    const scrollHeight = document.documentElement.scrollHeight;
+                    const scrollTop = document.documentElement.scrollTop;
+                    const clientHeight = document.documentElement.clientHeight;
+                    
+                    if (scrollTop + clientHeight >= scrollHeight - 100) {
+                        this.loadFactors();
+                    }
+                });
+            },
+            
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('fa-IR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            },
+            
+            formatNumber(number) {
+                return new Intl.NumberFormat('fa-IR').format(number);
+            },
+            
+            getPaymentMethodName(method) {
+                const methods = {
+                    'cash': 'نقدی',
+                    'card': 'کارت خوان',
+                    'online': 'آنلاین',
+                    'nesiye': 'نسیه',
+                    'anaam': 'انعام'
+                };
+                return methods[method] || method;
+            }
+        }
+    }
+    </script>
+</body>
+{% endblock %}

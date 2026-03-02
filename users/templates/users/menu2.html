@@ -1,0 +1,501 @@
+{% load static %}
+
+<html lang="fa" dir="rtl" style="overflow: hidden;">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منوی رستوران</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+/* تنظیمات کلی بدنه */
+
+
+@font-face {
+  font-family: 'B Zar';
+  src: url('/fonts/BZar.woff2') format('woff2'),
+       url('/fonts/BZar.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+
+body {
+    background-color: #111;
+    color: white;
+    /* font-family: 'IRANSans', sans-serif; */
+    /* font-family: 'BNazanin'; */
+    font-family: 'BZar';
+    /* overflow: auto; */
+    overflow: hidden;
+    height: 100%;
+    direction: rtl; /* راست‌چین کردن کل صفحه */
+}
+
+/* ویدیو پس‌زمینه */
+.back_vid {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 90%;
+}
+
+/* منو */
+.menu {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 10px ;
+    width: 95%;
+    z-index: 1;
+    overflow: auto;
+}
+
+/* لوگو */
+.logo-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.logoimg {
+    width: 150px;
+    display: block;
+    margin: 0 auto;
+}
+
+/* استایل کارت‌های محصول */
+.pr {
+    background: rgba(0, 0, 0, 0.7); /* Black background with opacity */
+    padding: 10px;
+    border-radius:15px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* جزئیات محصول */
+.pr-title {
+    font-size:35px;
+    /* font-weight: bold; */
+    color: #e5f04c;
+}
+
+.pr-price {
+    font-size: 38px;
+    color: #f4faba;
+    font-weight: bold;
+}
+
+.pr-desc {
+    font-size: 15px;
+    color: #998e8e;
+    margin-top: 2px;
+}
+
+/* تصویر محصول */
+.food-icon {
+    width: 4vw;
+    height: 4vw;
+    max-width: 120px;
+    max-height: 120px;
+    margin-left: 10px; /* تغییر جهت حاشیه برای راست‌چین شدن */
+    margin-right: 20px;
+    object-fit: cover;
+}
+
+/* تنظیمات چینش برای دو ستون (راست و چپ) */
+.main-container {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 0 auto;
+    width: 95%;
+    gap: 40px; /* کاهش فاصله بین ستون‌ها */
+}
+/* ستون‌ها */
+/* Ensure all columns have the same width */
+.co1, .co2, .co3 {
+    flex: 1;  /* Equal width for all columns */
+}
+/* تنظیمات متن محصولات به سمت راست */
+.pr-up {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+    text-align: right; /* تنظیم جهت متن به راست */
+}
+/* Hover effect for items */
+.pr {
+    transition: transform 1s ease, box-shadow 1s ease; /* Smooth transition for both transform and box-shadow */
+}
+
+.pr.hovered {
+    transform: scale(1.07); /* Slightly enlarges the item */
+    box-shadow: 0 0 30px #e5f31c; /* Glow effect */
+    background-color: rgba(255, 255, 255, 0.15); /* Subtle background change */
+}
+
+
+
+
+.sold-out {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: red;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+    transform: rotate(-10deg);
+}
+
+
+
+.menu, .main-container {
+    overflow: visible !important;
+}
+
+
+.column-title {
+    font-size: 35px;
+    font-weight: 600;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ddd;
+    color: #e5f04c;
+}
+
+
+/* واکنش‌گرایی برای نمایشگرهای بزرگ */
+@media (min-width: 2000px) {
+    .main-container {
+        width: 100%;
+    }
+
+    .co1, .co2 {
+        width: 100%;
+    }
+
+    .pr-title {
+        font-size: 70px;
+    }
+
+    .pr-price {
+        font-size:70px;
+    }
+
+    .pr-desc {
+        font-size:30px;
+        font-weight: bold;
+
+    }
+
+    .column-title {
+        font-size: 60px;
+    }
+
+
+    .food-icon {
+        width: 3.7vw;
+        height: 3.7vw;
+        max-width: 400px;
+        max-height: 400px;
+    }
+
+    .logoimg {
+        width: 300px;
+    }
+}
+
+
+
+
+
+    </style>
+</head>
+
+<body>
+    {% load static %}
+    <video autoplay=true muted loop class="back_vid">
+        <source src="{% static 'pic/back_3.mp4' %}">
+    </video>
+
+
+    <!-- <video autoplay muted loop class="back_vid">
+        <source src="file:///C:/videos/back.mov" type="video/mp4">
+    </video> -->
+    
+
+    <div class="logo-container">
+        <img src="{% static 'pic/logo.png' %}" alt="لوگو" class="logoimg">
+    </div>
+
+    <form id="soldOutForm" method="POST">
+        {% csrf_token %}
+    
+    <!-- <div class="menu"> -->
+        <div class="main-container">
+            <!-- پیتزا تک نفره (سمت راست) -->
+            <div class="co1">
+                
+                <h3 class="column-title">ساندویچ</h3>
+              
+                {% for product in sandwichs %}
+                <div class="pr" style="position: relative;">
+                    {% if product.sold_out %}
+                        <span class="sold-out">ناموجود</span>
+                    {% endif %}
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} Icon" class="food-icon">
+                    {% else %}
+                        <img src="{% static 'pic/logo.png' %}" alt="Default Icon" class="food-icon">
+                    {% endif %}
+                    <div class="pr-up">
+                        <div class="pr-details">
+                            <span class="pr-title">{{ product.name_new }}</span>
+                            <span class="pr-price">
+                                {% if product.price != product.discounted_price %}
+                                    <span class="price" style="text-decoration: line-through; color: #8d7e7e;">{{ product.price }}</span>
+                                    <span class="text-success price" style="font-weight: bold;">{{ product.discounted_price }} </span>
+                                    t
+                                {% else %}
+                                    <span class="price">{{ product.price }}</span>
+                                    t
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="pr-desc">{{ product.details }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+    
+            <!-- پیتزا دو نفره (سمت چپ) -->
+            <div class="co2">
+
+                <h3 class="column-title">سالاد و پیش غذا</h3>
+            
+                {% for product in others %}
+                <div class="pr">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} Icon" class="food-icon">
+                    {% else %}
+                        <img src="{% static 'pic/logo.png' %}" alt="Default Icon" class="food-icon">
+                    {% endif %}
+                    <div class="pr-up">
+                        <div class="pr-details">
+                            <span class="pr-title">     {{ product.name }}         </span>
+                            <span class="pr-price">
+                                {% if product.price != product.discounted_price %}
+                                
+                                    <span class="price" style="text-decoration: line-through; color: #daf07b;"  id="price">{{ product.price }}</span>
+                                    <span class="text-success price" id="price" style="font-weight: bold; ">{{ product.discounted_price }}</span>
+                                    t
+                                {% else %}
+                                    <span id="price" class="price">    {{ product.price }}    </span>
+                                    t
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="pr-desc">{{ product.details }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+
+
+            <div class="co3">
+
+                <h3 class="column-title">همبرگر</h3>
+            
+                {% for product in humbergers %}
+                <div class="pr">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }} Icon" class="food-icon">
+                    {% else %}
+                        <img src="{% static 'pic/logo.png' %}" alt="Default Icon" class="food-icon">
+                    {% endif %}
+                    <div class="pr-up">
+                        <div class="pr-details">
+                            <span class="pr-title">     {{ product.name_new }}         </span>
+                            <span class="pr-price">
+                                {% if product.price != product.discounted_price %}
+                                
+                                    <span class="price" style="text-decoration: line-through; color: #daf07b;"  id="price">{{ product.price }}</span>
+                                    <span class="text-success price" id="price" style="font-weight: bold; ">{{ product.discounted_price }}</span>
+                                    t
+                                {% else %}
+                                    <span id="price" class="price">    {{ product.price }}    </span>
+                                    t
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="pr-desc">{{ product.details }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+
+        </div>
+    <!-- </div> -->
+    </form>
+</body>
+
+</html>
+
+<script>
+    // Function to format the price with commas
+    function formatPrice(price) {
+        return price.toLocaleString(); // Formats the number with commas
+    }
+
+    window.onload = function() {
+        // Get all elements with the class 'price'
+        const priceElements = document.querySelectorAll('.price');
+
+        priceElements.forEach(function(priceElement) {
+            const price = parseFloat(priceElement.textContent); // Get the price from the element
+
+            // Check if the price is a valid number before formatting
+            if (!isNaN(price)) {
+                priceElement.textContent = formatPrice(price); // Update the text with the formatted price
+            }
+        });
+    };
+
+
+
+
+
+ 
+    window.onload = function() {
+    // Select all product items with the class 'pr'
+    const productItems = document.querySelectorAll('.pr');
+    let currentIndex = 0; // To track the current item
+
+    function hoverNextItem() {
+        if (currentIndex < productItems.length) {
+            // Add the 'hovered' class to the current item
+            productItems[currentIndex].classList.add('hovered');
+
+            // After 1 second, remove the hover effect and move to the next item
+            setTimeout(function() {
+                productItems[currentIndex].classList.remove('hovered');
+                currentIndex++; // Move to the next item
+                hoverNextItem(); // Call the function again for the next item
+            }, 2000); // 1 second delay between each item
+        } else {
+            // Reset the index to 0 to start again
+            currentIndex = 0;
+            hoverNextItem(); // Start the loop again
+        }
+    }
+
+    // Start the hover effect after page load
+    hoverNextItem();
+};
+    
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const soldOutForm = document.querySelector("#soldOutForm");
+
+        if (soldOutForm) {
+            soldOutForm.addEventListener("submit", function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                let formData = new FormData(this);  // Get the form data
+
+                // Send an AJAX POST request
+                fetch("{% url 'set_sold_out' %}", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",  // Set the header to identify as an AJAX request
+                        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value // CSRF token
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Update the menu by adding a "Sold Out" label to the product
+                        const soldOutProductId = data.sold_out_item_id;
+
+                        // Find the product element and add "Sold Out" text (You may need to customize the selector)
+                        const productElement = document.querySelector(`#product-${soldOutProductId}`);
+                        if (productElement) {
+                            const soldOutLabel = document.createElement("span");
+                            soldOutLabel.textContent = "Sold Out";
+                            soldOutLabel.style.color = "red";
+                            soldOutLabel.style.fontWeight = "bold";
+                            productElement.appendChild(soldOutLabel);  // Add the Sold Out label to the product
+                        }
+                    } else {
+                        alert(data.message || "Error occurred");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Something went wrong.");
+                });
+            });
+        }
+    });
+</script>
+
+
+
+<script>
+var socket = new WebSocket("ws://" + window.location.host + "/ws/menu_updates/");
+
+socket.onmessage = function(event) {
+    var data = JSON.parse(event.data);
+    console.log("WebSocket message received:", data.menu_status);
+  
+    let soldOutProductName = data.menu_status.name; // Extract the product name
+
+    console.log("soldOutProductName:", soldOutProductName);
+
+
+    // Find all product elements
+    let productElements = document.querySelectorAll(".pr");
+
+    productElements.forEach(product => {
+        let productTitle = product.querySelector(".pr-title");
+
+        if (productTitle && productTitle.textContent.trim() === soldOutProductName) {
+            // Mark as Sold Out
+            product.style.opacity = "0.5"; // Dim the item
+            product.style.pointerEvents = "none"; // Disable interactions
+
+            let soldOutText = document.createElement("span");
+            soldOutText.textContent = " ناموجود " ;
+            soldOutText.style.color = "red";
+            soldOutText.style.fontWeight = "bold";
+            soldOutText.style.marginRight = "10px";
+
+            // Append "Sold Out" text if it doesn't already exist
+            if (!product.querySelector(".sold-out-text")) {
+                soldOutText.classList.add("sold-out-text");
+                productTitle.appendChild(soldOutText);
+            }
+        }
+    });
+};
+
+</script>

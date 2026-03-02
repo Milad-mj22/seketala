@@ -1,0 +1,111 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title %}
+{% block content %}
+
+<style>
+    .table-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 10px;
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 18px;
+        text-align: left;
+    }
+
+    th, td {
+        padding: 12px;
+        border: 1px solid #dddddd;
+        transition: background-color 0.3s ease;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .add-button-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .add-button {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 50%;
+        font-size: 24px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .add-button:hover {
+        background-color: #218838;
+        transform: scale(1.1);
+    }
+
+
+
+
+
+    /* Style the refresh button */
+    .refresh-button {
+        background-color: #4CAF50; /* Green */
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .refresh-button:hover {
+        background-color: #45a049; /* Darker green on hover */
+    }
+
+</style>
+
+<!-- <button class="refresh-button" onclick="window.location.href='update_prices'">بروزرسانی قیمت ها</button> -->
+<button class="refresh-button" onclick="window.location.href = window.location.href + '/update_prices';">بروزرسانی قیمت ها</button>
+
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price 1</th>
+                <th>Price 2</th>
+                <th>Price 3</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for name,price in prices.items %}
+            <tr>
+                <td>{{ name }}</td>
+                <td>{{ price }}</td>
+                <td>{{ price }}</td>
+                <td>{{ price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

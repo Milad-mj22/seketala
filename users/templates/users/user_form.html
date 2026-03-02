@@ -1,0 +1,54 @@
+{% extends "users/base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  .form-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    direction: rtl;
+    text-align: right;
+  }
+
+  .form-label {
+    font-weight: bold;
+  }
+
+  .form-control {
+    text-align: right;
+  }
+
+  .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+</style>
+
+<div class="container mt-5">
+  <div class="form-wrapper">
+    <div class="card shadow p-4 rounded-4">
+      <h4 class="text-center text-primary mb-4">{{ title }}</h4>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in profile_form %}
+          <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            {{ field|add_class:"form-control" }}
+            {% for error in field.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-success px-4">💾 ذخیره</button>
+          <a href="{% url 'user_list' %}" class="btn btn-secondary px-4">بازگشت</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

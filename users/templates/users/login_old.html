@@ -1,0 +1,117 @@
+{% extends "users/base.html" %}
+{% load widget_tweaks %}
+{% block title %}ورود به حساب کاربری{% endblock title %}
+
+{% block content %}
+<style>
+    body {
+        direction: rtl;
+        font-family: 'Vazir', sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    .login-card {
+        background-color: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-top: 60px;
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .btn-login {
+        background: #0d6efd;
+        color: white;
+        font-weight: 600;
+        border-radius: 12px;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+        background: #0b5ed7;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-footer a {
+        color: #495057;
+        text-decoration: none;
+    }
+
+    .card-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .alert {
+        border-radius: 12px;
+    }
+
+    @media (max-width: 576px) {
+        .login-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="login-card">
+                <h4 class="text-center mb-4">👤 ورود به حساب کاربری</h4>
+                {% if messages %}
+                    {% for message in messages %}
+                    
+                        <div class="alert alert-{{ message.tags }}" style="text-align: right; display: block;">
+                        {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+
+                {% if form.errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div id="form_errors">
+                        {% for key, value in form.errors.items %}
+                        <strong>{{ value }}</strong><br>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label" style="text-align: right; display: block;">نام کاربری</label>
+                        {{ form.username|add_class:"form-control" }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label" style="text-align: right; display: block;">رمز عبور</label>
+                        {{ form.password|add_class:"form-control" }}
+                    </div>
+                    <div class="form-check mb-3" style="text-align: right; display: block;">
+                        {{ form.remember_me }}
+                        <label class="form-check-label" >مرا به خاطر بسپار</label>
+                    </div>
+                    <button type="submit" class="btn btn-login w-100">ورود</button>
+                </form>
+
+                <div class="card-footer mt-4 text-center">
+                    <a href="{% url 'users-register' %}">ثبت‌نام حساب جدید</a><br>
+                    <a href="{% url 'password_reset' %}">فراموشی رمز عبور</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

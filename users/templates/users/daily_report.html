@@ -1,0 +1,217 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<head>
+  <title>گزارش روزانه</title>
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/persian.datepicker.css' %}">
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+
+<script src="{% static 'js/persian.date.js' %}"></script>
+<script src="{% static 'js/persian.datepicker.js' %}"></script>
+<script>
+  $(document).ready(function () {
+        // روی تمام inputهایی که id با "datepicker_" شروع می‌شه، تقویم اعمال کن
+        $("input[id^='datepicker_']").each(function () {
+            $(this).persianDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                initialValue: false
+            });
+        });
+
+        // هنگام ارسال فرم، همه تاریخ‌ها را به میلادی تبدیل کن
+        $('form').on('submit', function () {
+            $("input[id^='datepicker_']").each(function () {
+                let jalaliDate = $(this).val();
+                if (jalaliDate) {
+                    let pd = new persianDate(jalaliDate).toGregorian();
+                    let gregorian = `${pd.year}-${String(pd.month).padStart(2, '0')}-${String(pd.day).padStart(2, '0')}`;
+                    $(this).val(gregorian);
+                }
+            });
+        });
+    });
+</script>
+
+  <style>
+    body {
+      background: #f4f7fa;
+      font-family: "Vazirmatn", sans-serif;
+    }
+    .card {
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .form-select, .form-control {
+      border-radius: 12px;
+      font-size: 15px;
+    }
+    .activity-label {
+      font-weight: 500;
+      margin-right: 8px;
+    }
+    .activity-icon {
+      color: #6c757d;
+      margin-left: 5px;
+    }
+    .report-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      transition: background 0.2s;
+    }
+    .report-item:hover {
+      background: #f1f1f1;
+      border-radius: 8px;
+    }
+    .btn-icon {
+      margin-left: 5px;
+    }
+    .empty-report {
+      color: #999;
+      text-align: center;
+      padding: 20px;
+    }
+  </style>
+</head>
+
+<div class="container py-4">
+  <h3 class="mb-4 text-center fw-bold">ثبت گزارش روزانه</h3>
+
+  <!-- فرم ثبت گزارش -->
+  <div class="card mb-4 p-4">
+
+
+<form method="get" class="row mb-4">
+  <div class="col-md-5">
+    <input type="text" name="search" class="form-control" placeholder=" جستجو بر اساس نام مشتری" value="{{ request.GET.search }}">
+  </div>
+  <div class="col-md-5" style="text-align: right; display: block;">
+    <label class="form-label">جستجو بر اساس نام کشور : </label>
+    <select name="country" class="form-select">
+      <option value="">همه کشورها</option>
+      {% for country in countries %}
+        <option value="{{ country }}" {% if request.GET.country == country %}selected{% endif %}>{{ country }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-outline-primary w-100">جستجو</button>
+  </div>
+</form>
+<hr>
+    
+    <form method="post">
+      {% csrf_token %}
+
+
+
+
+      <div class="row mb-3" >
+        <div class="col-md-6 mb-3" style="text-align: right; display: block;">
+          <label for="buyer" class="form-label" >مشتری : </label>
+          <select id="buyer" name="buyer" class="form-select" required>
+            <option value="">انتخاب کنید</option>
+            {% for buyer in buyers %}
+              <option value="{{ buyer.id }}">{{ buyer.short_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>  
+      <div class="row mb-3" >
+
+        <div class="col-md-6 mb-3" style="text-align: right; display: block;">
+          <label for="activity_type" class="form-label">نوع فعالیت</label>
+          <select id="activity_type" name="activity_type" class="form-select" required>
+            <option value="">انتخاب کنید</option>
+            {% for activity in activities %}
+              <option value="{{ activity.value }}">
+                {{ activity.label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-3" >
+        <div class="col-md-6 mb-3" style="text-align: right; display: block;">
+          <label  class="form-label">عنوان فعالیت</label>
+          <input id="activity-title" type="text" name="activity_title" class="form-control" placeholder="مثلاً تماس با مشتری" required>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label" style="text-align: right; display: block;">پیگیری بعدی</label>
+                
+          
+          <input type="text"
+                        id="datepicker_{{ attr.id }}"
+                        name="next_followup"
+                        class="form-control"
+                        placeholder="تاریخ را انتخاب کنید"
+                        value="{{ value|to_jalali }}"
+                        {% if attr.required %}required{% endif %}>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" style="text-align: right; display: block;">توضیحات</label>
+        <textarea name="description" rows="4" class="form-control" placeholder="توضیحات فعالیت"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 fw-bold">
+        <i class="fa fa-save me-2"></i> ثبت گزارش 
+      </button>
+    </form>
+  </div>
+
+  <!-- لیست گزارش‌ها -->
+  <div class="card p-4">
+    <h5 class="mb-3 fw-bold">گزارش‌های اخیر</h5>
+
+    {% for report in reports %}
+      <div class="report-item d-flex justify-content-between align-items-center">
+        <div>
+          {% for activity in activities %}
+            {% if activity.value == report.activity_type %}
+              <i class="{{ activity.icon }} activity-icon"></i>
+              <span class="activity-label ">{{ activity.label }}</span>
+            {% endif %}
+          {% endfor %}
+          <strong class="ms-2">{{ report.title }}</strong> - {{ report.buyer.first_name }} {{ report.buyer.last_name }}
+          <div class="text-muted small">{{ report.timestamp|date:"Y/m/d H:i" }}</div>
+        </div>
+        <div>
+          <a href="{% url 'edit_buyer_activity' report.id %}" class="btn btn-sm btn-outline-warning btn-icon" title="ویرایش">
+            <i class="fa fa-edit"></i>
+          </a>
+          <a href="{% url 'delete_buyer_activity' report.id %}" class="btn btn-sm btn-outline-danger btn-icon" title="حذف" onclick="return confirm('آیا مطمئن هستید؟');">
+            <i class="fa fa-trash"></i>
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-report">گزارشی وجود ندارد.</div>
+    {% endfor %}
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const select = document.getElementById("activity_type");
+    const titleInput = document.getElementById("activity-title");
+
+    select.addEventListener("change", function () {
+      const selectedOption = select.options[select.selectedIndex];
+      if (selectedOption.value) {
+        titleInput.value = selectedOption.text;
+      } else {
+        titleInput.value = "";
+      }
+    });
+  });
+</script>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+{% endblock %}

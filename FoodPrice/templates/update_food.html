@@ -1,0 +1,121 @@
+{% extends "users/base.html" %}
+{% block title %}ویرایش غذا{% endblock %}
+{% block content %}
+
+<style>
+    body {
+        font-family: 'B Nazanin', sans-serif;
+        direction: rtl;
+        background-color: #f3f3f3;
+        text-align: right;
+    }
+
+    .edit-container {
+        width: 55%;
+        margin: auto;
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    .page-title {
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 6px;
+        color: #444;
+    }
+
+    /* Make all inputs RTL but allow numbers to show properly */
+    .form-control {
+        width: 100%;
+        border-radius: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        direction: rtl;
+        text-align: right;
+    }
+
+    /* Fix number input alignment */
+    input[type="number"] {
+        direction: ltr;
+        text-align: right;
+        padding-right: 10px;
+    }
+
+    /* Fix textarea alignment */
+    textarea {
+        text-align: right !important;
+        direction: rtl !important;
+    }
+
+    .btn-submit {
+        background: #1e8f55;
+        color: #fff;
+        padding: 12px 25px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .btn-submit:hover {
+        background: #146c40;
+    }
+
+    .image-preview {
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .image-preview img {
+        max-width: 220px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+</style>
+
+<div class="edit-container">
+    <h2 class="page-title">ویرایش اطلاعات غذا</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+        <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+                <small style="color:red;">{{ field.errors }}</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        {% if food.image %}
+        <div class="image-preview">
+            <p>تصویر فعلی:</p>
+            <img src="{{ food.image.url }}" alt="Food Image">
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn-submit">ثبت تغییرات</button>
+    </form>
+</div>
+
+{% endblock %}

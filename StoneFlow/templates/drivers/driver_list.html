@@ -1,0 +1,63 @@
+{# templates/drivers/driver_list.html #}
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        direction: rtl;
+        text-align: right;
+        font-family: 'Vazirmatn', 'IRANSans', Tahoma, sans-serif;
+        background-color: #f8f9fa;
+    }
+    .table-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    .table th, .table td {
+        vertical-align: middle !important;
+    }
+</style>
+
+<div class="table-container">
+    <h4 class="text-center mb-4 text-primary">مدیریت راننده‌ها</h4>
+
+    <table class="table table-bordered table-hover text-center align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>نام کاربری</th>
+                <th>نام</th>
+                <th>نام خانوادگی</th>
+                <th>کد ملی</th>
+                <th>مدل خودرو</th>
+                <th>کد خودرو</th>
+                <th>پلاک</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for driver in drivers %}
+            <tr>
+                <td>{{ driver.user.username }}</td>
+                <td>{{ driver.user.first_name }}</td>
+                <td>{{ driver.user.last_name }}</td>
+                <td>{{ driver.national_code }}</td>
+                <td>{{ driver.car_model }}</td>
+                <td>{{ driver.car_code }}</td>
+                <td>{{ driver.license_plate }}</td>
+                <td>
+                    <a href="{% url 'edit_driver' driver.id %}" class="btn btn-sm btn-warning">ویرایش</a>
+                    <a href="{% url 'delete_driver' driver.id %}" class="btn btn-sm btn-danger">حذف</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8">راننده‌ای ثبت نشده است.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

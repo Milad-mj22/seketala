@@ -1,0 +1,81 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .card-modern {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+  }
+
+  .price-table th, .price-table td {
+    vertical-align: middle;
+  }
+
+  .btn-sm {
+    padding: 6px 14px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: #f3f9ff;
+  }
+
+  h2 {
+    font-weight: 700;
+    color: #0d6efd; /* bootstrap primary */
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .input-multiplier {
+    max-width: 150px;
+    margin: 0 auto;
+  }
+</style>
+
+<div class="container mt-5" dir="rtl">
+  <div class="card-modern">
+    <h2>تنظیم ضریب قیمت برای ویژگی‌ها</h2>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover price-table text-center align-middle">
+          <thead class="table-primary">
+            <tr>
+              <th>نام ویژگی</th>
+              <th>ضریب (ضریب قیمت)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in price_attrs %}
+            <tr>
+              <td class="fw-bold text-dark">{{ item.attribute.label }}</td>
+              <td>
+                <input type="number" step="0.01" min="0" 
+                       name="multiplier_{{ item.attribute.id }}" 
+                       value="{{ item.multiplier }}" 
+                       class="form-control input-multiplier text-center" 
+                       required>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2" class="text-muted">ویژگی از نوع قیمت وجود ندارد.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill">💾 ذخیره ضریب‌ها</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

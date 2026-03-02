@@ -1,0 +1,128 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock title %}
+{% block content %}
+{% load widget_tweaks %}
+{% load custom_filters %}
+
+<link rel="stylesheet" href="{% static 'css/store.css' %}">
+<style>
+    .card {
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-header {
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        background-color: #f9f9f9;
+        transition: background-color 0.3s;
+    }
+
+    .form-control:focus {
+        background-color: #fff;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.2);
+    }
+
+    .btn {
+        padding: 0.6rem 1.2rem;
+        font-weight: 500;
+        font-size: 1rem;
+        border-radius: 10px;
+    }
+
+    select.form-control option {
+        padding: 0.6rem;
+        font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .btn {
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-label {
+            text-align: right;
+        }
+    }
+</style>
+
+<div class="container mt-5" dir="rtl">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0 text-center">{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field|add_class:"form-control" }}
+                                {% if field.errors %}
+                                    <div class="text-danger mt-1">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        {% for attr in buyer_attributes %}
+                                <label for="attr_{{ attr.id }}" class="form-label text-end d-block fw-bold">
+                                    {{ attr.label }}
+                                    {% if attr.required %}
+                                        <span class="text-danger">*</span>
+                                    {% endif %}
+                                </label>
+                                {% if attr.field_type == 'image' %}
+                                <input type="file" name="attr_{{ attr.id }}">
+                                {% if value %}
+                                    <img src="{{ value }}" height="80">
+                                {% endif %}
+
+                                    
+                                {% elif attr.field_type == 'int' or attr.field_type == 'float' %}
+                                    <input type="number" class="form-control text-end"
+                                        name="attr_{{ attr.id }}" id="attr_{{ attr.id }}"
+                                        step="any" value="{{ value }}" {% if attr.required %}required{% endif %}>
+                                {% elif attr.field_type == 'bool' %}
+                                    <div class="form-check text-end">
+                                        <input type="checkbox" class="form-check-input" name="attr_{{ attr.id }}" id="attr_{{ attr.id }}" {% if value == 'on' %}checked{% endif %}>
+                                        <label class="form-check-label" for="attr_{{ attr.id }}">تأیید</label>
+                                    </div>
+                                {% else %}
+                                    <input type="text" class="form-control text-end" name="attr_{{ attr.id }}" value="{{ attr.value }}"  {% if attr.required %}required{% endif %}>
+                                {% endif %}
+                        {% endfor %}
+
+                        <hr>
+                        
+
+
+
+                        <div class="d-flex flex-wrap justify-content-between">
+                            <button type="submit" class="btn btn-success">ثبت اطلاعات</button>
+                            <a href="{% url 'buyer_list' %}" class="btn btn-secondary">بازگشت</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

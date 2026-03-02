@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سنگ KBC</title>
+
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/fontall.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+
+
+    <link rel="icon" href="{% static 'icons/logo.png' %}"type="image/x-icon">
+
+
+    <html lang="fa" dir="rtl"></html>
+
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    -->
+   
+
+    <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/all.min.js' %}"></script> <!-- Font Awesome for icons -->
+
+
+
+
+
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'users-home' %}">
+            <img src="{% static 'icons/logo.svg' %}" alt="">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link persian-text" href="/tools"><i class="fas fa-tools"></i> ابزارها</a>
+
+                </li>
+
+                
+                <li class="nav-item">
+                    <a class="nav-link persian-text"><i class="fas fa-user"></i> پروفایل</a>
+                    <ul class="submenu">
+                        <!-- <li><a class="nav-link persian-text" href="#">زیر منو 3</a></li>
+                        <li><a class="nav-link persian-text" href="#">زیر منو 4</a></li>
+                         -->
+
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/profile/{{ user.id }}/register_entry/"><i class="fas fa-list"></i> ثبت تردد</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/profile/{{ user.id }}/history_entry/"><i class="fas fa-list"></i> نمایش کارکرد </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/profile"><i class="fas fa-list"></i> صفحه کاربر</a>
+                        </li>
+                    </ul>
+
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link persian-text"><i class="fas fa-receipt"></i>  چرخه تولید</a>
+                    <ul class="submenu">
+                        <!-- <li><a class="nav-link persian-text" href="#">زیر منو 3</a></li>
+                        <li><a class="nav-link persian-text" href="#">زیر منو 4</a></li>
+                         -->
+
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/stone_flow/create_coope"><i class="fas fa-list"></i> ایجاد کوپ</a>
+                        </li>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/stone_flow/coops"><i class="fas fa-moon"></i> کوپ های موجود</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/stone_flow/dashboard"><i class="fas fa-moon"></i> داشبورد</a>
+                        </li>
+                        <!-- <li class="nav-item">
+                            <a class="nav-link persian-text" href="/profile/create_order"><i class="fas fa-plus"></i> ایجاد سفارش</a> -->
+
+                    </ul>
+                </li>
+
+
+                
+
+
+
+
+
+
+                <li class="nav-item">
+                    <a class="nav-link persian-text"><i class="fas fa-store"></i>  انبار</a>
+                    <ul class="submenu">
+                        <!-- <li><a class="nav-link persian-text" href="#">زیر منو 3</a></li>
+                        <li><a class="nav-link persian-text" href="#">زیر منو 4</a></li>
+                         -->
+
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/profile/store_add/"><i class="fas fa-plus"></i> افزودن کالا</a>
+                        </li>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/profile/store_take"><i class="fas fa-minus"></i> خروج کالا</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/profile/store_product"><i class="fas fa-industry"></i> تولید کالا</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/profile/store"><i class="fas fa-shopping-bag"></i> موجودی</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/profile/store_log"><i class="fas fa-history"></i> ناریخچه</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link persian-text" href="/profile/create_material"><i class="fas fa-box"></i> تعریف کالای جدید</a>
+                        </li>
+
+                    </ul>
+                </li>
+
+
+
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    {% block content %}
+    <!-- Page-specific content goes here -->
+    {% endblock content %}
+</div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+{% load static %}
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سنگ KBC</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="icon" href="{% static 'icons/logo.png' %}" type="image/x-icon">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 260px;
+            height: 100%;
+            background-color: #343a40;
+            color: #fff;
+            overflow-y: auto;
+            z-index: 1000;
+            padding-top: 60px;
+        }
+
+        .sidebar a,
+        .sidebar .dropdown-toggle {
+            color: #fff;
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .sidebar a:hover,
+        .sidebar .dropdown-toggle:hover {
+            background-color: #495057;
+        }
+
+        .sidebar .dropdown-menu {
+            background-color: #343a40;
+            border: none;
+        }
+
+        .sidebar .dropdown-menu a {
+            padding: 10px 40px;
+        }
+
+        .main-content {
+            margin-right: 260px;
+            padding: 20px;
+        }
+
+        .logo {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            z-index: 1100;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="logo">
+        <a href="{% url 'users-home' %}">
+            <img src="{% static 'icons/logo.svg' %}" alt="لوگو">
+        </a>
+    </div>
+
+    <div class="sidebar">
+        <a href="/tools"><i class="fas fa-tools"></i> ابزارها</a>
+
+        <div class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fas fa-user"></i> پروفایل</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="/profile/{{ user.id }}/register_entry/"><i class="fas fa-list"></i> ثبت تردد</a>
+                <a class="dropdown-item" href="/profile/{{ user.id }}/history_entry/"><i class="fas fa-list"></i> نمایش کارکرد</a>
+                <a class="dropdown-item" href="/profile"><i class="fas fa-user-circle"></i> صفحه کاربر</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fas fa-receipt"></i> چرخه تولید</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="/stone_flow/create_coope"><i class="fas fa-list"></i> ایجاد کوپ</a>
+                <a class="dropdown-item" href="/stone_flow/coops"><i class="fas fa-cube"></i> کوپ‌های موجود</a>
+                <a class="dropdown-item" href="/stone_flow/dashboard"><i class="fas fa-chart-line"></i> داشبورد</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fas fa-store"></i> انبار</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="/profile/store_add/"><i class="fas fa-plus"></i> افزودن کالا</a>
+                <a class="dropdown-item" href="/profile/store_take"><i class="fas fa-minus"></i> خروج کالا</a>
+                <a class="dropdown-item" href="/profile/store_product"><i class="fas fa-industry"></i> تولید کالا</a>
+                <a class="dropdown-item" href="/profile/store"><i class="fas fa-box-open"></i> موجودی</a>
+                <a class="dropdown-item" href="/profile/store_log"><i class="fas fa-history"></i> تاریخچه</a>
+                <a class="dropdown-item" href="/profile/create_material"><i class="fas fa-box"></i> تعریف کالای جدید</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        {% block content %}
+        <!-- Page content here -->
+        {% endblock content %}
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/all.min.js' %}"></script>
+</body>
+
+</html>

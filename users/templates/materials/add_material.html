@@ -1,0 +1,67 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block content %}
+
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>افزودن مواد به دسته</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class=" center">
+  <div class="w-full max-w-2xl bg-white shadow-xl rounded-2xl p-8">
+    
+    <!-- عنوان -->
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+      افزودن مواد به دسته
+    </h2>
+    
+    <!-- دکمه انتخاب همه -->
+    <div class="flex items-center justify-between mb-4">
+      <span class="text-gray-600 font-medium">لیست مواد</span>
+      <button id="selectAll" type="button"
+        class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition">
+        انتخاب همه
+      </button>
+    </div>
+    
+    <!-- لیست مواد -->
+    <form method="post">
+      {% csrf_token %}
+      <div class="max-h-72 overflow-y-auto border border-gray-200 rounded-xl p-4 space-y-2">
+        {% for material in materials %}
+          <label class="flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-gray-100 rounded-lg px-3 py-2">
+            <input type="checkbox" name="materials" value="{{ material.id }}" 
+                   class="w-5 h-5 text-indigo-600 rounded-md focus:ring-0">
+            <span class="text-gray-700">{{ material.name }}</span>
+          </label>
+        {% empty %}
+          <p class="text-gray-500 text-center">هیچ ماده‌ای وجود ندارد</p>
+        {% endfor %}
+      </div>
+      
+      <!-- دکمه ذخیره -->
+      <div class="mt-6 flex justify-center">
+        <button type="submit" 
+          class="px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition">
+          ذخیره تغییرات
+        </button>
+      </div>
+    </form>
+    
+  </div>
+  
+  <script>
+    const selectAllBtn = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    let allSelected = false;
+
+    selectAllBtn.addEventListener('click', () => {
+      allSelected = !allSelected;
+      checkboxes.forEach(cb => cb.checked = allSelected);
+      selectAllBtn.textContent = allSelected ? "لغو انتخاب همه" : "انتخاب همه";
+    });
+  </script>
+</body>
+{% endblock %}
+

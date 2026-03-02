@@ -1,0 +1,12 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2>حذف دسته‌بندی</h2>
+  <p>آیا مطمئن هستید که می‌خواهید دسته‌بندی "{{ category.name }}" را حذف کنید؟</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">بله، حذف شود</button>
+    <a href="{% url 'category_list' %}" class="btn btn-secondary">انصراف</a>
+  </form>
+</div>
+{% endblock %}

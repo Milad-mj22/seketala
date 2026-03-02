@@ -1,0 +1,145 @@
+{% extends "show_flow.html" %}
+
+{% block title %} Home Page {% endblock title %}
+{% block content2 %}
+
+{% load static %}
+
+<style>
+    /* Ensure table takes full width */
+    .full-width-table {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Remove padding/margin if necessary */
+    .container-fluid, .table-responsive {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .table {
+    width: 100vw !important;
+}
+/* Force input fields to fit inside the table cell */
+.table input[type="number"] {
+    width: 100% !important;
+    padding: 2px !important;
+    margin: 0 !important;
+    text-align: center; /* Align text to look better */
+    box-sizing: border-box; /* Prevents overflow */
+}
+
+/* Prevent table from stretching */
+.table td {
+    padding: 5px !important; 
+    white-space: nowrap; /* Prevents unnecessary line breaks */
+}
+
+
+
+
+/* Customize font for each column */
+
+/* First column (نام ماده اولیه) */
+.table td:nth-child(1), .table th:nth-child(1) {
+    font-family: "Tahoma", sans-serif;
+    font-weight: bold;
+    font-size: medium;
+}
+
+
+/* Third column (درخواستی) */
+.table td:nth-child(2), .table th:nth-child(3) {
+    font-family: "Courier New", monospace;
+    color: darkblue;
+    font-size: medium;
+
+}
+
+/* Fourth column (ارسالی) */
+.table td:nth-child(3), .table th:nth-child(4) {
+    font-family: "Times New Roman", serif;
+    font-size: 14px;
+    color: darkred;
+}
+
+
+
+
+
+
+</style>
+
+<body>
+
+<div class="container-fluid p-0 m-0">  <!-- Removed padding/margin -->
+    <div class="card page-title-card shadow-lg rounded-lg p-4 mb-4">
+        <h1 class="page-title">ارسالی</h1>
+    </div>
+  
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="user-info">
+            <div class="avatar">
+                {{ request.user.username|first|upper }} 
+            </div>
+            <div class="user-details">
+                <p><strong>کاربر:</strong> {{ request.user.username }}</p>
+                <p><strong>سمت:</strong> {{ user_role }}</p>
+            </div>
+        </div>
+        
+        <div class="table-responsive p-0 m-0">
+            <table class="table table-bordered full-width-table">
+                <thead class="table-dark">
+                    <tr>
+                        <th>نام ماده اولیه</th>
+                        <th>درخواستی</th>
+                        <th>ارسالی</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usage in material_usages.items %}
+                    <tr>
+                        <td>{{ usage.0 }}</td>
+                        <td>{{ usage.1.quantity_used }}</td>
+                        <td>
+                            <input type="number" name="materials_sent[]" step="1" value="{{ usage.1.quantity_used }}" 
+                                   required class="form-control p-1 text-center" style="min-width: 60px; max-width: 100px;">
+                            <input type="hidden" name="materials_names[]" value="{{ usage.0 }}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if can_submit %}
+        {% if not is_confirmed %}
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary btn-sm">ثبت انبار</button>
+            </div>
+        {% else %}
+        <div class="confirmation-bar">
+            <i class="fas fa-check-circle"></i>
+            تأیید شده توسط {{ is_confirmed.confirmed_by.user.username }}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="confirmation-bar">
+            {% if is_confirmed %}
+            <i class="fas fa-check-circle"></i>
+            تأیید شده توسط  {{ is_confirmed.confirmed_by.user.username }}
+            {% else %}
+            <i class="fas fa-error-circle"></i>
+            دسترسی ندارید در انتظار تایید
+            {% endif %}
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+</body>
+{% endblock %}

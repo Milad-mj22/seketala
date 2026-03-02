@@ -1,0 +1,233 @@
+{% extends "users/base.html" %}
+{% load custom_filters %}
+{% load static %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<script>
+function printDiv(divId) {
+    const content = document.getElementById(divId);
+    if (!content) {
+        alert('Div not found: ' + divId);
+        return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>چاپ کارت کوپ</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+                body { padding: 20px; direction: rtl; text-align: center; font-family: sans-serif; }
+                .card-img-top { max-height: 300px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0; }
+                .d-print-block { display: block !important; }
+            </style>
+        </head>
+        <body>
+            ${content.innerHTML}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+
+    printWindow.onload = function () {
+        setTimeout(function () {
+            printWindow.focus();
+            printWindow.#print();
+            printWindow.close();
+        }, 500);
+    };
+}
+</script>
+
+<style>
+.card-img-top {
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.timeline {
+    position: relative;
+    margin-left: 1rem;
+    padding-left: 1.5rem;
+    border-left: 2px solid #dee2e6;
+}
+
+.timeline-event {
+    position: relative;
+    margin-bottom: 2rem;
+    padding-left: 1rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeSlideIn 0.6s forwards;
+}
+
+.timeline-event::before {
+    content: "";
+    position: absolute;
+    left: -11px;
+    top: 0;
+    width: 16px;
+    height: 16px;
+    background-color: #0d6efd;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px #dee2e6;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.05);
+}
+
+.timeline-state {
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.timeline-icon {
+    font-size: 1.2rem;
+    margin-left: 5px;
+    color: #0d6efd;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    #qr-code-print-only {
+        display: block !important;
+    }
+}
+
+@keyframes fadeSlideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.timeline-event:nth-child(1) { animation-delay: 0.1s; }
+.timeline-event:nth-child(2) { animation-delay: 0.2s; }
+.timeline-event:nth-child(3) { animation-delay: 0.3s; }
+.timeline-event:nth-child(4) { animation-delay: 0.4s; }
+.timeline-event:nth-child(5) { animation-delay: 0.5s; }
+</style>
+
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <a href="{% url 'coop_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-right-circle"></i> بازگشت
+        </a>
+        <button onclick="printDiv('printable-area')" class="btn btn-outline-primary">
+            <i class="bi bi-printer"></i> چاپ / PDF
+        </button>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10" id="printable-area">
+            <div class="card shadow border-0 mb-5">
+
+                <!-- Only visible in print -->
+                <div id="qr-code-print-only" class="text-center mb-4 d-none d-print-block">
+                    <img src="{{ qr_data_url }}" alt="QR Code" style="width: 120px; height: 120px;">
+                    <p class="text-muted small">اسکن برای مشاهده آنلاین</p>
+                </div>
+
+                {% if coop.image %}
+                    <img src="{{ coop.image }}" class="card-img-top" alt="{{ coop.material.name }}">
+
+                {% elif coop.material.image %}
+                    <img src="{{ coop.material.image.url }}" class="card-img-top" alt="{{ coop.material.name }}">
+                {% endif %}
+
+                <div class="card-body text-center">
+                    <h4 class="card-title"><i class="bi bi-box-seam"></i> {{ coop.material.name }}</h4>
+                    <hr>
+                    <p><strong>وضعیت فعلی:</strong> <span class="badge bg-info text-dark">{{ coop.state.title }}</span></p>
+                    <p><strong>مقدار:</strong> {{ coop.quantity }} {{coop.material.unit}} </p>
+                    <p><strong>کاربر ثبت‌کننده:</strong> {{ coop.user.username }}</p>
+                    <p><strong>تاریخ ثبت:</strong> {{ coop.submitted_at|to_jalali }}</p>
+                    <p><strong>قیمت نهایی کوپ:</strong> {{ coop.total_price }}</p>
+
+
+
+                    {% for attr in short_attributes %}
+                        {% with val=coop_values|get_item:coop.id|get_item:attr.id %}
+                            {% if val %}
+                                <p class="card-text mb-1">
+                                    <strong>{{ attr.label }}:</strong>
+                                    {% if attr.field_type == 'date' %}
+                                        {{ val|to_jalali }}
+                                    {% else %}
+                                        {{ val }}
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            <h5 class="mb-3 text-center"><i class="bi bi-clock-history text-primary"></i> تاریخچه تغییر وضعیت‌ها</h5>
+            {% if coop.state_history.all %}
+                <div class="timeline">
+                    {% for history in coop.state_history.all %}
+                    <a href="{% url 'dynamic_step' history.new_state.url_name coop.id %}" class="text-decoration-none text-dark">
+                        <div class="timeline-event">
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                    <div>
+                                        <div class="timeline-state">
+                                            <i class="bi bi-arrow-left-right timeline-icon"></i>
+                                            {{ history.new_state.title }} ➜ {{ history.previous_state.title|default:" نامشخص " }}
+                                        </div>
+                                        <small class="text-muted">توسط {{ history.changed_by.profile.first_name }}</small>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted"><i class="bi bi-calendar-event"></i> {{ history.changed_at|date:"Y-m-d H:i" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                {% with last_step=coop.state_history.all.last.new_state %}
+                    {% with next_step=steps|get_next_step:last_step %}
+                        {% if next_step %}
+                            {% with access=step_access|get_item:next_step.order %}
+                                {% if access == 'submit' %}
+                                    <div class="text-center mt-4">
+                                        <a href="/stone_flow/{{ next_step.url_name }}/{{ coop.id }}/" class="btn btn-success btn-lg">
+                                            رفتن به مرحله بعد: {{ next_step.title }}
+                                        </a>
+                                        <hr>
+                                        <a href="/stone_flow/coops/request_delete_coop/{{ coop.id }}/" class="btn btn-warning btn-lg">
+                                            حذف کوپ
+                                        </a>                       
+                                    </div>
+                                {% else %}
+                                    <div class="text-muted text-center mt-3">دسترسی مرحله بعد را ندارید</div>
+                                {% endif %}
+                            {% endwith %}
+                        {% else %}
+                            <div class="text-muted text-center mt-3">مرحله بعدی وجود ندارد.</div>
+                        {% endif %}
+                    {% endwith %}
+                {% endwith %}
+            {% else %}
+                <p class="text-muted text-center">هیچ تغییر وضعیتی ثبت نشده است.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

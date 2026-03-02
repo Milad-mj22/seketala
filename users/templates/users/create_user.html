@@ -1,0 +1,109 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<style>
+    body {
+        direction: rtl;
+        text-align: right;
+        font-family: 'Vazirmatn', 'IRANSans', Tahoma, sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    .form-wrapper {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .form-card {
+        background: #fff;
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 30px;
+    }
+
+    .form-title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 30px;
+        color: #0d6efd;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    .form-control {
+        background-color: #f9f9f9;
+    }
+
+    .form-control:focus {
+        background-color: #fff;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 10px;
+    }
+</style>
+
+<div class="container form-wrapper">
+    <div class="card form-card">
+        <div class="form-title">ایجاد کاربر جدید</div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mt-2" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <h6 class="fw-bold text-primary mb-3">اطلاعات حساب کاربری</h6>
+            {% for field in user_form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% if field.errors %}
+                        {{ field|add_class:"form-control is-invalid text-end" }}
+                        {% for error in field.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% else %}
+                        {{ field|add_class:"form-control text-end" }}
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <hr class="my-4">
+
+            <h6 class="fw-bold text-success mb-3">اطلاعات پروفایل</h6>
+            {% for field in profile_form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% if field.errors %}
+                        {{ field|add_class:"form-control is-invalid text-end" }}
+                        {% for error in field.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% else %}
+                        {{ field|add_class:"form-control text-end" }}
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary btn-submit">ایجاد کاربر</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

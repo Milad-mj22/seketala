@@ -1,0 +1,53 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title %}
+{% block content %}
+{% load static %}
+
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/tools.css' %}">
+
+
+
+<head>
+
+    <title>دسترسی غیرمجاز</title>
+
+    <style>
+
+        .card {
+            /* background: rgba(255, 255, 255, 0.1); */
+            background: linear-gradient(to right, #e5ff00, #3d4b01);
+            margin-top: 20px;
+            border: none;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .icon {
+            font-size: 80px;
+            color: #ff4b5c;
+        }
+        .btn-custom {
+            background-color: #ff4b5c;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #e63946;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card text-center">
+            <i class="fas fa-exclamation-triangle icon"></i>
+            <h1 class="mt-3">دسترسی غیرمجاز</h1>
+            <p>شما مجاز به مشاهده این صفحه نمی باشید.</p>
+            <a href="/" class="btn btn-custom text-white">بازگشت به صفحه اصلی</a>
+        </div>
+    </div>
+</body>
+
+{% endblock %}

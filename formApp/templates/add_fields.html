@@ -1,0 +1,53 @@
+{% extends "users/base.html" %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+        <div class="card-body">
+            <h2 class="card-title mb-4">افزودن فیلد برای فرم: {{ form.title }}</h2>
+
+            {% if message %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+
+            {% if form.is_closed %}
+                <div class="alert alert-danger fw-bold">
+                    این فرم بسته شده است و دیگر امکان افزودن فیلد وجود ندارد.
+                </div>
+            {% else %}
+                <form method="post" class="mb-3">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="labelInput" class="form-label">عنوان فیلد:</label>
+                        <input type="text" name="label" id="labelInput" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fieldTypeSelect" class="form-label">نوع فیلد:</label>
+                        <select name="field_type" id="fieldTypeSelect" class="form-select" required>
+                            <option value="text">متن</option>
+                            <option value="textarea">متن چند خطی</option>
+                            <option value="number">عدد</option>
+                            <option value="date">تاریخ</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary me-2">افزودن فیلد</button>
+                </form>
+            {% endif %}
+
+            {% if not form.is_closed %}
+                <form method="post" action="{% url 'close_form' form.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">بستن فرم</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

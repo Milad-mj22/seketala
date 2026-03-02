@@ -1,0 +1,14 @@
+{% extends "users/base.html" %}
+{% block content %}
+<div class="container mt-4" dir="rtl">
+  <div class="card shadow p-4 rounded-4 text-center">
+    <h4>آیا از حذف شغل "{{ job.name }}" مطمئن هستید؟</h4>
+
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger px-4 mt-3">حذف شود</button>
+      <a href="{% url 'job_list' %}" class="btn btn-secondary px-4 mt-3">انصراف</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

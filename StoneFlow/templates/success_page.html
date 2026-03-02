@@ -1,0 +1,32 @@
+{% extends "users/base.html" %}
+
+{% block title %}
+    Success
+{% endblock title %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-5 text-center" style="max-width: 600px; width: 100%; border-radius: 20px;">
+        
+        <!-- Success Icon -->
+        <div class="mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#28a745" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8a8 8 0 1 1-16 0A8 8 0 0 1 16 8zM6.97 10.97a.75.75 0 0 0 1.08 0l3.992-3.992a.75.75 0 1 0-1.06-1.06L7.5 9.44 5.53 7.47a.75.75 0 0 0-1.06 1.06l2.5 2.5z"/>
+            </svg>
+        </div>
+
+        <!-- Success Message -->
+        <h2 class="text-success fw-bold mb-3">عملیات با موفقیت انجام شد</h2>
+        <p class="mb-4">{{ content }}</p>
+
+        <!-- Buttons -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <a href="{% url 'coop_list' %}" class="btn btn-outline-success px-4">نمایش کوپ ها</a>
+            <hr>
+            <a href="{% url 'coop_detail' order_id %}" class="btn btn-success px-4">نمایش ویژگی های کو‍پ</a>
+
+        </div>
+
+    </div>
+</div>
+{% endblock content %}

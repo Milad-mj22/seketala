@@ -1,0 +1,36 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container mt-5"  style="text-align: right; display: block;">
+  <h2 class="mb-4">لیست دسته‌بندی‌ها</h2>
+  <a href="{% url 'category_create' %}" class="btn btn-primary mb-3" >افزودن دسته‌بندی جدید</a>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>نام</th>
+        <th>توضیحات</th>
+        <th>عملیات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for category in categories %}
+      <tr>
+        <td>{{ category.name }}</td>
+            <td>
+        <span style="display:inline-block;width:20px;height:20px;background-color:{{ category.color }};border-radius:4px;border:1px solid #aaa;"></span>
+        <small>{{ category.color }}</small>
+        </td>
+        <td>{{ category.description }}</td>
+        <td>
+          <a href="{% url 'category_update' category.pk %}" class="btn btn-sm btn-warning">ویرایش</a>
+          <a href="{% url 'category_delete' category.pk %}" class="btn btn-sm btn-danger">حذف</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">هیچ دسته‌بندی‌ای ثبت نشده است.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

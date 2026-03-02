@@ -1,0 +1,76 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% block title %}{{ is_edit|yesno:"ویرایش مرحله,ایجاد مرحله جدید" }}{% endblock %}
+{% block content %}
+
+<style>
+  .form-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  }
+
+  .form-wrapper h2 {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .form-control {
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid #ced4da;
+    font-size: 1rem;
+  }
+
+  .submit-btn {
+    background: linear-gradient(to left, #00c853, #64dd17);
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 12px 30px;
+    border-radius: 1rem;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .submit-btn:hover {
+    background: linear-gradient(to left, #00bfa5, #1de9b6);
+    transform: translateY(-2px);
+  }
+</style>
+
+<div class="form-wrapper" style="direction: rtl;">
+  <h2>{{ is_edit|yesno:"ویرایش مرحله,ایجاد مرحله جدید" }}</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="submit-btn">
+      {{ is_edit|yesno:"ذخیره تغییرات,ایجاد مرحله" }}
+    </button>
+  </form>
+</div>
+
+{% endblock %}

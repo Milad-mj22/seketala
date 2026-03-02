@@ -1,0 +1,203 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title %}
+{% block content %}
+
+{% load static %}
+
+<style>
+    .home-wrapper {
+        width: 100%;
+        max-width: 960px;
+        margin: 32px auto;
+        padding: 0 16px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        direction: rtl;
+        text-align: right;
+    }
+
+    .form-card {
+        width: 100%;
+        max-width: 560px;
+        padding: 24px 22px 26px;
+        border-radius: 18px;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(248, 250, 252, 0.12)),
+            rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow:
+            0 18px 38px rgba(15, 23, 42, 0.25),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+        border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .form-header {
+        margin-bottom: 18px;
+    }
+
+    .form-header-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1f2933;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-header-title i {
+        color: #f59e0b;
+    }
+
+    .form-header-desc {
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin-top: 4px;
+    }
+
+    .form-group {
+        margin-bottom: 14px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+        display: inline-block;
+        color: #374151;
+    }
+
+    .form-card input,
+    .form-card textarea,
+    .form-card select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        font-size: 0.95rem;
+        background-color: #f9fafb;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        direction: rtl;
+        text-align: right;
+    }
+
+    .form-card textarea {
+        min-height: 90px;
+        resize: vertical;
+    }
+
+    .form-card input:focus,
+    .form-card textarea:focus,
+    .form-card select:focus {
+        background-color: #ffffff;
+        border-color: #facc15;
+        outline: none;
+        box-shadow: 0 0 0 0.14rem rgba(250, 204, 21, 0.45);
+    }
+
+    .field-help {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 2px;
+    }
+
+    .error-text {
+        font-size: 0.8rem;
+        color: #b91c1c;
+        margin-top: 3px;
+    }
+
+    .non-field-errors {
+        margin-bottom: 12px;
+        font-size: 0.85rem;
+        color: #b91c1c;
+        background: rgba(248, 113, 113, 0.08);
+        border-radius: 10px;
+        padding: 6px 10px;
+        border: 1px solid rgba(248, 113, 113, 0.35);
+    }
+
+    .submit-btn {
+        width: 100%;
+        border-radius: 999px;
+        padding: 10px 0;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        background: linear-gradient(135deg, #facc15, #eab308);
+        color: #111827;
+        box-shadow: 0 10px 20px rgba(250, 204, 21, 0.45);
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 24px rgba(180, 83, 9, 0.5);
+        background: linear-gradient(135deg, #fbbf24, #ea580c);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 6px 12px rgba(15, 23, 42, 0.5);
+    }
+
+    @media (max-width: 576px) {
+        .home-wrapper {
+            margin-top: 20px;
+        }
+        .form-card {
+            padding: 18px 16px 22px;
+            border-radius: 16px;
+        }
+        .form-header-title {
+            font-size: 1.05rem;
+        }
+    }
+</style>
+
+<div class="home-wrapper">
+    <div class="form-card">
+
+        <div class="form-header">
+            <div class="form-header-title">
+                <i class="fas fa-key"></i>
+                <span>ثبت / ویرایش اطلاعات</span>
+            </div>
+            <div class="form-header-desc">
+                لطفاً اطلاعات مورد نظر را با دقت تکمیل کنید.
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="non-field-errors">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="field-help">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="error-text">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="submit-btn mt-2">
+                ثبت اطلاعات
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title%}
+{% block content %}
+
+<style>
+    body {
+        font-family: 'B Nazanin'; /* Ensure you have the B Nazanin font included in your base template */
+        direction: rtl;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        background-color: #ffffff;
+        padding: 10px;
+        align-items: center;
+    }
+
+    .grid-item-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .grid-item {
+        background: linear-gradient(145deg, #ffffff, #e6e6e6);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.1), -10px -10px 20px rgba(255, 255, 255, 0.9);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .grid-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 15px 15px 30px rgba(244, 255, 86, 0.61), -15px -15px 30px rgba(255, 255, 255, 0.8);
+    }
+
+    .card-body {
+        text-align: center;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #333;
+        font-weight: 700;
+    }
+
+    .card-text {
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 15px;
+    }
+
+    .btn-primary {
+        background-color: #c6ee15;
+        border: none;
+        border-radius: 30px;
+        padding: 10px 20px;
+        color: #ffffff;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary:hover {
+        background-color: #c6ee15;
+        transform: translateY(-3px);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+        .grid-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .grid-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+
+<div class="grid-container">
+    {% for food in foods %}
+    <div class="grid-item">
+        <div class="card-body">
+            <h2 class="card-title">{{ food.name }}</h2>
+            <a href="foodrawmaterials/{{ food.id }}" class="btn btn-primary">Read More &rarr;</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+
+<div class="grid-container">
+    {% for post in tools %}
+    <a href="{{ post.slug }}" class="grid-item-link">
+        <div class="grid-item">
+            <div class="card-body">
+                <h2 class="card-title">{{ post.title }}</h2>
+                <p class="card-text">{{ post.content|slice:":200" }}</p>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+
+
+<button class="add-button" onclick="window.location.href='add_food_raw_material'">+</button>
+
+
+{% endblock %}
+
+
+
+

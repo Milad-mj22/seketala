@@ -1,0 +1,26 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title %}
+{% block content %}
+{% load static %}
+
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/tools.css' %}">
+
+
+
+
+
+<div class="grid-container">
+    {% for menu in menu_names.items %}
+    <a href="{{ menu.1}}" class="{% if post.title == 'Snapp' %}snapp-grid-item-link{% else %}grid-item-link{% endif %}">
+        <div class="{% if post.title == 'Snapp' %}snapp-grid-item{% else %}grid-item{% endif %}">
+            <div class="card-body">
+                <h2 class="card-title">{{ menu.0 }}</h2>
+                <p class="card-text">{{ post.content|slice:":200" }}</p>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% endblock %}

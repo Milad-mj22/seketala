@@ -1,0 +1,36 @@
+{% extends "users/base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <h2>پخش زنده دوربین‌ها</h2>
+    <div class="row">
+        {% for camera in cameras %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    {{ camera.name }} - {{ camera.location }}
+                    <small class="text-muted">
+                        {% for feature in camera.ai_features.all %}
+                            {{ feature }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}-{% endfor %}
+                    </small>
+                </div>
+                <div class="card-body">
+                    <img id="camera-{{ camera.id }}" src="" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+{% for camera in cameras %}
+const ws{{ camera.id }} = new WebSocket(`ws://${window.location.host}/ws/camera/{{ camera.id }}/`);
+ws{{ camera.id }}.onmessage = function(event) {
+    document.getElementById("camera-{{ camera.id }}").src = "data:image/jpeg;base64," + event.data;
+};
+{% endfor %}
+</script>
+
+{% endblock %}

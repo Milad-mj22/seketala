@@ -1,0 +1,180 @@
+{# partials/coop_cards.html #}
+{% load static %}
+
+
+
+
+
+
+
+
+<script>
+
+
+    function toggleSubmaterials(id) {
+        var submaterials = document.getElementById(id);
+        if (submaterials.style.display === "none" || submaterials.style.display === "") {
+            submaterials.style.display = "block";
+        } else {
+            submaterials.style.display = "none";
+        }
+    }
+
+    function filterMaterials() {
+        const input = document.getElementById('search-bar');
+        const filter = input.value.toLowerCase();
+        const cards = document.querySelectorAll('.card');
+        let hasVisibleItem = false;
+
+        cards.forEach(card => {
+            const cardText = card.innerText.toLowerCase();
+            const submaterials = card.querySelector('.submaterials');
+
+            if (cardText.includes(filter)) {
+                card.style.display = "";  // Show the card
+                hasVisibleItem = true;
+
+                if (submaterials) {
+                    submaterials.style.display = "block";  // Show submaterials
+                    const subCards = submaterials.querySelectorAll('.submaterials .card');
+
+                    subCards.forEach(subCard => {
+                        const subCardText = subCard.innerText.toLowerCase();
+                        if (subCardText.includes(filter)) {
+                            subCard.style.display = "";  // Show subCard if it matches
+                        } else {
+                            subCard.style.display = "none";  // Hide subCard if it doesn't match
+                        }
+                    });
+                }
+            } else {
+                card.style.display = "none";  // Hide the card
+                if (submaterials) {
+                    submaterials.style.display = "none";  // Hide submaterials
+                    
+                }
+            }
+        });
+
+    }
+
+    function handleSearchInput() {
+        const input = document.getElementById('search-bar');
+        const value = input.value.trim();
+        
+        // Close all submaterials when search bar is cleared
+        if (value === "") {
+            const allSubmaterials = document.querySelectorAll('.submaterials');
+            allSubmaterials.forEach(submaterials => {
+                submaterials.style.display = "none";
+            });
+
+            // Show all cards when search bar is cleared
+            const allCards = document.querySelectorAll('.card');
+            allCards.forEach(card => {
+                card.style.display = "";  // Show all cards
+            });
+        }
+
+        // Apply filter regardless of whether search bar is cleared or not
+        filterMaterials();
+    }
+
+    function closeAllTabs() {
+        const allSubmaterials = document.querySelectorAll('.submaterials');
+        allSubmaterials.forEach(submaterials => {
+            submaterials.style.display = "none";
+        });
+    }
+
+
+
+
+
+
+    function changeValue(inputId, increment) {
+    const input = document.getElementById(inputId);
+    let value = parseFloat(input.value) || 0;
+    value += increment;
+    if (value < 0) {
+      value = 0; // Prevent negative values
+    }
+    input.value = value.toFixed(1);
+  }
+
+
+</script>
+
+
+
+
+
+
+
+<!-- Search Bar with Close All Tabs Button -->
+<div class="mb-4 d-flex align-items-center">
+    <input type="text" id="search-bar" oninput="handleSearchInput()" class="form-control" placeholder="جستجو بر اساس نام یا توضیحات...">
+    <button type="button" onclick="closeAllTabs()" class="btn btn-light ms-2" style="margin-right: 5px;">
+        <i class="fa-solid fa-refresh"></i> <!-- Refresh -->
+    </button>
+</div>
+
+
+
+<div>
+    {% for mother_material in mother_materials %}
+        <div class="card p-2 mb-3">
+            <a href="javascript:void(0);" onclick="toggleSubmaterials('submaterials-{{ mother_material.id }}')" style="text-decoration: none; color: inherit;">
+                <div class="d-flex align-items-center">
+                    {% if mother_material.image %}
+                    <div>
+                        <img src="{{ mother_material.image.url }}" alt="{{ mother_material.name }}" style="max-width: 100px; max-height: 100px;  margin-left: 10px;margin-right: 10px;">
+                    </div>
+                    {% endif %}
+                    <div>
+                            <strong>{{ mother_material.describe }}</strong> : {{ mother_material.name }}
+                    </div>
+                </div>
+            </a>
+
+            <div id="submaterials-{{ mother_material.id }}" class="submaterials mt-2" style="display: none;">
+                {% for field in mother_material.mother_material.all %}
+                    <div class="col mt-2">
+                        <div class="card shadow-sm border rounded-lg">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    {% if field.image %}
+                                        <!-- <img src="{{ field.image.url }}" alt="{{ field.name }}"
+                                            class="img-thumbnail mr-3" style="width: 60px; height: 60px; object-fit: cover;"> -->
+
+
+                                    <div>
+                                        <img src="{{ field.image.url }}" alt="{{ field.name }}" style="max-width: 100px; max-height: 100px;  margin-left: 10px;margin-right: 10px;">
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-1">  {{ mother_material.describe }} |  {{ field.describe }}: {{ field.name }}</h6>
+                                    </div>
+                                </div>
+
+                                <div class="input-wrapper mt-2">
+                                    <button type="button" class="btn btn-decrement" onclick="changeValue('{{ field.id }}_input', -1)">-</button>
+                                    <input class="form-control digit-input d-inline-block" type="text" step="1"
+                                        id="{{ field.id }}_input" name="{{ field.name }}" value="0"
+                                        style="width: 100px; display: inline-block;">
+                                    <button type="button" class="btn btn-increment" onclick="changeValue('{{ field.id }}_input', 1)">+</button>
+                                    <span class="input-group-text d-inline-block ml-2">{{ field.unit }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
+
+
+
+

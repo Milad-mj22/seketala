@@ -1,0 +1,105 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block content %}
+{% load humanize %}
+{% load custom_filters %}
+<head>
+    <meta charset="UTF-8">
+    <title>گزارش نحوه پرداخت</title>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+    <style>
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+        h2 { margin-bottom: 20px; }
+        form { display: flex; gap: 10px; align-items: center; }
+        input {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
+        th { background: #f1f5f9; }
+        tfoot td { font-weight: bold; background: #f9fafb; }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>فیلتر تاریخ</h2>
+    <form method="get">
+        <input type="text" name="date" placeholder="2026/01/03">
+        <button type="submit">نمایش</button>
+    </form>
+    <p>📅 تاریخ انتخاب‌شده: {{ selected_date }}</p>
+</div>
+
+<div class="card">
+    <h2>نمودار نحوه پرداخت</h2>
+    <canvas id="paymentChart"></canvas>
+</div>
+
+<div class="card">
+    <h2>جدول جمع مبالغ</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>روش پرداخت</th>
+                <th>مبلغ (ریال)</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for method, total in table_data %}
+            <tr>
+                <td>{{ method }}</td>
+                <td>{{ total|intcomma }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>جمع کل</td>
+                <td>
+                    {{ table_data|sum_total|intcomma }}
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<script>
+    const ctx = document.getElementById('paymentChart');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: [{
+                label: 'جمع مبلغ (ریال)',
+                data: {{ values|safe }},
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+
+</body>
+{% endblock %}

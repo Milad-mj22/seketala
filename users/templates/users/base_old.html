@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سنگ KMC</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/all.min.js' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+
+
+  <link rel="icon" href="{% static 'icons/logo.png' %}" type="image/x-icon" />
+
+  <style>
+
+
+    body {
+        font-family: 'B Nazanin'; /* Ensure you have the B Nazanin font included in your base template */
+        direction: rtl;
+    }
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 250px;
+  height: 100%;
+  background: rgba(15, 15, 15, 0.5);
+  backdrop-filter: blur(15px); /* افکت شیشه‌ای */
+  -webkit-backdrop-filter: blur(15px); /* پشتیبانی سافاری */
+  padding-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  overflow-y: auto;
+  max-height: 100vh;
+  border-left: 1px solid rgba(29, 29, 29, 0.15); /* خط براق کناری */
+}
+
+
+    .sidebar img {
+      width: 140px;
+      margin-bottom: 30px;
+    }
+
+.sidebar a {
+  color: #242323;
+  text-decoration: none;
+  padding: 12px 20px;
+  display: block;
+  width: 100%;
+  text-align: right;
+  transition: background 0.3s, color 0.3s;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 16px;
+   transition: all 0.3s ease;
+}
+
+.sidebar a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+    transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Optional: برای زیبایی */
+}
+    .main-content {
+      margin-right: 250px;
+      padding: 30px;
+    }
+
+
+
+
+.user-info {
+    background: linear-gradient(135deg, #222222, #5f5f5f);
+    color: #fff;
+    padding: 15px 10px;
+    border-radius: 10px;
+    margin: 10px auto;
+    font-size: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    width: 90%;
+        align-items: flex-end;  /* راست‌چین کردن محتویات داخل */
+    text-align: right;      /* راست‌چین کردن متن */
+}
+
+.user-info .user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    
+}
+
+.user-info .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #fff;
+    color: #1b5e20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 15px;
+    flex-shrink: 0;
+     order: 2;  /* قرار گرفتن آواتار در سمت چپ */
+}
+
+
+
+
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        justify-content: start;
+        overflow-x: auto;
+        padding: 10px;
+        background-color: rgba(33, 37, 41, 0.95);
+        box-shadow: none;
+      }
+
+      .sidebar img {
+        display: none;
+      }
+
+      .sidebar a {
+        font-size: 14px;
+        padding: 10px 15px;
+        white-space: nowrap;
+        text-align: center;
+      }
+
+      .main-content {
+        margin-right: 0;
+        padding: 20px;
+      }
+      .user-info {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" >
+    <a href="/">
+    <img src="{% static 'icons/logo.svg' %}" alt="لوگو KBC" />
+    </a>
+
+
+  {% if request.user.is_authenticated %}
+    <div class="user-info">
+      <!-- <div class="avatar">
+        {{ request.user.username|first|upper }}
+      </div> -->
+      <div class="user-details">
+        <p><strong>کاربر:</strong> {{ request.user.username }}</p>
+        <p><strong>سمت:</strong> {{ request.user.profile.job_position.name }}</p>
+      </div>
+    </div>
+  {% endif %}
+
+
+    
+    {% if user.is_authenticated %}
+
+      {% for item in menu_items %}
+        <li>
+            <a href="{{ item.url }}">
+                {% if item.icon %}
+                    <i class="{{ item.icon }}   "></i>
+                {% endif %}
+                {{ item.title }}
+            </a>
+        </li>
+      {% endfor %}
+
+      {% if  user.profile.job_position.name == 'Programmer'%}
+
+
+        <a href="/tools"><i class="fas fa-tools me-2"></i> مدیریت</a>
+        <a href="/profile"><i class="fas fa-user-circle me-2"></i> پروفایل کاربر</a>
+        <a href="/stone_flow/create_coope"><i class="fas fa-plus-circle me-2"></i> ایجاد کوپ</a>
+        <a href="/stone_flow/coops"><i class="fas fa-cubes me-2"></i> کوپ‌های موجود</a>
+        <a href="/dashboard"><i class="fas fa-chart-line me-2"></i> داشبورد</a>
+        <a href="/profile/store_add/"><i class="fas fa-plus me-2"></i> افزودن کالا</a>
+        <a href="/profile/store_take"><i class="fas fa-minus me-2"></i> خروج کالا</a>
+        <a href="/profile/store_product"><i class="fas fa-industry me-2"></i> تولید کالا</a>
+        <a href="/profile/store"><i class="fas fa-box-open me-2"></i> موجودی</a>
+        <a href="/profile/store_log"><i class="fas fa-history me-2"></i> تاریخچه</a>
+        <a href="/profile/create_material"><i class="fas fa-box me-2"></i> تعریف کالای جدید</a> 
+   
+        {% endif %}
+    <hr>
+    <a href="/login/"><i class="fas fa-sign-out-alt me-2"></i> خروج</a>
+    {% else %}
+      <a href="/login/"><i class="fas fa-sign-in-alt me-2"></i> ورود</a>
+    {% endif %}
+
+    
+    <!-- <a href="/stone_flow/register/driver"><i class="bi bi-minecart-loaded me-2"></i> مدیریت راننده ها</a> -->
+
+
+  </div>
+
+  <!-- Main content -->
+  <div class="main-content">
+    {% block content %}
+    <!-- محتوای صفحه شما -->
+    {% endblock content %}
+
+  </div>
+
+  <!-- Scripts -->
+
+  <script src="{% static 'js/popper.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'js/all.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+{% extends "users/base.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+  .job-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+  }
+
+  .job-table th, .job-table td {
+    vertical-align: middle;
+  }
+
+  .btn-sm {
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: #f3f9ff;
+  }
+</style>
+
+<div class="container mt-5" dir="rtl">
+  <div class="job-card">
+    <h3 class="text-center text-primary mb-4 fw-bold">🧑‍💼 مدیریت شغل‌ها</h3>
+
+    <div class="text-center mb-4">
+      <a href="{% url 'job_create' %}" class="btn btn-success rounded-pill px-4">➕ ایجاد شغل جدید</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover job-table text-center align-middle">
+        <thead class="table-primary">
+          <tr>
+            <th>نام</th>
+            <th>نام فارسی</th>
+            <th>کد کوتاه</th>
+            <th>توضیحات</th>
+            <th>سطح</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in jobs %}
+          <tr>
+            <td class="fw-bold text-dark">{{ job.name }}</td>
+            <td>{{ job.persian_name }}</td>
+            <td><span class="badge bg-secondary">{{ job.short_name }}</span></td>
+            <td class="text-muted">{{ job.describe }}</td>
+            <td><span class="badge bg-info text-dark">{{ job.level }}</span></td>
+            <td>
+              <a href="{% url 'job_edit' job.id %}" class="btn btn-warning btn-sm">✏️ ویرایش</a>
+              <form method="post" action="{% url 'job_delete' job.id %}" style="display:inline;" onsubmit="return confirm('آیا مطمئن هستید؟');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">🗑 حذف</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-muted">هیچ شغلی ثبت نشده است.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

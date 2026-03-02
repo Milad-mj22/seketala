@@ -1,0 +1,50 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="card shadow p-4 rounded-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold text-primary">👥 لیست کاربران</h4>
+            <a href="{% url 'create_user' %}" class="btn btn-success">➕ افزودن کاربر جدید</a>
+        </div>
+
+        {% if users %}
+            <div class="table-responsive">
+                <table class="table table-hover text-center align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>آواتار</th>
+                            <th>نام کاربری</th>
+                            <th>نام و نام‌خانوادگی</th>
+                            <th>شماره تلفن</th>
+                            <th>سمت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <img src="{{ user.profile.avatar.url }}" alt="آواتار" class="rounded-circle" width="40" height="40">
+                            </td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.profile.first_name }} {{ user.profile.last_name }}</td>
+                            <td>{{ user.profile.phone }}</td>
+                            <td>{{ user.profile.job_position }}</td>
+                            <td>
+                                <a href="{% url 'edit_user' user.id %}" class="btn btn-sm btn-outline-primary">✏️ ویرایش</a>
+                                <a href="{% url 'delete_user' user.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('آیا مطمئن هستید؟')">🗑 حذف</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-warning text-center">هیچ کاربری ثبت نشده است.</div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

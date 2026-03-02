@@ -1,0 +1,263 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title %}
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/store.css' %}">
+
+<script>
+    function toggleSubmaterials(id) {
+        var submaterials = document.getElementById(id);
+        if (submaterials.style.display === "none" || submaterials.style.display === "") {
+            submaterials.style.display = "block";
+        } else {
+            submaterials.style.display = "none";
+        }
+    }
+
+    function changeValue(inputId, increment) {
+        const input = document.getElementById(inputId);
+        let value = parseFloat(input.value) || 0;
+        value += increment;
+        if (value < 0) {
+            value = 0; // Prevent negative values
+        }
+        input.value = value.toFixed(1);
+    }
+
+    function filterFields() {
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const motherMaterials = document.getElementsByClassName('mother-material-card');
+
+        Array.from(motherMaterials).forEach(function(motherMaterial) {
+            let hasVisibleFields = false;
+            const fields = motherMaterial.getElementsByClassName('field-card');
+
+            Array.from(fields).forEach(function(field) {
+                const fieldName = field.querySelector('.card-title').innerText.toLowerCase();
+                if (fieldName.includes(searchInput)) {
+                    field.style.display = ''; // Show
+                    hasVisibleFields = true;
+                } else {
+                    field.style.display = 'none'; // Hide
+                }
+            });
+
+            if (hasVisibleFields) {
+                motherMaterial.style.display = ''; // Show
+            } else {
+                motherMaterial.style.display = 'none'; // Hide
+            }
+
+            if (searchInput === '') {
+                const submaterials = motherMaterial.getElementsByClassName('submaterials');
+                Array.from(submaterials).forEach(function(submaterial) {
+                    submaterial.style.display = 'none'; // Close all submaterial sections
+                });
+            }
+        });
+    }
+
+    function handleSubmit(event) {
+        event.preventDefault(); // Prevent form submission
+
+        const inputs = document.querySelectorAll('.digit-input');
+        let materials = [];
+        inputs.forEach(input => {
+            const value = parseFloat(input.value);
+            if (value > 0) {
+                const materialName = input.name;
+                materials.push({ name: materialName, value: value });
+            }
+        });
+
+        if (materials.length > 0) {
+            const confirmMessage = `شما در حال ثبت سفارش موارد زیر هستید :  \n` + 
+                                    materials.map(m => `${m.name}: ${m.value}`).join('\n') + ' عدد';
+            if (confirm(confirmMessage)) {
+                // Use the action URL provided in the button's data-action attribute
+                const redirectUrl = event.target.getAttribute('data-action');
+                const form = event.target.closest('form');
+                form.action = redirectUrl;
+                form.submit(); // If confirmed, submit the form
+            }
+        } else {
+            alert("No items greater than zero were selected.");
+        }
+    }
+</script>
+
+
+
+
+
+
+<style>
+    .alert-box {
+        background: #ffebee; /* Light red */
+        color: #b71c1c; /* Dark red */
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 5px;
+    }
+
+    .materials-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        padding: 20x;
+        margin-bottom: 10px;
+    }
+
+    .material-card {
+        background: linear-gradient(135deg, #ffebee, #ffcccb); /* Light red gradient */
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        width: 280px;
+        text-align: center;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .material-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .material-name {
+        font-size: 18px;
+        font-weight: bold;
+        color: #b71c1c; /* Dark red */
+        margin-bottom: 8px;
+    }
+
+    .material-quantity {
+        font-size: 16px;
+        font-weight: 100;
+        color: #d32f2f; /* Medium red */
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    /* Bigger Checkbox */
+    .checkbox-container input[type="checkbox"] {
+        width: 25px; /* Adjust width */
+        height: 25px; /* Adjust height */
+        cursor: pointer;
+        accent-color: #b71c1c; /* Change checkbox color */
+        transform: scale(1); /* Makes checkbox even larger */
+        margin-right: 20px; /* Space between checkbox and text */
+        margin-left: 10px; /* Space between checkbox and text */
+        margin-bottom: 10px; /* Space between checkbox and text */
+    }
+
+    .checkbox-label {
+        font-size: 20px;
+        font-weight: bold;
+        color: #b71c1c;
+    }
+
+
+</style>
+
+
+
+
+
+
+
+<div class="container">
+    <div class="card page-title-card shadow-lg rounded-lg p-4 mb-4">
+        <h1 class="page-title">ثبت سفارش شب</h1>
+    </div>
+
+
+
+    {% if exist_materials %}
+
+        <!-- Alert Message -->
+        <div class="alert-box">
+            ⚠️ موارد موجود از قبل
+        </div>
+
+        <!-- Materials List -->
+        <div class="materials-container">
+            {% for material in exist_materials %}
+                <div class="material-card">
+                    <div class="material-name">{{ material.material.name }}</div>
+                    <div class="material-quantity"> {{ material.quantity }} {{ material.material.unit }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+
+
+
+    <div class="search-bar mb-4">
+        <input type="text" id="searchInput" onkeyup="filterFields()" placeholder="جست و جو ...." class="form-control">
+    </div>
+
+    <form method="post" onsubmit="return handleSubmit(event)">
+        {% csrf_token %}
+        
+        {% for mother_material in mother_foods %}
+            <div class="card mother-material-card">
+                <a href="javascript:void(0);" onclick="toggleSubmaterials('submaterials-{{ mother_material.id }}')">
+                    {{ mother_material.name }} -- حد سفارش : {{mother_material.producible_quantity}}
+                </a>
+                <div id="submaterials-{{ mother_material.id }}" class="submaterials">
+                    {% for field in mother_material.mother_food_id.all %}
+                        <div class="col field-card">
+                            <div class="card shadow-lg border-10 rounded-lg mt-0 mb-0">
+                                <div class="card-body">
+                                    <h5 class="card-title"> {{ field.name }} -- حد سفارش : {{field.producible_quantity}}</h5>
+                                    <div class="input-wrapper">
+                                        <button type="button" class="btn btn-decrement" onclick="changeValue('{{ field.id }}_input', -1)">-</button>
+                                        <input class="form-control digit-input" type="text" step="1" id="{{ field.id }}_input" name="{{ field.name }}" value="0">
+                                        <button type="button" class="btn btn-increment" onclick="changeValue('{{ field.id }}_input', 1)">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="text-center mt-4">
+            <!-- Pass the URL dynamically as a data attribute -->
+            {% if exist_materials %}
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="use_remaining" name="use_remaining" {% if last_usage %}checked{% endif %}>
+                <label for="use_remaining" class="checkbox-label">استفاده موارد موجود از قبل</label>
+            </div>
+
+            {% endif %}
+
+             
+            <button type="button" class="btn btn-primary" 
+            data-action="{% url 'show_night_order_material' %}" 
+            onclick="handleSubmit(event)" 
+            style="background: linear-gradient(135deg, #fffde7, #F7D141); border: none; color: black;">
+            نمایش اقلام
+            </button>
+
+            <button type="submit" class="btn btn-success btn-block">ثبت</button>
+        </div>
+    </form>
+</div>
+
+{% endblock content %}

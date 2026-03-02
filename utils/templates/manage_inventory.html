@@ -1,0 +1,294 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+
+<!-- Make page RTL and nicer spacing -->
+<div class="container-xxl py-4" dir="rtl">
+
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <h3 class="m-0">مدیریت موجودی بر اساس مواد اصلی</h3>
+
+    <div class="d-flex gap-2">
+      <div class="badge bg-light text-dark p-2 border">
+        مجموع افزوده‌ها (ورودی × تعداد زیرآیتم‌ها): <span id="sumAdded" class="fw-bold">0</span>
+      </div>
+      <button type="button" class="btn btn-outline-secondary" id="exportCsv">خروجی CSV</button>
+    </div>
+  </div>
+
+  <form method="post" id="inventoryForm" class="needs-validation" novalidate>
+    {% csrf_token %}
+
+    <div class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label for="warehouse" class="form-label">انبار</label>
+        <select class="form-select" id="warehouse" name="warehouse" required onchange="this.form.submit()">
+          {% for wh in warehouses %}
+            <option value="{{ wh.id }}" {% if wh.id|stringformat:'s' == selected_warehouse_id|stringformat:'s' %}selected{% endif %}>
+              {{ wh.name }}
+            </option>
+          {% endfor %}
+        </select>
+        <div class="form-text">با تغییر انبار، موجودی‌ها تازه‌سازی می‌شود.</div>
+      </div>
+
+      <div class="col-md-8 d-flex flex-wrap gap-2 justify-content-md-end">
+        <div class="input-group" style="max-width: 260px;">
+          <span class="input-group-text">تنظیم همه به</span>
+          <input type="number" step="0.01" min="0" class="form-control" id="bulkSet" placeholder="مثلاً 5">
+          <button type="button" class="btn btn-outline-secondary" id="applyBulk">اعمال</button>
+        </div>
+        <button type="button" class="btn btn-outline-dark" id="clearAll">پاک‌کردن همه</button>
+        <div class="input-group" style="max-width: 320px;">
+          <span class="input-group-text">جستجو</span>
+          <input class="form-control" id="tableSearch" type="search" placeholder="نام ماده اصلی...">
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-3 shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>مواد اصلی</span>
+        <small class="text-muted">انبار:
+          <strong>
+          {% for wh in warehouses %}{% if wh.id|stringformat:'s' == selected_warehouse_id|stringformat:'s' %}{{ wh.name }}{% endif %}{% endfor %}
+          </strong>
+        </small>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle mb-0" id="materialsTable">
+            <thead class="table-light position-sticky top-0">
+              <tr class="text-center">
+                <th style="width:48px;">#</th>
+                <th class="text-start">نام ماده اصلی</th>
+                <th>تعداد زیرآیتم‌ها</th>
+                <th>موجودی فعلی</th>
+                <th style="width: 200px;">افزودن مقدار (برای هر زیرآیتم)</th>
+                <th>افزودهٔ کل</th>
+                <th>پس از افزودن</th>
+                <th style="width: 60px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for material in mother_materials %}
+              {% with current=mother_stock|get_item:material.id %}
+              {% with child_list=children_by_mother|get_item:material.id %}
+              {% with child_count=child_counts|get_item:material.id|default:0 %}
+              <tr class="align-middle" data-row
+                  data-current="{{ current|default:0 }}"
+                  data-child-count="{{ child_count|default:0 }}">
+                <td class="text-center text-muted">{{ forloop.counter }}</td>
+                <td class="text-start fw-semibold" data-name>{{ material.name }}</td>
+                <td class="text-center fw-bold">{{ child_count|default:0 }}</td>
+
+                <td class="text-center">
+                  <span class="badge bg-soft fw-bold border">
+                    <span class="current">{{ current|default:0 }}</span>
+                  </span>
+                </td>
+
+                <td>
+                  <input type="number" step="0.01" min="0"
+                         class="form-control text-center qty-input"
+                         name="qty_{{ material.id }}" value="0" inputmode="decimal" />
+                </td>
+
+                <td class="text-center">
+                  <span class="total-added fw-bold">0</span>
+                </td>
+
+                <td class="text-center">
+                  <span class="result fw-bold">0</span>
+                </td>
+
+                <td class="text-center">
+                  {% if child_list %}
+                  <button class="btn btn-sm btn-outline-primary" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#child-{{ material.id }}"
+                          aria-expanded="false" aria-controls="child-{{ material.id }}">
+                    جزئیات
+                  </button>
+                  {% endif %}
+                </td>
+              </tr>
+
+              {% if child_list %}
+              <tr class="collapse bg-body-tertiary" id="child-{{ material.id }}">
+                <td colspan="8">
+                  <div class="p-3">
+                    <div class="table-responsive">
+                      <table class="table table-sm table-bordered align-middle mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th class="text-center" style="width:48px;">#</th>
+                            <th class="text-start">نام زیرآیتم</th>
+                            <th class="text-center">موجودی فعلی</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for ch in child_list %}
+                          <tr>
+                            <td class="text-center text-muted">{{ forloop.counter }}</td>
+                            <td class="text-start">{{ ch.name }}</td>
+                            <td class="text-center">
+                              {{ child_stock|get_item:ch.id|default:0 }}
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endif %}
+
+              {% endwith %}{% endwith %}{% endwith %}
+              {% empty %}
+              <tr><td colspan="8" class="text-center text-muted py-4">موردی یافت نشد.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-body position-sticky bottom-0 py-3 mt-3 border-top">
+      <div class="d-flex flex-wrap gap-2 justify-content-end">
+        <button type="submit" name="action" value="add_items" class="btn btn-success">
+          افزودن موجودی
+        </button>
+        <button type="submit" name="action" value="reset_zero" class="btn btn-outline-danger"
+          onclick="return confirm('آیا مطمئن هستید که می‌خواهید همه موجودی‌های انبار انتخاب‌شده صفر شوند؟');">
+          صفر کردن موجودی انبار
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  // helpers
+  const toNum = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+  const rows = () => Array.from(document.querySelectorAll('#materialsTable tbody tr[data-row]'));
+  const sumAddedEl = document.getElementById('sumAdded');
+
+  // live search
+  const searchInput = document.getElementById('tableSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      rows().forEach(tr => {
+        const name = tr.querySelector('[data-name]').textContent.toLowerCase();
+        tr.style.display = name.includes(q) ? '' : 'none';
+      });
+    });
+  }
+
+  // bulk tools
+  const bulkInput = document.getElementById('bulkSet');
+  const applyBulk = document.getElementById('applyBulk');
+  const clearAll = document.getElementById('clearAll');
+
+  if (applyBulk) {
+    applyBulk.addEventListener('click', () => {
+      const v = Math.max(0, toNum(bulkInput.value));
+      document.querySelectorAll('.qty-input').forEach(i => { i.value = v; i.dispatchEvent(new Event('input')); });
+    });
+  }
+  if (clearAll) {
+    clearAll.addEventListener('click', () => {
+      document.querySelectorAll('.qty-input').forEach(i => { i.value = 0; i.dispatchEvent(new Event('input')); });
+    });
+  }
+
+  // math per your rule:
+  // totalAdded = qtyInput * childCount
+  // result = current + totalAdded
+  function recalcRow(tr) {
+    const current = toNum(tr.dataset.current);
+    const cnt = Math.max(0, parseInt(tr.dataset.childCount || '0', 10));
+    const qtyEach = toNum(tr.querySelector('.qty-input')?.value);
+    const totalAdded = qtyEach * cnt;
+    tr.querySelector('.total-added').textContent = totalAdded.toFixed(2);
+    tr.querySelector('.result').textContent = (current + totalAdded).toFixed(2);
+  }
+  function recalcAll() {
+    let sum = 0;
+    rows().forEach(tr => {
+      const cnt = Math.max(0, parseInt(tr.dataset.childCount || '0', 10));
+      const qtyEach = toNum(tr.querySelector('.qty-input')?.value);
+      sum += (qtyEach * cnt);
+      recalcRow(tr);
+    });
+    if (sumAddedEl) sumAddedEl.textContent = sum.toFixed(2);
+  }
+  document.addEventListener('input', (e) => {
+    if (e.target.classList.contains('qty-input')) recalcAll();
+  });
+  recalcAll();
+
+  // client validation (prevent add when all zero)
+  (function(){
+    const form = document.getElementById('inventoryForm');
+    form.addEventListener('submit', function (event) {
+      if (!form.checkValidity()) { event.preventDefault(); event.stopPropagation(); }
+      const isAdd = document.activeElement && document.activeElement.value === 'add_items';
+      if (isAdd) {
+        const hasPositive = Array.from(document.querySelectorAll('.qty-input'))
+          .some(i => toNum(i.value) > 0);
+        if (!hasPositive) {
+          event.preventDefault(); event.stopPropagation();
+          alert('هیچ مقداری برای افزودن وارد نشده است.');
+        }
+      }
+      form.classList.add('was-validated');
+    }, false);
+  })();
+
+
+
+
+
+
+
+// CSV export (with UTF-8 BOM so Persian works in Excel)
+document.getElementById('exportCsv')?.addEventListener('click', () => {
+  const headers = ['#','نام ماده اصلی','تعداد زیرآیتم‌ها','موجودی فعلی','افزودن مقدار (هر زیرآیتم)','افزودهٔ کل','پس از افزودن'];
+  const lines = [headers.join(',')];
+
+  rows().forEach(tr => {
+    if (tr.style.display === 'none') return; // respect search filter
+    const idx = tr.querySelector('td:nth-child(1)')?.textContent.trim() || '';
+    const name = tr.querySelector('[data-name]')?.textContent.trim() || '';
+    const cnt = tr.dataset.childCount || '0';
+    const current = tr.querySelector('.current')?.textContent.trim() || '0';
+    const qty = tr.querySelector('.qty-input')?.value || '0';
+    const added = tr.querySelector('.total-added')?.textContent.trim() || '0';
+    const result = tr.querySelector('.result')?.textContent.trim() || '0';
+    lines.push([idx, name, cnt, current, qty, added, result]
+      .map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+  });
+
+  // prepend BOM for Excel/Windows compatibility
+  const csvContent = '\ufeff' + lines.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'inventory_mothers.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+
+</script>
+{% endblock %}

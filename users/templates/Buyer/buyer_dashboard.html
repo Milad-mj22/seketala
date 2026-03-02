@@ -1,0 +1,161 @@
+{% extends "dashboard.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock title %}
+{% block content2 %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>داشبورد مشتریان</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .scroll-list {
+            max-height: 400px; /* ارتفاع برای حدود 10 آیتم */
+            overflow-y: auto;
+        }
+
+        .scroll-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scroll-list::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .scroll-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .list-group-item {
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .list-group-item a {
+            text-decoration: none;
+            color: #1e3a8a;
+            font-weight: 500;
+        }
+
+        .list-group-item a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+
+    <h2 class="mb-4 text-center">📊 داشبورد مشتریان</h2>
+
+    <div class="row">
+        <!-- مشتریان برتر -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">🏆 مشتریان برتر</div>
+                <ul class="list-group list-group-flush scroll-list">
+                    {% for buyer in top_buyers %}
+                        <li class="list-group-item">
+                            <a href="{% url 'buyer_detail' buyer.customer__id %}">
+                                {{ buyer.customer__first_name }} {{ buyer.customer__last_name }} - تعداد خرید: {{ buyer.total_purchases }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- محصولات محبوب -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">💡 بیشترین محصول خریداری‌شده</div>
+                <ul class="list-group list-group-flush scroll-list">
+                    {% for item in top_products %}
+                        <li class="list-group-item">
+                            {{ item.buyer_name }}: {{ item.top_product_name }} ({{ item.top_product_amount }})
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- مشتریان بدون خرید -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow ">
+                <div class="card-header bg-warning text-dark">🕸 مشتریان بدون خرید</div>
+                <ul class="list-group list-group-flush scroll-list">
+                    {% for buyer in inactive_buyers %}
+                        <li class="list-group-item">
+                            <a href="{% url 'buyer_detail' buyer.id %}">
+                                {{ buyer.first_name }} {{ buyer.last_name }}
+                            </a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">همه مشتریان خرید داشته‌اند.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- مشتریان وفادار -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">❤️ مشتریان وفادار</div>
+                <ul class="list-group list-group-flush scroll-list">
+                    {% for buyer in loyal_buyers %}
+                        <li class="list-group-item">
+                            <a href="{% url 'buyer_detail' buyer.customer__id %}">
+                                {{ buyer.customer__first_name }} {{ buyer.customer__last_name }}
+                            </a> - تعداد خرید: {{ buyer.total_purchases }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- نمودار -->
+    <div class="card mt-4 shadow">
+        <div class="card-header bg-dark text-white">📈 نمودار تعداد خرید مشتریان برتر</div>
+        <div class="card-body">
+            <canvas id="buyersChart" height="100"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('buyersChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: 'تعداد خرید',
+                data: {{ chart_data|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'تعداد خرید'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+
+
+{% endblock %}

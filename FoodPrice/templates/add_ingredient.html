@@ -1,0 +1,175 @@
+{% extends "users/base.html" %}
+{% block title %}افزودن ماده اولیه{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+        font-family: 'B Nazanin';
+        direction: rtl;
+        background-color: #f3f3f3;
+    }
+
+    .add-ingredient-container {
+        max-width: 500px;
+        margin: 30px auto;
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        text-align: right;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: 600;
+    }
+
+    select, input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background-color: #c6ee15;
+        border: none;
+        border-radius: 12px;
+        color: #fff;
+        padding: 12px;
+        width: 100%;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        background-color: #b5e112;
+    }
+
+    #material_info {
+        font-weight: bold;
+        color: #1e8f55;
+        margin-bottom: 15px;
+        min-height: 24px;
+    }
+
+    .price-preview {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: -5px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="add-ingredient-container">
+    <h2>افزودن ماده اولیه به {{ food.name }}</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>انتخاب ماده اولیه:</label>
+        <select name="raw_material" id="raw_material_select">
+            {% for rm in materials %}
+                <option value="{{ rm.id }}"
+                        data-price="{{ rm.last_price }}"
+                        data-unit="{{ rm.unit }}">
+                    {{ rm.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <div id="material_info">
+            {% if materials|length > 0 %}
+                آخرین قیمت: {{ materials.0.last_price }} تومان — واحد: {{ materials.0.unit }}
+            {% endif %}
+        </div>
+
+        <label>مقدار:</label>
+        <input type="number" step="0.001" name="quantity" required placeholder="مقدار مصرف">
+
+        <label>درصد ضایعات:</label>
+        <input type="number" step="0.01" name="wastage_percent" value="0">
+
+        <label>قیمت واحد (اختیاری):</label>
+        <input type="number" step="0.01" name="price" id="price-input"
+               placeholder="اگر وارد نشود آخرین قیمت استفاده می‌شود">
+        <div id="price-preview" class="price-preview"></div>
+
+        <button type="submit" class="btn-primary">افزودن</button>
+    </form>
+</div>
+
+<script>
+    // Format number with 3-digit groups and Persian digits
+    function formatPriceWithGroups(value) {
+        if (!value && value !== 0) return "";
+        const num = Number(value);
+        if (isNaN(num)) return "";
+        return num.toLocaleString("fa-IR");
+    }
+
+    const select = document.getElementById('raw_material_select');
+    const infoBox = document.getElementById('material_info');
+
+    if (select && infoBox) {
+        select.addEventListener('change', function() {
+            const option = this.options[this.selectedIndex];
+            const price = option.getAttribute('data-price');
+            const unit = option.getAttribute('data-unit');
+
+            let text = '';
+            if (price) {
+                text += "آخرین قیمت: " + formatPriceWithGroups(price) + " تومان";
+            } else {
+                text += "برای این ماده اولیه قیمت ثبت نشده است";
+            }
+
+            if (unit) {
+                text += " — واحد: " + unit;
+            }
+
+            infoBox.innerText = text;
+        });
+
+        // Trigger once on load to format initial text nicely
+        const evt = new Event('change');
+        select.dispatchEvent(evt);
+    }
+
+    // Live formatting for user-typed price
+    const priceInput = document.getElementById("price-input");
+    const pricePreview = document.getElementById("price-preview");
+
+    if (priceInput && pricePreview) {
+        // initial value (if any)
+        if (priceInput.value) {
+            pricePreview.textContent =
+                "قیمت وارد شده: " + formatPriceWithGroups(priceInput.value) + " تومان";
+        }
+
+        priceInput.addEventListener("input", function () {
+            const val = this.value;
+            const formatted = formatPriceWithGroups(val);
+            if (formatted) {
+                pricePreview.textContent = "قیمت وارد شده: " + formatted + " تومان";
+            } else {
+                pricePreview.textContent = "";
+            }
+        });
+    }
+</script>
+
+{% endblock %}

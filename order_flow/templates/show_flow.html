@@ -1,0 +1,160 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title %}
+{% block content %}
+
+{% load static %}
+<html lang="fa" dir="rtl"></html>
+
+<head>
+
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/store.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/order_flow.css' %}">
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پروسه پنج مرحله‌ای</title>
+    <style>
+
+        /* چینش کلیدها به صورت راست به چپ */
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+
+            direction: rtl;
+        }
+        .btn-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            margin-left: 5px; /* فاصله بین کلیدها و خطوط */
+        }
+        .btn-container button:hover {
+            background-color: #45a049;
+        }
+        /* خطوط باریک بین کلیدها */
+        .line {
+            width: 40px;
+            background-color: #000;
+            height: 2px;
+            align-self: center;
+            margin-left: 5px;
+        }
+        /* استایل برای بخش‌های محتوا */
+        .content-section {
+            display: none;
+            padding: 20px;
+            margin-top: 20px;
+            margin-left: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+
+
+    /* Scrollable table body */
+    .scrollable-table {
+        max-height: 600px; /* ~20 rows depending on row height */
+        overflow-y: auto;
+        display: block;
+    }
+
+    .scrollable-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .scrollable-table thead th {
+        position: sticky;
+        top: 0;
+        background: #212529; /* dark header */
+        color: #fff;
+        z-index: 2;
+    }
+
+
+
+  
+        @media (max-width: 768px) {
+    .btn-container {
+        flex-direction: column;
+        align-items: center; /* دکمه‌ها را وسط چین می‌کند */
+    }
+
+    .btn-container a {
+        width: 100%; /* لینک‌ها تمام عرض را بگیرند */
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn-container button {
+        width: 90%; /* دکمه‌ها کمی کوچک‌تر از عرض صفحه */
+        margin: 5px 0; /* فاصله بین دکمه‌ها */
+        text-align: center; /* متن دکمه را وسط قرار می‌دهد */
+    }
+
+    .line {
+        display: none; /* خطوط بین دکمه‌ها در موبایل حذف شوند */
+    }
+}
+
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- کلیدها با خطوط باریک در بالای صفحه -->
+    <div class="btn-container">
+        <a href="/order_flow/section1/{{order_id}}/">
+            <button>مرحله ۱: درخواستی</button>
+        </a>
+        <div class="line"></div>
+        <a href="/order_flow/section2/{{order_id}}/">
+            <button>مرحله ۲: ارسال از آماده سازی</button>
+        </a>
+        <div class="line"></div>
+        <a href="/order_flow/section3/{{order_id}}/">
+            <button>مرحله ۳: تحویلی رستوران</button>
+        </a>
+        <div class="line"></div>
+        <a href="/order_flow/section4/{{order_id}}/">
+            <button>مرحله ۴: مانده</button>
+        </a>
+        <!-- <div class="line"></div>
+        <a href="/order_flow/section5/{{order_id}}/">
+            <button>مرحله ۵: خروج</button>
+        </a> -->
+    </div>
+
+    {% block content2 %}
+    <!-- Content Goes here -->
+    {% endblock content2 %}
+    
+    
+    
+
+    <script>
+        function showSection(sectionId) {
+            // پنهان کردن همه‌ی بخش‌ها
+            var sections = document.querySelectorAll('.content-section');
+            sections.forEach(function(section) {
+                section.classList.remove('active');
+            });
+
+            // نمایش بخشی که انتخاب شده
+            var sectionToShow = document.getElementById(sectionId);
+            sectionToShow.classList.add('active');
+        }
+    </script>
+
+</body>
+{% endblock %}

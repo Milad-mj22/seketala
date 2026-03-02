@@ -1,0 +1,95 @@
+
+<!-- بارگذاری CDN Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<hr>
+
+<div class="container my-4">
+    <h3 class="text-center mb-4">درصد تبدیل پیش‌فاکتورها به فروش</h3>
+    <div class="row">
+        <!-- درصد بر اساس تعداد -->
+        <div class="col-md-6">
+            <div class="card p-3 shadow">
+                <h5 class="text-center">بر اساس تعداد</h5>
+                <canvas id="countRatioChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- درصد بر اساس قیمت -->
+        <div class="col-md-6">
+            <div class="card p-3 shadow">
+                <h5 class="text-center">بر اساس قیمت کل</h5>
+                <canvas id="priceRatioChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const usernames = {{ usernames |safe }};
+    const sellRatios = {{ sell_ratios }};
+    const sellPriceRatios = {{ sell_price_ratios }};
+
+    // نمودار درصد تبدیل بر اساس تعداد
+    new Chart(document.getElementById('countRatioChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: usernames,
+            datasets: [{
+                label: 'درصد فروش (تعداد)',
+                data: sellRatios,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    max: 100,
+                    beginAtZero: true,
+                    ticks: { callback: value => value + '%' }
+                }
+            },
+            plugins: {
+                legend: { display: true },
+                tooltip: { callbacks: {
+                    label: ctx => ctx.parsed.y + '%'
+                }}
+            }
+        }
+    });
+
+    // نمودار درصد تبدیل بر اساس قیمت
+    new Chart(document.getElementById('priceRatioChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: usernames,
+            datasets: [{
+                label: 'درصد فروش (قیمت کل)',
+                data: sellPriceRatios,
+                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    max: 100,
+                    beginAtZero: true,
+                    ticks: { callback: value => value + '%' }
+                }
+            },
+            plugins: {
+                legend: { display: true },
+                tooltip: { callbacks: {
+                    label: ctx => ctx.parsed.y + '%'
+                }}
+            }
+        }
+    });
+
+</script>

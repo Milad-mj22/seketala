@@ -1,0 +1,121 @@
+{% extends "users/base.html" %}
+{% load widget_tweaks %}
+{% load custom_filters %}
+
+{% block content %}
+<style>
+    body {
+        direction: rtl;
+        text-align: right;
+        font-family: 'Vazirmatn', 'IRANSans', Tahoma, sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    .form-wrapper {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .form-card {
+        background: #fff;
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 30px;
+    }
+
+    .form-title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 30px;
+        color: #198754;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    .form-control {
+        background-color: #f9f9f9;
+    }
+
+    .form-control:focus {
+        background-color: #fff;
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .license-plate-box {
+        font-family: Tahoma;
+        direction: rtl;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid #000;
+        border-radius: 8px;
+        padding: 10px 15px;
+        background-color: #e9ecef;
+        margin-top: 10px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        gap: 10px;
+    }
+
+    .license-plate-box span {
+        display: inline-block;
+        min-width: 30px;
+        text-align: center;
+    }
+
+    .license-separator {
+        border-right: 2px solid #000;
+        height: 24px;
+        margin: 0 10px;
+    }
+</style>
+
+<div class="container form-wrapper">
+    <div class="card form-card">
+        <div class="form-title">ویرایش راننده: {{ driver.user.get_full_name }}</div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% if field.errors %}
+                        {{ field|add_class:"form-control is-invalid text-end" }}
+                        {% for error in field.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    {% else %}
+                        {{ field|add_class:"form-control text-end" }}
+                    {% endif %}
+
+                    {% if field.name == "license_plate" %}
+                        {% with plate=field.value|split_license %}
+                        <div class="license-plate-box mt-2">
+                            <span>{{ plate.0 }}</span>
+                            <span>{{ plate.1 }}</span>
+                            <span>{{ plate.2 }}</span>
+                            <div class="license-separator"></div>
+                            <span>{{ plate.3 }}</span>
+                        </div>
+                        {% endwith %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-success btn-submit">ذخیره تغییرات</button>
+            <a href="{% url 'driver_list' %}" class="btn btn-secondary w-100 mt-2">بازگشت</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

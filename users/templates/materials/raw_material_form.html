@@ -1,0 +1,94 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block content %}
+<head>
+    <meta charset="UTF-8" />
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <style>
+
+        h2 {
+            text-align: right;
+            font-weight: 900;
+            font-size: 2.5rem;
+            color: #1e3a8a; /* رنگ آبی تیره */
+            margin-bottom: 2rem;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 6px rgb(30 58 138 / 0.2);
+        }
+        form.card {
+            max-width: 650px;
+            margin: auto;
+            padding: 2.2rem 2.5rem;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 8px 25px rgb(0 0 0 / 0.08);
+            transition: box-shadow 0.3s ease;
+        }
+        form.card:hover {
+            box-shadow: 0 12px 35px rgb(0 0 0 / 0.15);
+        }
+        label {
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            display: block;
+            color: #374151; /* خاکستری تیره */
+            font-size: 1.05rem;
+            user-select: none;
+        }
+        input, textarea, select {
+            border-radius: 12px;
+            border: 1.8px solid #cbd5e1;
+            padding: 12px 15px;
+            width: 100%;
+            font-size: 1rem;
+            color: #1f2937;
+            box-sizing: border-box;
+            transition: border-color 0.25s ease;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #2563eb; /* آبی */
+            outline: none;
+            box-shadow: 0 0 6px #93c5fdaa;
+        }
+        .btn-success, .btn-secondary {
+            border-radius: 14px;
+            font-weight: 700;
+            padding: 0.6rem 1.6rem;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+            min-width: 110px;
+        }
+        .btn-success:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            margin-left: 12px;
+            background-color: #6b7280;
+            border-color: #6b7280;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+            border-color: #4b5563;
+            color: white;
+        }
+        .d-flex.justify-content-end {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>{{ title }}</h2>
+    <form method="post" enctype="multipart/form-data" class="card shadow-sm"  style="text-align: right; display: block;">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-flex justify-content-end">
+            <a href="{% url 'raw_material_list' %}" class="btn btn-secondary">بازگشت</a>
+            <button type="submit" class="btn btn-success">ذخیره</button>
+        </div>
+    </form>
+</div>
+</body>
+{% endblock %}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.1.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-200 text-gray-800 min-h-screen">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-md py-4 px-8 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-800">📊 Sales Dashboard</h1>
+        <a href="{% url 'upload_db' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+            Upload New Data
+        </a>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <!-- CARD 1: TOP CUSTOMERS -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                🏆 Top Customers
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-indigo-50">
+                        <tr>
+                            <th class="p-3">Customer</th>
+                            <th class="p-3 text-right">Total Spent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in top_customers %}
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-3">{{ c.kname }}</td>
+                            <td class="p-3 text-right font-medium text-indigo-600">{{ c.total_spent|floatformat:0 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="2" class="p-3 text-center text-gray-400">No data available</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CARD 2: DAILY SALES CHART -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                📅 Sales per Day
+            </h2>
+            <canvas id="salesChart" class="w-full h-64"></canvas>
+        </div>
+
+        <!-- CARD 3: SUMMARY STATS -->
+        <div class="p-4 bg-gradient-to-br from-indigo-500 to-indigo-700 text-white rounded-xl shadow-md">
+            <p class="text-sm opacity-75">Total Revenue</p>
+            <p class="text-2xl font-bold">{{ total_revenue|floatformat:0 }} ₮</p>
+        </div>
+
+        <div class="p-4 bg-gradient-to-br from-green-500 to-green-700 text-white rounded-xl shadow-md">
+            <p class="text-sm opacity-75">Top Customer</p>
+            <p class="text-xl font-bold">
+                {% if top_customers %}
+                    {{ top_customers.0.kname }}
+                {% else %}
+                    -
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="p-4 bg-gradient-to-br from-pink-500 to-pink-700 text-white rounded-xl shadow-md">
+            <p class="text-sm opacity-75">Days Recorded</p>
+            <p class="text-2xl font-bold">{{ days_count }}</p>
+        </div>
+
+        <div class="p-4 bg-gradient-to-br from-yellow-400 to-orange-500 text-white rounded-xl shadow-md">
+            <p class="text-sm opacity-75">Customers Count</p>
+            <p class="text-2xl font-bold">{{ customers_count }}</p>
+        </div>
+
+
+    </main>
+
+    <script>
+        const ctx = document.getElementById('salesChart');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [{% for d in daily_sales %}'{{ d.dat }}',{% endfor %}],
+                datasets: [{
+                    label: 'Daily Sales',
+                    data: [{% for d in daily_sales %}{{ d.total_day }},{% endfor %}],
+                    fill: true,
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderColor: 'rgb(99, 102, 241)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgb(99, 102, 241)'
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Total Sales' } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

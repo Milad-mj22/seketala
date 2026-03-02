@@ -1,0 +1,554 @@
+{% extends "users/base.html" %}
+{% block title %}لیست غذاها{% endblock title %}
+{% block content %}
+
+<style>
+    body {
+        font-family: 'B Nazanin';
+        direction: rtl;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+
+    .page-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 10px 15px 80px;
+        direction: rtl;
+    }
+
+    .page-title {
+        text-align: center;
+        font-size: 2rem;
+        margin: 25px 0 5px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .page-subtitle {
+        text-align: center;
+        font-size: 0.95rem;
+        color: #777;
+        margin-bottom: 10px;
+    }
+
+    .page-subtitle span {
+        font-weight: bold;
+        color: #444;
+    }
+
+    /* Toolbar (search + legend) */
+    .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0 18px;
+    }
+
+    .search-box {
+        flex: 1 1 240px;
+        max-width: 360px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 20px;
+        border: 1px solid #ccc;
+        font-size: 0.95rem;
+        text-align: right;
+        direction: rtl;
+    }
+
+    .legend {
+        flex: 1 1 200px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        font-size: 0.85rem;
+        align-items: center;
+        color: #555;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .legend-dot.max {
+        background: linear-gradient(135deg, #ff9800, #ff5722);
+    }
+
+    .legend-dot.min {
+        background: linear-gradient(135deg, #8bc34a, #4caf50);
+    }
+
+    /* Grid */
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+    }
+
+    .grid-item {
+        background: linear-gradient(145deg, #ffffff, #ececec);
+        border-radius: 18px;
+        padding: 16px 18px 14px;
+        box-shadow:
+            6px 6px 14px rgba(0,0,0,0.08),
+            -6px -6px 14px rgba(255,255,255,0.9);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        position: relative;
+        border: 1px solid transparent;
+    }
+
+    .grid-item:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            10px 10px 22px rgba(198,238,21,0.35),
+            -10px -10px 22px rgba(255,255,255,0.9);
+    }
+
+    /* Highlight max / min */
+    .grid-item.card-max {
+        border-color: #ff9800;
+    }
+    .grid-item.card-min {
+        border-color: #4caf50;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        gap: 8px;
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        color: #222;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .ingredient-count {
+        font-size: 0.85rem;
+        background-color: #f0f6dc;
+        color: #5c7c14;
+        padding: 4px 10px;
+        border-radius: 999px;
+        white-space: nowrap;
+    }
+
+    .card-badge-top {
+        position: absolute;
+        top: 10px;
+        left: 12px;
+        font-size: 0.75rem;
+        padding: 3px 9px;
+        border-radius: 999px;
+        color: #fff;
+    }
+
+    .card-badge-top.max {
+        background: linear-gradient(135deg, #ff9800, #ff5722);
+    }
+
+    .card-badge-top.min {
+        background: linear-gradient(135deg, #8bc34a, #4caf50);
+    }
+
+    .card-body {
+        font-size: 0.95rem;
+        color: #555;
+        margin: 4px 0 10px;
+    }
+
+    .card-row {
+        margin-bottom: 3px;
+    }
+
+    .card-row span.label {
+        color: #777;
+    }
+
+    .total-cost-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #c6ee15, #a6d90f);
+        color: #1b2605;
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-top: 6px;
+    }
+
+    .grid-item.card-max .total-cost-badge {
+        background: linear-gradient(135deg, #ff9800, #ff5722);
+        color: #fff;
+    }
+
+    .grid-item.card-min .total-cost-badge {
+        background: linear-gradient(135deg, #8bc34a, #4caf50);
+        color: #fff;
+    }
+
+    .total-cost-badge .price {
+        font-size: 1rem;
+    }
+
+    .card-footer {
+        margin-top: 10px;
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .btn-primary, .btn-delete , .btn-edit {
+        display: inline-block;
+        padding: 7px 16px;
+        font-size: 0.9rem;
+        border-radius: 20px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        color: #fff;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    .btn-primary {
+        background-color: #c6ee15;
+        color: #243000;
+    }
+
+    .btn-edit {
+        background-color: #0099ff;
+    }
+
+    .btn-delete {
+        background-color: #ff4d4d;
+    }
+
+    .btn-primary:hover,
+    .btn-edit:hover,
+    .btn-delete:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+    }
+
+    /* Floating Add Button */
+    .add-button {
+        position: fixed;
+        bottom: 22px;
+        left: 22px;
+        background-color: #c6ee15;
+        color: white;
+        border: none;
+        width: 58px;
+        height: 58px;
+        font-size: 2rem;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        z-index: 50;
+    }
+
+    .add-button:hover {
+        transform: scale(1.06);
+        box-shadow: 0 0 25px rgba(198, 238, 21, 0.7);
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        margin-top: 40px;
+        color: #777;
+        font-size: 1rem;
+    }
+
+    /* Modal (Delete Confirm) */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.55);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-box {
+        background: rgba(255, 255, 255, 0.96);
+        width: 350px;
+        padding: 25px;
+        border-radius: 18px;
+        text-align: center;
+        box-shadow: 0 0 25px rgba(0,0,0,0.25);
+        animation: fadeIn 0.25s ease;
+    }
+
+
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 12px;
+        color: #333;
+    }
+
+    .modal-buttons {
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .btn-cancel,
+    .btn-confirm {
+        flex: 1;
+        padding: 9px;
+        border-radius: 12px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .btn-cancel {
+        background-color: #777;
+    }
+
+    .btn-confirm {
+        background-color: #ff4d4d;
+    }
+
+    .btn-cancel:hover, .btn-confirm:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 768px) {
+        .page-wrapper {
+            padding: 10px 10px 80px;
+        }
+
+        .page-title {
+            font-size: 1.7rem;
+        }
+
+        .legend {
+            justify-content: flex-start;
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <h2 class="page-title">لیست غذاها</h2>
+    <div class="page-subtitle">
+        تعداد غذاها: <span>{{ foods|length }}</span>
+    </div>
+
+    <div class="toolbar">
+        <div class="search-box">
+            <input
+                type="text"
+                id="searchInput"
+                class="search-input"
+                placeholder="جستجو بر اساس نام غذا..."
+            >
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-dot max"></span>
+                <span>گران‌ترین غذا</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-dot min"></span>
+                <span>ارزان‌ترین غذا</span>
+            </div>
+        </div>
+    </div>
+
+    {% if foods %}
+        <div class="grid-container" id="foodsGrid">
+            {% for food in foods %}
+            <div class="grid-item">
+                <div class="card-header">
+                    <h2 class="card-title">{{ food.name }}</h2>
+                    <div class="ingredient-count">
+                        {{ food.ingredients.count }} ماده اولیه
+                    </div>
+                </div>
+
+                <!-- Badge بالا (پر می‌شود با JS اگر max/min باشد) -->
+                <div class="card-badge-top"></div>
+
+                <div class="card-body">
+                    <div class="card-row">
+                        <span class="label">جمع هزینه مواد اولیه:</span>
+                    </div>
+                    <div class="total-cost-badge">
+                        <span class="price" data-value="{{ food.total_cost }}"></span>
+                        <span>تومان</span>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <a href="{% url 'food_ingredients' food.id %}" class="btn-primary">مواد اولیه →</a>
+                    <a href="{% url 'update_food' food.id %}" class="btn-edit">ویرایش</a>
+                    <button class="btn-delete"
+                            onclick="openDeleteModal({{ food.id }}, '{{ food.name }}')">
+                        حذف
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            هنوز هیچ غذایی ثبت نشده است. از دکمه + برای افزودن استفاده کنید.
+        </div>
+    {% endif %}
+</div>
+
+<!-- Floating Add Button -->
+<button class="add-button" onclick="window.location.href='{% url 'add_food' %}'">+</button>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="modal-title">حذف غذا</div>
+        <p id="deleteText">آیا از حذف این غذا مطمئن هستید؟</p>
+
+        <form method="POST" id="deleteForm">
+            {% csrf_token %}
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="closeDeleteModal()">لغو</button>
+                <button type="submit" class="btn-confirm">حذف</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openDeleteModal(foodId, foodName) {
+        document.getElementById("deleteText").innerText =
+            "آیا از حذف «" + foodName + "» مطمئن هستید؟";
+
+        document.getElementById("deleteForm").action =
+            "/FoodManagment/foods/" + foodId + "/delete/";
+
+        document.getElementById("deleteModal").style.display = "flex";
+    }
+
+    function closeDeleteModal() {
+        document.getElementById("deleteModal").style.display = "none";
+    }
+
+    // -------- Price formatting (3-digit, Persian) --------
+    function formatPriceWithGroups(value) {
+        if (value === null || value === undefined || value === "") return "";
+        const num = Number(value);
+        if (isNaN(num)) return "";
+        return num.toLocaleString("fa-IR");
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const cards = document.querySelectorAll(".grid-item");
+        const priceElements = document.querySelectorAll(".grid-item .total-cost-badge .price");
+
+        // 1) Format all prices
+        priceElements.forEach(function (el) {
+            const raw = el.getAttribute("data-value");
+            const formatted = formatPriceWithGroups(raw);
+            if (formatted) {
+                el.textContent = formatted;
+            }
+        });
+
+        // 2) Find min / max total cost
+        let minVal = Infinity;
+        let maxVal = -Infinity;
+
+        priceElements.forEach(function (el) {
+            const raw = el.getAttribute("data-value");
+            const val = Number(raw);
+            if (!isNaN(val)) {
+                if (val < minVal) minVal = val;
+                if (val > maxVal) maxVal = val;
+            }
+        });
+
+        // 3) Mark cards with min / max and set top badge text
+        priceElements.forEach(function (el) {
+            const raw = el.getAttribute("data-value");
+            const val = Number(raw);
+            if (isNaN(val)) return;
+
+            const card = el.closest(".grid-item");
+            const badgeTop = card.querySelector(".card-badge-top");
+
+            if (val === maxVal && isFinite(maxVal)) {
+                card.classList.add("card-max");
+                if (badgeTop) {
+                    badgeTop.textContent = "گران‌ترین";
+                    badgeTop.classList.add("max");
+                }
+            } else if (val === minVal && isFinite(minVal)) {
+                card.classList.add("card-min");
+                if (badgeTop) {
+                    badgeTop.textContent = "ارزان‌ترین";
+                    badgeTop.classList.add("min");
+                }
+            } else if (badgeTop) {
+                badgeTop.textContent = "";
+            }
+        });
+
+        // 4) Search / filter by name
+        const searchInput = document.getElementById("searchInput");
+        if (searchInput) {
+            searchInput.addEventListener("input", function () {
+                const query = this.value.trim().toLowerCase();
+                cards.forEach(function (card) {
+                    const titleEl = card.querySelector(".card-title");
+                    const name = titleEl ? titleEl.textContent.trim().toLowerCase() : "";
+                    if (!query || name.includes(query)) {
+                        card.style.display = "";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            });
+        }
+    });
+</script>
+
+{% endblock %}

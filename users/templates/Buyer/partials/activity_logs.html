@@ -1,0 +1,110 @@
+{% load custom_filters %}
+
+{% if factors == None %}
+  <!-- دکمه افزودن فعالیت -->
+  <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addActivityModal">
+      ➕ افزودن فعالیت
+  </button>
+
+  <!-- لیست فعالیت‌ها -->
+  {% for log in logs %}
+    <div class="mb-3">
+      <h6 class="text-muted">{{ log.timestamp|to_jalali }}</h6>
+      <p>{{ log.description }}</p>
+      <hr>
+    </div>
+  {% empty %}
+    <p class="text-muted">هیچ فعالیتی یافت نشد.</p>
+  {% endfor %}
+
+  <!-- مودال افزودن فعالیت -->
+  <div class="modal fade" id="addActivityModal" tabindex="-1" aria-labelledby="addActivityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="POST" action="{% url 'add_buyer_activity' buyer_id %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="addActivityModalLabel">افزودن فعالیت جدید</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="activity_type" class="form-label">نوع فعالیت</label>
+              <select name="activity_type" class="form-select" required>
+                {% for key in activity_choices %}
+                  <option value="{{ key }}" {% if key == selected_activity_type %}selected{% endif %}>{{ key }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">توضیحات</label>
+              <textarea id="description" name="description" class="form-control" rows="4" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+            <button type="submit" class="btn btn-primary">ثبت</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+{% else %}
+
+
+
+  <h4 class="fw-bold text-primary mb-4">📊 نمودار خرید مواد</h4>
+
+  <!-- Pie Chart -->
+  <canvas id="factorChart" width="400" height="300"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('factorChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: [{% for f in factors %}"{{ f.coop.material.name|default:"نامشخص" }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+          label: 'مقدار خرید',
+          data: [{% for f in factors %}{{ f.unit_price }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+          backgroundColor: [
+            '#007bff', '#28a745', '#ffc107', '#dc3545', '#6610f2', '#17a2b8'
+          ],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          title: {
+            display: true,
+            text: 'مقدار خرید مواد توسط مشتری'
+          }
+        }
+      }
+    });
+  </script>
+
+  <!-- List of Factors -->
+  <h5 class="fw-bold mt-4">📄 لیست فاکتورها</h5>
+  <ul class="list-group mb-4">
+    {% for f in factors %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          {{ f.coop.material.name }} - {{ f.unit_price }} تومان - {{ f.discount }} تخفیف
+          <span class="badge bg-primary rounded-pill">{{ f.pre_invoice.created_at|to_jalali }}</span>
+        </div>
+        <a href="{% url 'show_factor' f.pre_invoice.id %}" class="btn btn-sm btn-outline-info">مشاهده فاکتور</a>
+      </li>
+
+    {% endfor %}
+  </ul>
+
+  <!-- Total Price -->
+  <h5 class="text-success fw-bold">💰 مجموع خرید: 
+    {{ total_price }} تومان
+  </h5>
+
+{% endif %}

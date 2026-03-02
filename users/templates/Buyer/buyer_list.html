@@ -1,0 +1,166 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock title %}
+{% block content %}
+
+<style>
+
+
+.buyer-card {
+
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    transition: 0.3s ease;
+
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 4px #ccc;
+  overflow: hidden;
+}
+
+.category-stripes {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  display: flex;
+  flex-direction: column;
+}
+.category-stripe {
+  flex: 1;
+}
+
+
+
+  .buyer-card:hover {
+    transform: scale(1.01);
+  }
+
+  .buyer-info {
+    direction: rtl;
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  .buyer-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+  }
+
+  .buyer-meta {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .buyer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .btn-custom {
+    border-radius: 10px;
+    padding: 6px 14px;
+    font-size: 0.9rem;
+  }
+
+  .btn-history {
+    background-color: #eaf4ff;
+    color: #007bff;
+  }
+
+  .btn-edit {
+    background-color: #fff4e5;
+    color: #ff8800;
+  }
+
+  .btn-delete {
+    background-color: #ffe5e5;
+    color: #d11a2a;
+  }
+
+.buyer-actions {
+  display: flex;
+  flex-direction: row; /* ⬅️ make buttons inline */
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+
+  @media (max-width: 768px) {
+    .buyer-actions {
+      flex-direction: row;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+  }
+</style>
+
+<div class="container mt-4" dir="rtl">
+  <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+    <h2 class="fw-bold text-primary mb-2">📋 لیست خریداران - تعداد : {{counts}}</h2>
+    <a href="{% url 'add_buyer' %}" class="btn btn-success btn-add btn-sm">➕ خریدار جدید</a>
+  </div>
+
+  <form method="get" class="mb-4">
+  <div class="input-group">
+  <input type="text" name="q" placeholder=" جستجو بر اساس نام، شماره یا ملیت یا دسته بندی..." value="{{ query|default:'' }}" class="form-control" />
+
+    <button type="submit" class="btn btn-outline-primary">🔍 جستجو</button>
+  </div>
+</form>
+
+  {% if buyers %}
+{% for buyer in buyers %}
+  <div class="buyer-card">
+    <div class="category-stripes">
+      {% for category in buyer.categories.all %}
+        <div class="category-stripe" style="background-color: {{ category.color }}"></div>
+      {% endfor %}
+    </div>
+      
+    <div class="buyer-info d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 flex-wrap">
+      <!-- نام خریدار و دکمه‌ها -->
+      <div class="d-flex align-items-center flex-wrap gap-2">
+        <div class="buyer-name mb-0">{{ buyer.short_name }}</div>
+        <div class="buyer-actions d-flex flex-row gap-2">
+          <a href="{% url 'buyer_detail' buyer.id %}" class="btn btn-history btn-sm btn-custom">📜 سوابق</a>
+          <a href="{% url 'edit_buyer' buyer.id %}" class="btn btn-edit btn-sm btn-custom">✏️ ویرایش</a>
+          <button class="btn btn-delete btn-sm btn-custom" onclick="confirmDelete('{{ buyer.id }}')">🗑 حذف</button>
+        </div>
+      </div>
+
+      <!-- اطلاعات دیگر -->
+      <div class="d-flex flex-wrap gap-3 text-muted small">
+        <div>📱 {{ buyer.phone_number }}</div>
+        {% if buyer.nationality %}
+          <div>🌍 ملیت: {{ buyer.nationality.name }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+  {% else %}
+    <p class="text-muted text-center">هیچ خریداری ثبت نشده است.</p>
+  {% endif %}
+</div>
+
+<script>
+  function confirmDelete(id) {
+    if (confirm('آیا از حذف این خریدار مطمئن هستید؟')) {
+      window.location.href = `/buyers/delete/${id}/`;
+    }
+  }
+</script>
+
+{% endblock content %}

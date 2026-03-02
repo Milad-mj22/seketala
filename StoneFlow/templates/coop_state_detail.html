@@ -1,0 +1,16 @@
+{% load custom_filters %}
+
+
+
+
+<h5 class="mb-3 text-end fw-bold">ویژگی‌های مربوط به این مرحله:</h5>
+<div class="row">
+  {% for attr in attributes %}
+    <div class="col-md-4 mb-3">
+      <label class="form-label fw-bold">{{ attr.label }}</label>
+      <div class="form-control" readonly>
+        {{ attribute_values|get_item:attr.id|default:attr.default_value }}
+      </div>
+    </div>
+  {% endfor %}
+</div>

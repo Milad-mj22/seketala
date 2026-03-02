@@ -1,0 +1,114 @@
+{% extends "users/base.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+
+
+  .upload-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+  }
+
+  .upload-card {
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 780px;
+    direction: rtl;
+  }
+
+  .upload-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    text-align: center;
+    color: #0d6efd;
+    margin-bottom: 30px;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 8px;
+  }
+
+  .form-control {
+    border-radius: 12px;
+    padding: 10px 16px;
+  }
+
+  .btn-upload {
+    background-color: #0d6efd;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #fff;
+    transition: background 0.3s ease;
+  }
+
+  .btn-upload:hover {
+    background-color: #0b5ed7;
+  }
+
+  .alert {
+    font-size: 0.95rem;
+    border-radius: 12px;
+  }
+
+  .form-section hr {
+    margin: 30px 0;
+    border-top: 1px solid #ddd;
+  }
+</style>
+
+<div class="container upload-wrapper" dir="rtl">
+  <div class="upload-card">
+    <h3 class="upload-title">📤 بارگذاری فایل CSV خریداران</h3>
+
+    {% if error %}
+      <div class="alert alert-danger text-center">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="mb-4">
+        <label for="file" class="form-label"  style="text-align: right; display: block;">فایل CSV</label>
+        <input type="file" name="file" accept=".csv" class="form-control" required>
+      </div>
+
+      <div class="form-section">
+        <hr>
+
+        <div class="row">
+          <div class="col-md-4 mb-4">
+            <label for="col_first" class="form-label"  style="text-align: right; display: block;">نام ستون برای نام</label>
+            <input type="text" name="col_first" class="form-control" placeholder="مثلاً: نام" required value="First Name">
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <label for="col_last" class="form-label"  style="text-align: right; display: block;">نام ستون برای نام خانوادگی</label>
+            <input type="text" name="col_last" class="form-control" placeholder="مثلاً: نام خانوادگی" required value="Last Name">
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <label for="col_phone" class="form-label"  style="text-align: right; display: block;">نام ستون برای شماره تلفن</label>
+            <input type="text" name="col_phone" class="form-control" placeholder="مثلاً: شماره تماس" required value="Mobile Phone">
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-upload"> بارگذاری و ذخیره</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

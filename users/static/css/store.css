@@ -1,0 +1,343 @@
+/* === Modernized CSS for 2024 UI === */
+
+h1 {
+  direction: rtl;
+  text-align: right;
+  color: #2b2b2b;
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.card {
+  margin: 1rem 0;
+  padding: 1.5rem;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  direction: rtl;
+  text-align: right;
+}
+
+.card a {
+  text-decoration: none;
+  color: #0d6efd;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.card a:hover {
+  color: #084298;
+}
+
+.submaterials {
+  display: none;
+  margin-top: 1rem;
+}
+
+.submaterial-card {
+  border: 1px solid #dcdcdc;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: #f8f9fa;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+}
+
+.input-group button {
+  width: 2rem;
+  padding: 0.2rem;
+  line-height: 1.5;
+  color: #fff;
+  background-color: #ff9800;
+  border: 1px solid #fb8c00;
+  cursor: pointer;
+  border-radius: 0.3rem;
+}
+
+.input-group button:hover {
+  background-color: #f57c00;
+}
+
+.form-control {
+  padding-right: 2.5rem;
+  text-align: center;
+  flex: 1;
+  color: #212529;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  border: 1px solid #ced4da;
+}
+
+.input-group-append {
+  margin-left: 0.5rem;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.digit-input {
+  width: 6em;
+  text-align: center;
+  background-color: #fff;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.content-container {
+  padding-top: 2rem;
+}
+
+.additional-details {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 2rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  resize: vertical;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.floating-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 10px;
+  font-size: 16px;
+  color: #ccc;
+  transition: 0.2s ease all;
+}
+
+.form-control:focus + .floating-label,
+.form-control:valid + .floating-label {
+  top: -20px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.small-font {
+  font-size: 0.7rem;
+}
+
+.page-title-card {
+  background: linear-gradient(135deg, #fef9e7, #f6c343);
+  text-align: center;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+h1.page-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 0;
+}
+
+.form-label {
+  text-align: right;
+  font-size: 1.1rem;
+  direction: rtl;
+  font-weight: 600;
+}
+
+.form-select {
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.5rem;
+  background-color: #f1f1f1;
+  color: #333;
+  font-weight: bold;
+  direction: rtl;
+  text-align: right;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+.form-select:hover {
+  background-color: #e0e0e0;
+}
+
+.warehouse-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  flex-basis: 100%;
+}
+
+.form-check-label {
+  font-size: 1rem;
+  color: #333;
+  margin-right: 15px;
+  text-align: right;
+}
+
+.select-all-checkbox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  direction: rtl;
+}
+
+.btn-primary {
+  width: 100%;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  background-color: #007bff;
+  color: white;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.separator-line {
+  border: 0;
+  height: 1px;
+  background-color: #ccc;
+  margin: 1rem 0;
+}
+
+.warehouse-selection-card {
+  background-color: #f9f9f9;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.form-check-input {
+  margin-left: 10px;
+}
+
+.selected-params-card {
+  border: 1px solid #ddd;
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.selected-params-card h6 {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.selected-params-card p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  z-index: 1;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 0.5rem;
+}
+
+.dropdown-content label {
+  display: block;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.dropdown-content label:hover {
+  background-color: #f1f1f1;
+}
+
+.show {
+  display: block;
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+thead th {
+  background-color: #343a40;
+  color: #fff;
+  text-align: center;
+  padding: 12px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+tbody td {
+  padding: 12px;
+  text-align: center;
+  font-size: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+tbody td:first-child {
+  font-weight: 600;
+}
+
+@media (min-width: 576px) {
+  .form-check {
+    flex-basis: calc(50% - 10px);
+  }
+}
+
+@media (min-width: 768px) {
+  .form-check {
+    flex-basis: calc(33.33% - 10px);
+  }
+}
+
+@media (min-width: 992px) {
+  .form-check {
+    flex-basis: calc(25% - 10px);
+  }
+}

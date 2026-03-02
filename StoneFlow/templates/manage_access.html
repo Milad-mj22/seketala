@@ -1,0 +1,129 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+{% load custom_filters %}
+
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+  .access-table select {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    padding-right: 24px; /* فاصله بین متن و فلش */
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    direction: rtl; /* برای درست چیدن متن و فلش در راست‌چین */
+    background-position: left 0.75rem center; /* مکان فلش در RTL */
+    background-repeat: no-repeat;
+  }
+
+  .access-table thead th {
+    background: #f8f9fa;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #333;
+    border-bottom: 1px solid #dee2e6;
+    white-space: nowrap;
+  }
+
+  .access-table tbody td {
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .user-col {
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .access-table select {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+  }
+
+  .save-btn {
+    background: linear-gradient(to left, #00c853, #64dd17);
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 10px 30px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .save-btn:hover {
+    background: linear-gradient(to left, #00bfa5, #1de9b6);
+    transform: translateY(-2px);
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  @media (max-width: 768px) {
+    .access-table {
+      font-size: 0.75rem;
+    }
+
+    .access-table select {
+      font-size: 0.75rem;
+    }
+  }
+</style>
+
+<div class="card shadow rounded-4 p-4" style="direction: rtl;">
+  <h4 class="mb-4 fw-bold text-center text-primary">🛡️ مدیریت سطح دسترسی کاربران به مراحل</h4>
+
+    <form method="get" class="mb-4 d-flex justify-content-end" style="max-width: 300px; margin-right: auto; margin-left: auto;">
+    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control me-2" placeholder="جستجوی نام کاربر...">
+    <button type="submit" class="btn btn-outline-primary">جستجو</button>
+    </form>
+
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="table-container">
+      <table class="table access-table table-bordered text-center align-middle">
+        <thead>
+          <tr>
+            <th>👤 کاربر</th>
+            {% for step in steps %}
+              <th>مرحله {{ step.order }}<br>{{ step.title }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+            <tr>
+              <td class="user-col">{{ user.get_full_name|default:user.username }}</td>
+              {% with user_access=access_matrix|get_item:user.id %}
+                {% for step in steps %}
+                  {% with current_access=user_access|get_item:step.id %}
+                    <td>
+                      <select name="access_{{ user.id }}_{{ step.id }}" class="form-select">
+                        <option value="" {% if current_access == "" %}selected{% endif %}>بدون دسترسی</option>
+                        <option value="view" {% if current_access == "view" %}selected{% endif %}>فقط مشاهده</option>
+                        <option value="submit" {% if current_access == "submit" %}selected{% endif %}>مشاهده و ارسال</option>
+                      </select>
+                    </td>
+                  {% endwith %}
+                {% endfor %}
+              {% endwith %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-center mt-4">
+      <button type="submit" class="save-btn">💾 ذخیره تغییرات</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

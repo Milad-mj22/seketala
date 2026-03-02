@@ -1,0 +1,1137 @@
+
+
+
+
+{% extends "stone_flow.html" %}
+{% load custom_filters %}
+
+
+{% block title %} Home Page {% endblock title %}
+{% block content2 %}
+
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/persian.datepicker.css' %}">
+
+
+<!-- jQuery -->
+
+<!-- Persian Date and Datepicker (Local versions) -->
+
+{% block scripts %}
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+
+<script src="{% static 'js/persian.date.js' %}"></script>
+<script src="{% static 'js/persian.datepicker.js' %}"></script>
+<script>
+  $(document).ready(function () {
+        // روی تمام inputهایی که id با "datepicker_" شروع می‌شه، تقویم اعمال کن
+        $("input[id^='datepicker_']").each(function () {
+            $(this).persianDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                initialValue: false,
+                initialValueType: 'persian',
+                selectedDate: new persianDate()  // تاریخ شمسی امروز به صورت پیش‌فرض انتخاب می‌شود
+            });
+        });
+
+        
+        // هنگام ارسال فرم، همه تاریخ‌ها را به میلادی تبدیل کن
+        $('form').on('submit', function () {
+            $("input[id^='datepicker_']").each(function () {
+                let jalaliDate = $(this).val();
+                if (jalaliDate) {
+                    let pd = new persianDate(jalaliDate).toGregorian();
+                    let gregorian = `${pd.year}-${String(pd.month).padStart(2, '0')}-${String(pd.day).padStart(2, '0')}`;
+                    $(this).val(gregorian);
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    let cuttingRowIndex = 0;
+
+    $(document).ready(function () {
+        $('#add-cutting-row').click(function () {
+            cuttingRowIndex++;
+
+            const row = `
+            <div class="row cutting-saw-row g-2 mb-2" data-index="${cuttingRowIndex}">
+                <div class="col">
+                    <input type="number" step="any" name="cutting_length[]" class="form-control" placeholder="طول">
+                </div>
+                <div class="col">
+                    <input type="number" step="any" name="cutting_width[]" class="form-control" placeholder="عرض">
+                </div>
+                <div class="col">
+                    <input type="number" name="cutting_quantity[]" class="form-control" placeholder="تعداد">
+                </div>
+                <div class="col">
+                    <input type="text" name="cutting_description[]" class="form-control" placeholder="توضیحات (اختیاری)">
+                </div>
+                <div class="col">
+                    <div class="mt-2">
+                    <input type="hidden" name="cutting_image[]" id="cutting_image_${cuttingRowIndex}">
+
+
+                    <video id="video_${cuttingRowIndex}" width="320" height="240" autoplay muted style="display:none; border:1px solid #ccc; border-radius:8px;"></video>
+                    <canvas id="canvas_${cuttingRowIndex}" width="160" height="120" style="display: none; border: 1px solid #ccc;"></canvas>
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-2 camera-btn" style="text-align: right; display: block;" data-index="${cuttingRowIndex}">باز کردن دوربین</button>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger remove-row">✖</button>
+                </div>
+            </div>`;
+            $('#cutting-saw-container').append(row);
+        });
+
+        // حذف ردیف
+        $(document).on('click', '.remove-row', function () {
+            $(this).closest('.cutting-saw-row').remove();
+        });
+
+        // مدیریت دوربین و گرفتن عکس
+        $(document).on('click', '.camera-btn', async function () {
+            const index = $(this).data('index');
+            const video = document.getElementById(`video_${index}`);
+            const canvas = document.getElementById(`canvas_${index}`);
+            const input = document.getElementById(`cutting_image_${index}`);
+            let button = this;
+
+            // اگر دوربین روشن نیست، روشن کن
+            if (video.style.display === 'none') {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    video.dataset.streamId = stream.id;
+                    video.style.display = 'block';
+                    canvas.style.display = 'none';
+                    button.textContent = 'گرفتن عکس';
+                } catch (err) {
+                    alert('خطا در دسترسی به دوربین: ' + err.message);
+                }
+            } else {
+                // عکس بگیر و ذخیره کن
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                canvas.style.display = 'block';
+                video.style.display = 'none';
+
+                // قطع دوربین
+                const stream = video.srcObject;
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    video.srcObject = null;
+                }
+
+                const dataURL = canvas.toDataURL('image/png');
+                input.value = dataURL;
+                button.textContent = 'باز کردن دوربین';
+            }
+        });
+    });
+</script>
+
+
+
+<script>
+    // حذف ردیف‌ها
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-row')) {
+            const row = e.target.closest('.cutting-around-row');
+            if(row) row.remove();
+        }
+    });
+
+    // افزودن ردیف جدید
+    document.getElementById('add-cutting-around-row').addEventListener('click', function() {
+        const container = document.getElementById('cutting-around-container');
+        const firstRow = container.querySelector('.cutting-around-row');
+        const newRow = firstRow.cloneNode(true);
+        newRow.querySelectorAll('input').forEach(input => input.value = '');
+        container.appendChild(newRow);
+    });
+</script>
+
+
+
+
+
+
+<script>
+
+
+// تابع اضافه کردن جداکننده هزارگان
+function formatPriceWithCommas(value) {
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
+
+
+function numberToPersianWords(num) {
+    if (num === 0) return 'صفر';
+
+    var ones = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
+    var teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
+    var tens = ['', '', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
+    var hundreds = ['', 'صد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
+    var thousands = ['', 'هزار', 'میلیون', 'میلیارد'];
+
+    function threeDigitToWords(n) {
+        var word = '';
+        var h = Math.floor(n / 100);
+        var t = Math.floor((n % 100) / 10);
+        var o = n % 10;
+
+        if (h > 0) {
+            word += hundreds[h];
+        }
+        if (t === 1) {
+            if (word !== '') word += ' و ';
+            word += teens[o];
+        } else {
+            if (t > 1) {
+                if (word !== '') word += ' و ';
+                word += tens[t];
+            }
+            if (o > 0) {
+                if (word !== '') word += ' و ';
+                word += ones[o];
+            }
+        }
+        return word;
+    }
+
+    var parts = [];
+    var i = 0;
+
+    while (num > 0) {
+        var threeDigits = num % 1000;
+        if (threeDigits !== 0) {
+            var segment = threeDigitToWords(threeDigits);
+            if (thousands[i] !== '') {
+                segment += ' ' + thousands[i];
+            }
+            parts.push(segment);
+        }
+        num = Math.floor(num / 1000);
+        i++;
+    }
+
+    return parts.reverse().join(' و ');
+}
+
+
+document.querySelectorAll('.price-field').forEach(function(input) {
+    input.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/,/g, '').replace(/[^\d]/g, '');
+
+        if (value === '') {
+            document.getElementById('price_text_' + e.target.id.split('_')[1]).textContent = '';
+            e.target.value = '';
+            return;
+        }
+
+        let intValue = parseInt(value);
+        if (isNaN(intValue)) intValue = 0;
+
+        e.target.value = formatPriceWithCommas(intValue);
+
+        // نمایش معادل حروف
+        let persianWords = numberToPersianWords(intValue);
+        document.getElementById('price_text_' + e.target.id.split('_')[1]).textContent = persianWords + ' تومان';
+    });
+});
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+
+    function toggleSubmaterials(id) {
+        var submaterials = document.getElementById(id);
+        if (submaterials.style.display === "none" || submaterials.style.display === "") {
+            submaterials.style.display = "block";
+        } else {
+            submaterials.style.display = "none";
+        }
+    }
+
+    function filterMaterials() {
+        const input = document.getElementById('search-bar');
+        const filter = input.value.toLowerCase();
+        const cards = document.querySelectorAll('.card');
+        let hasVisibleItem = false;
+
+        cards.forEach(card => {
+            const cardText = card.innerText.toLowerCase();
+            const submaterials = card.querySelector('.submaterials');
+
+            if (cardText.includes(filter)) {
+                card.style.display = "";  // Show the card
+                hasVisibleItem = true;
+
+                if (submaterials) {
+                    submaterials.style.display = "block";  // Show submaterials
+                    const subCards = submaterials.querySelectorAll('.submaterials .card');
+
+                    subCards.forEach(subCard => {
+                        const subCardText = subCard.innerText.toLowerCase();
+                        if (subCardText.includes(filter)) {
+                            subCard.style.display = "";  // Show subCard if it matches
+                        } else {
+                            subCard.style.display = "none";  // Hide subCard if it doesn't match
+                        }
+                    });
+                }
+            } else {
+                card.style.display = "none";  // Hide the card
+                if (submaterials) {
+                    submaterials.style.display = "none";  // Hide submaterials
+                    
+                }
+            }
+        });
+
+    }
+
+    function handleSearchInput() {
+        const input = document.getElementById('search-bar');
+        const value = input.value.trim();
+        
+        // Close all submaterials when search bar is cleared
+        if (value === "") {
+            const allSubmaterials = document.querySelectorAll('.submaterials');
+            allSubmaterials.forEach(submaterials => {
+                submaterials.style.display = "none";
+            });
+
+            // Show all cards when search bar is cleared
+            const allCards = document.querySelectorAll('.card');
+            allCards.forEach(card => {
+                card.style.display = "";  // Show all cards
+            });
+        }
+
+        // Apply filter regardless of whether search bar is cleared or not
+        filterMaterials();
+    }
+
+    function closeAllTabs() {
+        const allSubmaterials = document.querySelectorAll('.submaterials');
+        allSubmaterials.forEach(submaterials => {
+            submaterials.style.display = "none";
+        });
+    }
+
+
+
+
+
+
+    function changeValue(inputId, increment) {
+    const input = document.getElementById(inputId);
+    let value = parseFloat(input.value) || 0;
+    value += increment;
+    if (value < 0) {
+      value = 0; // Prevent negative values
+    }
+    input.value = value.toFixed(1);
+  }
+
+    // Disable the submit button initially
+    function enableSubmitButton() {
+        const warehouseSelect = document.getElementById('warehouse');
+        const submitBtn = document.getElementById('submit-btn');
+
+        if (warehouseSelect.value !== "") {
+            submitBtn.disabled = false;
+        }
+    }
+
+
+
+
+
+
+    function handleSubmit(event) {
+        event.preventDefault(); // جلوگیری از ارسال فرم
+
+        const inputs = document.querySelectorAll('.digit-input');
+        let materials = [];
+        inputs.forEach(input => {
+            const value = parseFloat(input.value);
+            if (value > 0) {
+                const materialName = input.name;
+                materials.push({ name: materialName, value: value });
+            }
+        });
+
+        if (materials.length === 0) {
+            alert("No items greater than zero were selected.");
+            return false; // جلوگیری از ارسال فرم
+        }
+
+
+
+        const receiptNumber = document.getElementById('receipt_number').value.trim();
+
+        if (receiptNumber === "") {
+            alert("لطفاً شماره فیش را وارد کنید.");
+            return false;
+        }
+
+        // چک عدد صحیح بودن
+        if (!/^\d+$/.test(receiptNumber)) {
+            alert("شماره فیش باید یک عدد صحیح باشد.");
+            return false;
+        }
+
+
+
+
+
+
+
+
+        const warehouseSelect = document.getElementById('warehouse');
+        const warehouseName = warehouseSelect.options[warehouseSelect.selectedIndex].text;
+
+        const confirmMessage = `شما در حال اضافه کردن موارد زیر به انبار ${warehouseName} هستید :  \n` + 
+                            materials.map(m => `${m.name}: ${m.value}`).join('\n');
+
+        if (confirm(confirmMessage)) {
+            // اگر فرم واقعی ارسال می‌شود (بدون AJAX)
+            event.target.submit();
+
+
+        } else {
+            return false; // کاربر لغو کرد، ارسال نکن
+        }
+    }
+
+
+
+
+
+
+
+    // Change value function for increment/decrement buttons
+    function changeValue(inputId, increment) {
+        const input = document.getElementById(inputId);
+        let value = parseFloat(input.value) || 0;
+        value += increment;
+        if (value < 0) {
+        value = 0; // Prevent negative values
+        }
+        input.value = value.toFixed(1);
+    }
+
+
+
+
+
+    let videoStream = null;
+    function openCamera() {
+    const video = document.getElementById('video');
+    const captureBtn = document.getElementById('capture-btn');
+    const constraints = {
+        video: {
+            facingMode: "environment", // استفاده از دوربین پشت
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+        }
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then(stream => {
+            video.srcObject = stream;
+            video.style.display = "block";
+            captureBtn.style.display = "block";
+        })
+        .catch(err => {
+            alert("عدم دسترسی به دوربین: " + err);
+        });
+}
+
+    function captureImage() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const capturedImage = document.getElementById('capturedImage');
+        // const submitBtn = document.getElementById('submit-btn');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = canvas.toDataURL('image/png');
+        capturedImage.src = imageData;
+        capturedImage.style.display = "block";
+        video.style.display = "none";
+
+        document.getElementById('captured_image').value = imageData;
+        // submitBtn.style.display = "block";
+
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            videoStream = null;
+        }
+    }
+
+
+
+
+
+    document.getElementById('cameraInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const img = document.getElementById('preview');
+                img.src = URL.createObjectURL(file);
+                img.style.display = "block";
+            }
+        });
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
+
+<style>
+    .alert-custom {
+        direction: rtl;
+        text-align: right;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 15px;
+        font-weight: 500;
+        position: relative;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .alert-custom i {
+        margin-left: 10px;
+        font-size: 18px;
+    }
+
+    .alert-success-custom {
+        background-color: #e6f9f0;
+        color: #027a4e;
+        border: 1px solid #6fe2b3;
+    }
+
+    .alert-error-custom {
+        background-color: #fdecea;
+        color: #a94442;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-custom .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: inherit;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+
+    select#mine_id {
+        direction: rtl;
+        text-align: right;
+    }
+
+
+  select.form-select {
+    font-family: 'Vazirmatn', 'IRANSans', Tahoma;
+    font-size: 16px;
+    padding: 8px 12px;
+  }
+
+  label.form-label {
+    font-weight: 500;
+    font-size: 16px;
+    white-space: nowrap;
+  }
+
+  .card {
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+  }
+
+
+
+
+
+
+  
+
+</style>
+
+
+
+
+
+
+<body>
+
+
+<div class="container-fluid p-0 m-0">  
+    <div class="card page-title-card shadow-lg rounded-lg p-4 mb-4">
+        <h1 class="page-title">{{step.title}}</h1>
+    </div>
+
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+
+<div class="row mb-3" style="direction: rtl;">
+    {% for attr in attributes %}
+        <!-- <div class="col-md-4 mb-3"> -->
+        <div class="{% if attr.field_type == 'material' %}col-12{% elif attr.field_type == 'CuttingSaw' %}col-12{% elif attr.field_type == 'CuttingAround' %}col-12 {% else %}col-md-4 mb-3{% endif %}">
+            <label for="attr_{{ attr.id }}" class="form-label text-end d-block fw-bold">
+                {{ attr.label }} :
+                {% if attr.required %}
+                    <span class="text-danger">*</span>
+                {% endif %}
+            </label>
+
+            {% with value=attribute_values|get_item:attr.id|default:'' %}
+
+                {% if attr.field_type == 'date' %}
+
+                <input type="text"
+                        id="datepicker_{{ attr.id }}"
+                        name="attr_{{ attr.id }}"
+                        class="form-control"
+                        placeholder="تاریخ را انتخاب کنید"
+                        value="{{ value|to_jalali }}">
+
+                {% elif attr.field_type == 'select' %}
+                    <select class="form-select text-end" name="attr_{{ attr.id }}" id="attr_{{ attr.id }}"
+                            {% if attr.required %}required{% endif %}>
+                        <option value="" disabled {% if not value %}selected{% endif %}>انتخاب کنید...</option>
+                        {% for option in attr.select_options|default_if_none:''|cut:" "|split:"," %}
+                            <option value="{{ option }}" {% if option == value %}selected{% endif %}>
+                                {{ option }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+
+
+
+                {% elif attr.field_type == 'multi_select' %}
+                    <div class="multi-checkbox-group">
+                    {% for option in attr.select_options|default_if_none:''|cut:" "|split:"," %}
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input"
+                              id="attr_{{ attr.id }}_{{ forloop.counter }}" 
+                              name="attr_{{ attr.id }}" value="{{ option }}" 
+                              {% if option in value_list %}checked{% endif %}
+                              {% if attr.required %}required{% endif %}>
+                        <label class="form-check-label" for="attr_{{ attr.id }}_{{ forloop.counter }}">
+                          {{ option }}
+                        </label>
+                      </div>
+                    {% endfor %}
+                  </div>
+
+
+
+                    
+                {% elif attr.field_type == 'int' or attr.field_type == 'float' %}
+                    <input type="number" class="form-control text-end"
+                           name="attr_{{ attr.id }}" id="attr_{{ attr.id }}"
+                           step="any" value="{{ value }}" {% if attr.required %}required{% endif %}>
+               
+               
+               
+                {% elif attr.field_type == 'bool' %}
+                    <div class="form-check text-end">
+                        <input type="checkbox" class="form-check-input" name="attr_{{ attr.id }}" id="attr_{{ attr.id }}" {% if value == 'on' %}checked{% endif %}>
+                        <label class="form-check-label" for="attr_{{ attr.id }}">تأیید</label>
+                    </div>
+
+                {% elif attr.field_type == 'material' %}
+
+                        {% if attr.required %}required{% endif %}
+
+                        {% include 'partials/raw_material.html' with coops=coops %}
+
+
+
+                {% elif attr.field_type == 'warehouse' %}
+                    <select name="attr_{{ attr.id }}" class="form-select text-end">
+                        {% if attr.required %}required{% endif %}
+                        <option value="">انتخاب انبار</option>
+                        {% for w in warehouses %}
+                            <option value="{{ w.id }}" {% if value == w.id|stringformat:"s" %}selected{% endif %}>{{ w.name }}</option>
+                        {% endfor %}
+                    </select>
+
+
+
+                {% elif attr.field_type == 'Cutting_factory' %}
+                    <select name="attr_{{ attr.id }}" class="form-select text-end">
+                        <option value="">انتخاب کارخانه</option>
+                        {% for w in cutting_factories %}
+                            <option value="{{ w.id }}" {% if value == w.id|stringformat:"s" %}selected{% endif %}>{{w.city}} - {{ w.name }}</option>
+                        {% endfor %}
+                    </select>
+
+
+
+
+
+
+
+
+                {% elif attr.field_type == 'CuttingSaw' %}
+                    <div class="mb-3">
+                        <ul class="list-group mb-3">
+                            {% for item in cutting_saw_items %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                طول  {{ item.length }} ×  عرض {{ item.width }}  - تعداد: {{ item.quantity }}  
+                                
+                                {% if item.description %}
+                                    <span class="badge bg-secondary">{{ item.description }}</span>
+                                {% endif %}
+                                
+
+                                {% if item.image %}
+                                <button type="button" class="btn btn-info btn-sm mt-2 show-image-btn" 
+                                    data-image-src="{{ item.image }}" 
+                                    data-download-href="{{ item.image }}">
+                                    نمایش تصویر
+                                </button>
+                                <!-- Image Preview Modal -->
+                                <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="imagePreviewModalLabel">تصویر</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img id="modalImage" src="" alt="تصویر" style="max-width: 100%; max-height: 70vh; object-fit: contain;">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a id="downloadBtn" href="" download class="btn btn-success">دانلود</a>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+                                {% else %}
+                                    <span class="text-danger">تصویری وجود ندارد.</span>
+
+                                {% endif %}
+
+
+
+
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item" style="text-align: right; display: block;">هیچ برشی ثبت نشده است.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <hr>
+
+
+                    <div id="cutting-saw-container">
+                        <div class="row cutting-saw-row g-2 mb-2">
+                            <div class="col">
+                                <input type="number" step="any" name="cutting_length[]" class="form-control" placeholder="طول">
+                            </div>
+                            <div class="col">
+                                <input type="number" step="any" name="cutting_width[]" class="form-control" placeholder="عرض">
+                            </div>
+                            <div class="col">
+                                <input type="number" name="cutting_quantity[]" class="form-control" placeholder="تعداد">
+                            </div>
+                            <div class="col">
+                                <input type="text" name="cutting_description[]" class="form-control" placeholder="توضیحات (اختیاری)">
+                            </div>
+                            <div class="col">
+                                <!-- <input type="text" name="cutting_image[]" class="form-control" placeholder="توضیحات (اختیاری)"> -->
+                                <!-- <button type="button" id="cutting_image_{{ attr.id }}" class="btn btn-outline-primary btn-sm mt-2" style="text-align: right; display: block;">تصویر</button> -->
+                                    <button type="button" id="cameraBtn_{{ attr.id }}" class="btn btn-outline-primary btn-sm mt-2" style="text-align: right; display: block;">باز کردن دوربین</button>
+
+                                <!-- ویدئو و canvas برای گرفتن عکس -->
+                                <div class="mt-2">
+                                    <video id="video_{{ attr.id }}" width="320" height="240" autoplay muted style="display:none; border:1px solid #ccc; border-radius:8px;"></video>
+                                    <canvas id="canvas_{{ attr.id }}" width="320" height="240" style="display:none; border:1px solid #ccc; border-radius:8px;"></canvas>
+                                </div>
+
+                                <!-- فیلد مخفی برای ارسال عکس -->
+                                <input type="hidden" id="attr_{{ attr.id }}" name="cutting_image[]">
+
+
+                            </div>
+
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-danger remove-row">✖</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-success btn-sm" id="add-cutting-row">➕ افزودن ردیف</button>
+                    </div>
+
+
+
+                    <!-- Hidden to keep attribute tracking -->
+                    <input type="hidden" name="attr_{{ attr.id }}" value="cutting_saw_added">
+
+
+              
+                    
+                {% elif attr.field_type == 'CuttingAround' %}
+                    <div class="mb-3">
+                        <ul class="list-group mb-3">
+                            {% for item in cutting_around_items %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                طول {{ item.length }} × عرض {{ item.width }} - تعداد: {{ item.quantity }} - سریال: {{ item.serial }}
+                                {% if item.description %}
+                                    <span class="badge bg-secondary">{{ item.description }}</span>
+                                {% endif %}
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item" style="text-align: right; display: block;">هیچ برش اطرافی ثبت نشده است.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <hr>
+
+                    <div id="cutting-around-container">
+                        <div class="row cutting-around-row g-2 mb-2 align-items-center">
+                            <div class="col">
+                                <input type="number" step="any" name="cutting_around_length[]" class="form-control" placeholder="طول">
+                            </div>
+                            <div class="col">
+                                <input type="number" step="any" name="cutting_around_width[]" class="form-control" placeholder="عرض">
+                            </div>
+                            <div class="col">
+                                <input type="number" name="cutting_around_quantity[]" class="form-control" placeholder="تعداد">
+                            </div>
+                            <div class="col">
+                                <input type="number" name="cutting_around_serial[]" class="form-control" placeholder="شماره سریال">
+                            </div>
+                            <div class="col">
+                                <input type="text" name="cutting_around_description[]" class="form-control" placeholder="توضیحات (اختیاری)">
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-danger remove-row">✖</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-success btn-sm" id="add-cutting-around-row">➕ افزودن ردیف</button>
+                    </div>
+
+                    <!-- Hidden to keep attribute tracking -->
+                    <input type="hidden" name="attr_{{ attr.id }}" value="cutting_around_added">
+                                
+
+                {% elif attr.field_type == 'price' %}
+
+
+                    <input type="text" id="attr_{{ attr.id }}" name="attr_{{ attr.id }}" class="form-control price-field" autocomplete="off"  value="{{ value }}" {% if attr.required %}required{% endif %}>
+
+                    <!-- نمایش قیمت به حروف -->
+                    <div id="price_text_{{ attr.id }}" class="text-muted mt-1" style="direction: rtl; text-align: right;"></div>
+
+
+                {% elif attr.field_type == 'image' %}
+                    <div class="form-group mt-2">
+                        <input type="file" id="fileInput_{{ attr.id }}" class="form-control" name="attr_{{ attr.id }}" accept="image/*" {% if attr.required %}required{% endif %}>
+
+                        <!-- دکمه کنترل دوربین -->
+                        <button type="button" id="cameraBtn_{{ attr.id }}" class="btn btn-outline-primary btn-sm mt-2" style="text-align: right; display: block;">باز کردن دوربین</button>
+
+                     
+                        {% if value %}
+                            <div class="mb-2">
+                                <img src="{{ value }}" alt="تصویر" style="max-width: 300px; border: 1px solid #ccc; border-radius: 6px; text-align: right; display: block;" dir="rtl">
+
+                            </div>
+                        {% endif %}
+
+
+                        <!-- ویدئو و canvas برای گرفتن عکس -->
+                        <div class="mt-2">
+                            <video id="video_{{ attr.id }}" width="320" height="240" autoplay muted style="display:none; border:1px solid #ccc; border-radius:8px;"></video>
+                            <canvas id="canvas_{{ attr.id }}" width="320" height="240" style="display:none; border:1px solid #ccc; border-radius:8px;"></canvas>
+                        </div>
+
+                        <!-- فیلد مخفی برای ارسال عکس -->
+                        <input type="hidden" id="attr_{{ attr.id }}" name="attr_{{ attr.id }}">
+                        <input type="hidden" name="existing_image_{{ attr.id }}" value="{{ value }}">
+                    </div>
+
+
+                {% elif attr.field_type == 'show_attr' %}
+                
+                    <input type="text" class="form-control text-end" value="{{ attr.value }}" disabled>
+
+
+                {% else %}
+                    <input type="text" class="form-control text-end" name="attr_{{ attr.id }}" value="{{ value }}"  {% if attr.required %}required{% endif %}>
+    {% endif %}               
+               
+
+            {% endwith %}
+        </div>
+    {% endfor %}
+</div>
+
+        {% if can_submit %}
+            {% if not is_confirmed %}
+            <div class="text-end mt-3">
+                <button type="submit" class="btn btn-primary btn-sm">ثبت درخواست</button>
+            </div>
+            {% else %}
+            <div class="confirmation-bar">
+                <i class="fas fa-check-circle"></i>
+                تأیید شده توسط {{ is_confirmed.confirmed_by.user.username }}
+                <a href="{% url 'edit_request' order_id step_number %}" class="btn btn-warning btn-sm">ویرایش</a>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="confirmation-bar">
+                {% if is_confirmed %}
+                <i class="fas fa-check-circle"></i>
+                تأیید شده توسط  {{ is_confirmed.confirmed_by.user.username }}
+                {% else %}
+                <i class="fas fa-error-circle"></i>
+                دسترسی ندارید در انتظار تایید
+                {% endif %}
+            </div>
+        {% endif %}
+    </form>
+
+</div>
+
+</body>
+<script>
+  document.querySelectorAll('.toggle-image-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const container = button.nextElementSibling;
+      if (container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'block';
+        button.textContent = 'پنهان کردن تصویر';
+      } else {
+        container.style.display = 'none';
+        button.textContent = 'نمایش تصویر';
+      }
+    });
+  });
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+  const modalImage = document.getElementById('modalImage');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  document.querySelectorAll('.show-image-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const imgSrc = button.getAttribute('data-image-src');
+      const downloadHref = button.getAttribute('data-download-href');
+
+      modalImage.src = imgSrc;
+      downloadBtn.href = downloadHref;
+
+      modal.show();
+    });
+  });
+});
+
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // همه دکمه‌های باز کردن دوربین را انتخاب کن
+    const cameraButtons = document.querySelectorAll('[id^="cameraBtn_"]');
+
+    cameraButtons.forEach(button => {
+        const attrId = button.id.split('_')[1];
+        const video = document.getElementById(`video_${attrId}`);
+        const canvas = document.getElementById(`canvas_${attrId}`);
+        const imageInput = document.getElementById(`attr_${attrId}`);
+        const fileInput = document.getElementById(`fileInput_${attrId}`);
+
+        let stream = null;
+        let cameraOn = false;
+
+        button.addEventListener('click', async () => {
+            if (!cameraOn) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    canvas.style.display = 'none';
+                    button.textContent = 'گرفتن عکس';
+                    cameraOn = true;
+                } catch (error) {
+                    alert('دسترسی به دوربین ممکن نیست: ' + error);
+                }
+            } else {
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                video.style.display = 'none';
+                canvas.style.display = 'block';
+
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+
+                button.textContent = 'باز کردن دوربین';
+                cameraOn = false;
+
+                const imageDataUrl = canvas.toDataURL('image/png');
+                imageInput.value = imageDataUrl;
+
+                console.log(`Captured image for attr_${attrId}`);
+            }
+        });
+
+        // کنترل انتخاب فایل تصویر
+        if (fileInput) {
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Data = e.target.result;
+
+                    // مقدار base64 را در hidden input ذخیره کن
+                    imageInput.value = base64Data;
+
+                    // پیش‌نمایش تصویر را در canvas نمایش بده
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    img.onload = function() {
+                        // اندازه canvas را به اندازه تصویر تنظیم کن
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        canvas.style.display = 'block';
+                        video.style.display = 'none';
+                    };
+                    img.src = base64Data;
+
+                    // اگر دوربین فعال است، قطعش کن و دکمه را به حالت اولیه برگردان
+                    if (cameraOn) {
+                        stream.getTracks().forEach(track => track.stop());
+                        stream = null;
+                        cameraOn = false;
+                        button.textContent = 'باز کردن دوربین';
+                        video.style.display = 'none';
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    });
+
+    // بخش وزن خالص (همانند قبل)
+    const fullInput = document.getElementById('full_weight');
+    const emptyInput = document.getElementById('empty_weight');
+    const netInput = document.getElementById('net_weight');
+
+    function updateNetWeight() {
+        const full = parseFloat(fullInput.value) || 0;
+        const empty = parseFloat(emptyInput.value) || 0;
+        const net = full - empty;
+        netInput.value = net > 0 ? net.toFixed(1) : 0;
+    }
+
+    if (fullInput && emptyInput && netInput) {
+        fullInput.addEventListener('input', updateNetWeight);
+        emptyInput.addEventListener('input', updateNetWeight);
+    }
+});
+
+</script>
+
+
+{% endblock %}
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+ 
+
+        // هنگام ارسال فرم، همه تاریخ‌ها را به میلادی تبدیل کن
+        $('form').on('submit', function () {
+            $("input[id^='datepicker_']").each(function () {
+                let jalaliDate = $(this).val();
+                if (jalaliDate) {
+                    let pd = new persianDate(jalaliDate).toGregorian();
+                    let gregorian = `${pd.year}-${String(pd.month).padStart(2, '0')}-${String(pd.day).padStart(2, '0')}`;
+                    $(this).val(gregorian);
+                }
+            });
+        });
+    });
+
+
+
+
+    
+</script>
+
+
+
+
