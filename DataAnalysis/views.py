@@ -168,12 +168,9 @@ from .utils import extract_payment_methods, jalali_date_time_to_gregorian
 
 
 
-
 class ReceiveInvoice(APIView):
-
     authentication_classes = []
     permission_classes = []
-
     def post(self, request):
         data = request.data
         if request.headers.get("X-API-KEY") != "SECRET123":
@@ -182,8 +179,9 @@ class ReceiveInvoice(APIView):
         
         
         date_time = jalali_date_time_to_gregorian(data['date'],data['time'])
-
-        invoice, created = Invoice.objects.get_or_create(
+        
+        # استفاده از update_or_create برای جایگزینی اطلاعات قبلی با جدید
+        invoice, created = Invoice.objects.update_or_create(
             invoice_number=data["invoice_number"],
             defaults={
                 "name": data["name"],
@@ -195,10 +193,11 @@ class ReceiveInvoice(APIView):
                 "peyk" : data['peyk']
             }
         )
-
+        
+        # اگر فاکتور قبلاً وجود داشته است، آیتم‌های قدیمی آن را پاک می‌کنیم تا آیتم‌های جدید جایگزین شوند
         if not created:
-            return Response({"status": "already_exists"})
-
+            InvoiceItem.objects.filter(invoice=invoice).delete()
+            
         for item in data["items"]:
             InvoiceItem.objects.create(
                 invoice=invoice,
@@ -207,7 +206,6 @@ class ReceiveInvoice(APIView):
                 quantity=item["quantity"],
                 total=item["price"] * item["quantity"]
             )
-
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
     
 
