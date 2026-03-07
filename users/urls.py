@@ -170,6 +170,7 @@ urlpatterns = [
         remove_material_from_category,
         name="remove_material_from_category"),
 
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

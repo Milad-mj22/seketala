@@ -1,0 +1,433 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فست فود سکه طلا</title>
+    <style>
+
+        :root {
+            --gold-light: #fff7cc;
+            --gold-main: #ffd700;
+            --gold-dark: #b8860b;
+            --primary-gradient: linear-gradient(135deg, #FFD700, #FDB931, #9f7928, #FFD700);
+            --bg-gradient: linear-gradient(160deg, #1a1a1a 0%, #2d2d2d 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-color: #ffffff;
+            --text-muted: #a0a0a0;
+            --insta-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* افکت نورانی پس‌زمینه */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.08) 0%, transparent 50%);
+            animation: pulseGlow 10s ease-in-out infinite alternate;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        /* هدر */
+        header {
+            text-align: center;
+            padding: 3rem 1rem 1rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .logo-icon {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1rem;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.3));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* کانتینر اصلی */
+        main {
+            flex: 1;
+            padding: 1rem;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* کارت‌های شیشه‌ای مدرن */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 2.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* خط نورانی روی کارت */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+        }
+
+        /* بخش تماس */
+        .contact-highlight {
+            text-align: center;
+        }
+
+        .phone-display {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #fff;
+            margin: 1.5rem 0;
+            direction: ltr;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            letter-spacing: 2px;
+            text-decoration: none; /* حذف زیرخط */
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .phone-display:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+        }
+
+        .cta-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 18px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: #2e1a00;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        /* دکمه اینستاگرام */
+        .btn-instagram {
+            background: var(--insta-gradient);
+            color: #fff;
+            box-shadow: 0 8px 25px rgba(220, 39, 67, 0.3);
+            margin-top: 1.5rem;
+            gap: 10px;
+        }
+
+        .btn-instagram:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(220, 39, 67, 0.5);
+        }
+
+        /* لیست آدرس‌ها */
+        .addresses-container {
+            text-align: right;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .address-item {
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: transform 0.2s;
+        }
+
+        .address-item:hover {
+            transform: translateX(-5px);
+        }
+
+        .address-icon {
+            color: var(--gold-main);
+            font-size: 1.4rem;
+            margin-top: 2px;
+            background: rgba(255, 215, 0, 0.1);
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .address-text h4 {
+            color: var(--gold-main);
+            font-size: 1rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .address-text p {
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* فرم */
+        .form-title {
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            color: var(--gold-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .modern-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 16px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .modern-input:focus {
+            outline: none;
+            border-color: var(--gold-main);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+        }
+
+        .submit-btn {
+            background: transparent;
+            border: 2px solid var(--gold-main);
+            color: var(--gold-main);
+            padding: 14px;
+            width: 100%;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .submit-btn:hover {
+            background: var(--gold-main);
+            color: #1a1a1a;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        /* انیمیشن‌ها */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* فوتر */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* Toast */
+        .toast {
+            visibility: hidden;
+            min-width: 280px;
+            background: rgba(46, 213, 115, 0.95);
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%) translateY(20px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: bold;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- نمایش تصویر لوگو -->
+        <div class="logo-icon">
+            <img src="{% static 'icons/logo.gif' %}" alt="لوگو سکه طلا">
+        </div>
+    </header>
+
+    <main>
+        <!-- بخش تماس و آدرس -->
+        <section class="glass-card contact-highlight">
+            <div style="font-size: 0.85rem; color: var(--gold-main); margin-bottom: 5px; letter-spacing: 1px; text-transform: uppercase;">سفارش و پیگیری غذا</div>
+            <a href="tel:03191008100" class="phone-display">۰۳۱-۹۱۰۰۸۱۰۰</a>
+            
+            <a href="tel:03191008100" class="cta-button btn-primary">
+                📞 تماس فوری
+            </a>
+
+            <div class="addresses-container">
+                <div class="address-item">
+                    <div class="address-icon">📍</div>
+                    <div class="address-text">
+                        <h4>شعبه ۱</h4>
+                        <p>اصفهان، چهار راه خاقانی</p>
+                    </div>
+                </div>
+                <div class="address-item">
+                    <div class="address-icon">📍</div>
+                    <div class="address-text">
+                        <h4>شعبه ۲</h4>
+                        <p>اصفهان، میدان احمدآباد</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- دکمه اینستاگرام -->
+            <a href="https://instagram.com/sekehtala" target="_blank" class="cta-button btn-instagram">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                اینستاگرام ما
+            </a>
+        </section>
+
+        <!-- بخش فرم -->
+        <section class="glass-card">
+            <h3 class="form-title">💬 ثبت نظر شما</h3>
+            <form id="contactForm" onsubmit="handleSubmit(event)">
+                <div class="input-group">
+                    <input type="text" id="name" class="modern-input" placeholder="نام و نام خانوادگی" required>
+                </div>
+                
+                <div class="input-group">
+                    <textarea id="message" class="modern-input" rows="3" placeholder="تجربه خود را بنویسید..." required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">ارسال پیام</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        © ۱۴۰۴ فست فود سکه طلا 
+    </footer>
+
+    <div id="toast" class="toast">نظر شما با موفقیت ثبت شد! ✨</div>
+
+    <script>
+        function handleSubmit(event) {
+            event.preventDefault();
+            
+            const btn = document.querySelector('.submit-btn');
+            const originalText = btn.innerText;
+            
+            btn.innerText = 'در حال ارسال...';
+            
+            setTimeout(() => {
+                const toast = document.getElementById("toast");
+                toast.className = "toast show";
+                
+                document.getElementById("contactForm").reset();
+                btn.innerText = originalText;
+
+                setTimeout(function(){ 
+                    toast.className = toast.className.replace("show", ""); 
+                }, 3000);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

@@ -3232,3 +3232,4 @@ def remove_material_from_category(request, category_id, material_id):
         return redirect("category_detail", category_id=category.id)
 
     return redirect("category_detail", category_id=category.id)
+

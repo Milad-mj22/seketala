@@ -1,0 +1,560 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a1a">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>فست فود سکه طلا</title>
+    <!-- اضافه کردن فونت وزیر برای سازگاری بهتر -->
+
+    
+    <style>
+        :root {
+            --gold-light: #fff7cc;
+            --gold-main: #ffd700;
+            --gold-dark: #b8860b;
+            --primary-gradient: linear-gradient(135deg, #FFD700, #FDB931, #9f7928, #FFD700);
+            --bg-gradient: linear-gradient(160deg, #1a1a1a 0%, #2d2d2d 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-color: #ffffff;
+            --text-muted: #a0a0a0;
+            --insta-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        /* --- کد زیر را اضافه کنید --- */
+        @supports (color-scheme: dark) {
+            :root {
+                color-scheme: dark;
+            }
+        }
+        html, body {
+            color-scheme: dark;
+            -webkit-text-size-adjust: 100%;
+        }
+        /* ----------------------------- */
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            /* اولویت با فونت وزیر است، اگر نبود B Nazanin */
+            font-family: 'Vazirmatn', 'B Nazanin', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            /* استفاده مستقیم از گرادینت برای اطمینان از نمایش در آیفون */
+            background: linear-gradient(160deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            -webkit-font-smoothing: antialiased; /* نرم‌تر کردن فونت در آیفون */
+        }
+
+        /* افکت نورانی پس‌زمینه */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.08) 0%, transparent 50%);
+            animation: pulseGlow 10s ease-in-out infinite alternate;
+            z-index: -1;
+            pointer-events: none;
+        }
+        @keyframes pulseGlow {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 0.8; transform: scale(1.1); }
+        }
+        /* هدر */
+        header {
+            text-align: center;
+            padding: 3rem 1rem 1rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        .logo-icon {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1rem;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.3));
+            animation: float 4s ease-in-out infinite;
+        }
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        /* کانتینر اصلی */
+        main {
+            flex: 1;
+            padding: 1rem;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+        /* کارت‌های شیشه‌ای مدرن */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            /* پشتیبانی قوی از Safari برای Blur */
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            padding: 2.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+        }
+        /* بخش تماس */
+        .contact-highlight {
+            text-align: center;
+        }
+        .phone-display {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #fff;
+            margin: 1.5rem 0;
+            direction: ltr;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+        .phone-display:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+        }
+        .cta-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 18px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD700, #FDB931, #9f7928, #FFD700);
+            color: #2e1a00;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.25);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
+        }
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+        /* دکمه اینستاگرام */
+        .btn-instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: #fff;
+            box-shadow: 0 8px 25px rgba(220, 39, 67, 0.3);
+            margin-top: 1.5rem;
+            gap: 10px;
+        }
+        .btn-instagram:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(220, 39, 67, 0.5);
+        }
+        /* لیست آدرس‌ها */
+        .addresses-container {
+            text-align: right;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .address-item {
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            transition: transform 0.2s;
+            background: rgba(255,255,255,0.02);
+            padding: 10px;
+            border-radius: 12px;
+        }
+        .address-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            flex: 1;
+        }
+        .address-icon {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-top: 3px;
+        }
+        .address-text h4 {
+            color: #ffd700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        .address-text p {
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            font-weight: 300;
+        }
+        /* دکمه مسیریابی جدید */
+        .nav-btn {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        .nav-btn:hover {
+            background: #ffd700;
+            color: #1a1a1a;
+            transform: scale(1.1);
+        }
+        /* فرم */
+        .form-title {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #ffd700;
+            display: block;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .modern-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 16px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s;
+            /* اصلاح فونت ورودی در آیفون */
+            -webkit-appearance: none; 
+        }
+        .modern-input:focus {
+            outline: none;
+            border-color: #ffd700;
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+        }
+        /* سیستم امتیازدهی ستاره‌ای */
+        .rating-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+            direction: ltr;
+        }
+        .star {
+            font-size: 2.5rem;
+            color: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .star:hover,
+        .star.active {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .star:hover {
+            transform: scale(1.2);
+        }
+        .submit-btn {
+            background: transparent;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 14px;
+            width: 100%;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        .submit-btn:hover {
+            background: #ffd700;
+            color: #1a1a1a;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+        /* انیمیشن‌ها */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* فوتر */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+        }
+        /* Toast */
+        .toast {
+            visibility: hidden;
+            min-width: 280px;
+            background: rgba(46, 213, 115, 0.95);
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%) translateY(20px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: bold;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-icon">
+            <img src="{% static 'icons/logo.gif' %}" alt="لوگو سکه طلا">
+        </div>
+    </header>
+    <main>
+        <!-- بخش تماس و آدرس -->
+        <section class="glass-card contact-highlight">
+            <div style="font-size: 1.5rem; color: #ffd700; margin-bottom: 5px; letter-spacing: 1px; text-transform: uppercase;">سفارش و پیگیری غذا</div>
+            <a href="tel:03191008100" class="phone-display">۰۳۱-۹۱۰۰۸۱۰۰</a>
+            <a href="tel:03191008100" class="cta-button btn-primary" style="font-size: 20pt;">
+                📞 تماس
+            </a>
+            <div class="addresses-container">
+                <!-- شعبه ۱ -->
+                <div class="address-item">
+                    <div class="address-content">
+                        <div class="address-icon">📍</div>
+                        <div class="address-text">
+                            <h4 style="">شعبه ۱</h4>
+                            <p>اصفهان، چهار راه خاقانی</p>
+                        </div>
+                    </div>
+                    <!-- دکمه مسیریابی (لینک نمونه گوگل مپ) -->
+                    <a href="https://nshn.ir/0f_bZn4e0xlNIH" target="_blank" class="nav-btn" title="مسیریابی">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                        </svg>
+                    </a>
+                </div>
+                <!-- شعبه ۲ -->
+                <div class="address-item">
+                    <div class="address-content">
+                        <div class="address-icon">📍</div>
+                        <div class="address-text">
+                            <h4>شعبه ۲</h4>
+                            <p>اصفهان، میدان احمدآباد</p>
+                        </div>
+                    </div>
+                    <!-- دکمه مسیریابی -->
+                    <a href="https://nshn.ir/68_bZNPc2x0QYM" target="_blank" class="nav-btn" title="مسیریابی">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <!-- دکمه اینستاگرام -->
+            <a href="https://instagram.com/sekehtala" target="_blank" class="cta-button btn-instagram">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                اینستاگرام ما
+            </a>
+        </section>
+        <!-- بخش فرم -->
+        <section class="glass-card">
+            <h3 class="form-title">ثبت نظر شما</h3>
+            <!-- اضافه کردن method و csrf token -->
+            <form id="contactForm" method="POST" onsubmit="handleSubmit(event)">
+                {% csrf_token %}
+                <!-- سیستم امتیازدهی ستاره‌ای -->
+                <div class="rating-container" id="starContainer">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <!-- فیلد مخفی برای ذخیره امتیاز -->
+                <input type="hidden" id="ratingValue" name="rating" required>
+                <div class="input-group">
+                    <!-- نام فیلد برای بک‌اند name است -->
+                    <input type="text" id="name" name="name" class="modern-input" placeholder="شماره تماس" required>
+                </div>
+                <div class="input-group">
+                    <textarea id="message" name="message" class="modern-input" rows="3" placeholder="تجربه خود را بنویسید..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">ارسال پیام</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        © ۱۴۰۴ فست فود سکه طلا
+    </footer>
+    <div id="toast" class="toast">نظر شما با موفقیت ثبت شد! ✨</div>
+    <script>
+        // لاجیک ستاره‌ها
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('ratingValue');
+        let currentRating = 0;
+        stars.forEach(star => {
+            // وقتی موس روی ستاره می‌رود
+            star.addEventListener('mouseover', function() {
+                const value = this.getAttribute('data-value');
+                highlightStars(value);
+            });
+            // وقتی کلیک می‌شود
+            star.addEventListener('click', function() {
+                currentRating = this.getAttribute('data-value');
+                ratingInput.value = currentRating;
+                highlightStars(currentRating);
+                // افکت کوچک انیمیشن
+                this.style.transform = 'scale(1.4)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1.2)';
+                }, 200);
+            });
+        });
+        // وقتی موس از کانتینر ستاره‌ها خارج می‌شود، به امتیاز انتخاب شده برمی‌گردد
+        document.getElementById('starContainer').addEventListener('mouseleave', function() {
+            highlightStars(currentRating);
+        });
+        function highlightStars(value) {
+            stars.forEach(star => {
+                if (star.getAttribute('data-value') <= value) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+        // لاجیک ارسال فرم (اصلاح شده)
+        async function handleSubmit(event) {
+            event.preventDefault();
+            // بررسی اینکه آیا امتیاز داده شده یا خیر
+            if(ratingInput.value === "") {
+                alert("لطفاً امتیاز خود را با انتخاب ستاره‌ها مشخص کنید.");
+                return;
+            }
+            const btn = document.querySelector('.submit-btn');
+            const originalText = btn.innerText;
+            const form = document.getElementById("contactForm");
+            const toast = document.getElementById("toast");
+            btn.innerText = 'در حال ارسال...';
+            btn.disabled = true;
+            const formData = new FormData(form);
+            try {
+                // ارسال درخواست به سرور
+                const response = await fetch('/contact_us/api/submit-feedback/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await response.json();
+                // تنظیم متن پیام بر اساس پاسخ سرور
+                if (response.ok && data.status === 'success') {
+                    toast.innerText = data.message || "ممنون از ثبت نظر شما"; // پیام موفقیت
+                    toast.style.background = "rgba(46, 213, 115, 0.95)"; // رنگ سبز
+                    // پاک کردن فرم
+                    form.reset();
+                    currentRating = 0;
+                    ratingInput.value = "";
+                    highlightStars(0);
+                } else {
+                    // پیام خطا
+                    toast.innerText = data.message || "خطایی رخ داد.";
+                    toast.style.background = "rgba(255, 71, 87, 0.95)"; // رنگ قرمز برای خطا
+                }
+                // نمایش توست
+                toast.className = "toast show";
+            } catch (error) {
+                console.error('Error:', error);
+                // در صورت قطعی اینترنت یا خطای سرور
+                toast.innerText = "ارتباط با سرور برقرار نشد.";
+                toast.style.background = "rgba(255, 71, 87, 0.95)";
+                toast.className = "toast show";
+            } finally {
+                // بازگرداندن دکمه به حالت اول
+                btn.innerText = originalText;
+                btn.disabled = false;
+                // مخفی کردن پیام بعد از ۴ ثانیه
+                setTimeout(function(){
+                    toast.className = toast.className.replace("show", "");
+                }, 4000);
+            }
+        }
+    </script>
+</body>
+</html>
