@@ -3233,9 +3233,3 @@ def remove_material_from_category(request, category_id, material_id):
 
     return redirect("category_detail", category_id=category.id)
 
-
-
-
-def contact_us(request):
-
-    return render(request,'contactus/first.html')

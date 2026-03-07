@@ -5,3 +5,35 @@ from django.shortcuts import render
 def contact_us(request):
 
     return render(request,'contactus/first.html')
+
+
+
+from django.http import JsonResponse
+from .models import Feedback
+
+def submit_feedback(request):
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('name')
+            rating = request.POST.get('rating')
+            message = request.POST.get('message')
+
+            # Simple validation
+            if not all([name, rating, message]):
+                return JsonResponse({'status': 'error', 'message': 'لطفاً تمام فیلدها را پر کنید.'}, status=400)
+
+            # Save to database
+            Feedback.objects.create(
+                name=name,
+                rating=rating,
+                message=message
+            )
+
+            return JsonResponse({'status': 'success', 'message': 'ممنون از ثبت نظر شما'})
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': 'خطایی رخ داد.'}, status=500)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+    
