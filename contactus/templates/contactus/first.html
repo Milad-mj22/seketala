@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a1a">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>فست فود سکه طلا</title>
     <!-- اضافه کردن فونت وزیر برای سازگاری بهتر -->
 
@@ -20,7 +22,17 @@
             --text-color: #ffffff;
             --text-muted: #a0a0a0;
             --insta-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        /* --- کد زیر را اضافه کنید --- */
+        @supports (color-scheme: dark) {
+            :root {
+                color-scheme: dark;
+            }
         }
+        html, body {
+            color-scheme: dark;
+            -webkit-text-size-adjust: 100%;
+        }
+        /* ----------------------------- */
         
         * {
             box-sizing: border-box;
@@ -503,7 +515,7 @@
             const formData = new FormData(form);
             try {
                 // ارسال درخواست به سرور
-                const response = await fetch('/contactus/api/submit-feedback/', {
+                const response = await fetch('/contact_us/api/submit-feedback/', {
                     method: 'POST',
                     body: formData,
                     headers: {
