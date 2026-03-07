@@ -241,23 +241,39 @@ def calc_nahve_pardakh(request):
     invoices = Invoice.objects.filter(
         created_at__gte=start_datetime,
         created_at__lt=end_datetime
-    )
+    ).prefetch_related("items")
+
 
     totals = defaultdict(int)
 
+    total_items = 0
+
     for invoice in invoices:
-        if 'اسنپ' not in invoice.name:
+        print(invoice.name)
+        if 'کیوسک۱' in invoice.name:
+            totals['کیوسک۱'] += invoice.total_price# -invoice.discount
+        elif 'کیوسک۲' in invoice.name:
+            totals['کیوسک۲'] += invoice.total_price# -invoice.discount
+        elif 'کیوسک۳' in invoice.name:
+            totals['کیوسک۳'] += invoice.total_price# -invoice.discount
+
+
+        elif 'اسنپ' in invoice.name:
+            totals['اسنپ'] += invoice.total_price# -invoice.discount
+
+
+        else:
             methods = extract_payment_methods(invoice.nahveh)
             for method in methods:
-                totals[method] += invoice.total_price - invoice.discount
-        else:
-            totals['اسنپ'] += invoice.total_price - invoice.discount
+                totals[method] += invoice.total_price #- invoice.discount
+        total_items+= len(invoice.items.all())
 
     context = {
         'selected_date': selected_date,
         'labels': list(totals.keys()),
         'values': list(totals.values()),
-        'table_data': totals.items()
+        'table_data': totals.items(),
+        'total_items':total_items
     }
 
     return render(request, 'utils/nahve.html', context)

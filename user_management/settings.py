@@ -101,6 +101,7 @@ INSTALLED_APPS = [
     'FoodPrice',
     'vault',
     'pwa',
+    'contactus'
 
 ]
 
