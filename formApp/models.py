@@ -41,3 +41,26 @@ class FormSubmissionData(models.Model):
     submission = models.ForeignKey(FormSubmission, on_delete=models.CASCADE, related_name='data')
     field = models.ForeignKey(FormField, on_delete=models.CASCADE)
     value = models.TextField()
+
+
+
+
+
+
+class NightlyFormModel(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)  # تاریخ ارسال فرم (روز)
+    data = models.JSONField(default=dict)      # داده‌های فرم (انعطاف‌پذیر برای تغییر تعداد فیلدها)
+    created_at = models.DateTimeField(auto_now_add=True)  # زمان ارسال اولیه
+    updated_at = models.DateTimeField(auto_now=True)      # آخرین ویرایش
+
+
+class NightlyFormHistory(models.Model):
+    form = models.ForeignKey(NightlyFormModel, on_delete=models.CASCADE, related_name='history')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    edited_at = models.DateTimeField(auto_now_add=True)
+    old_data = models.JSONField(default=dict)  # داده‌های قبل از ویرایش
+    new_data = models.JSONField(default=dict)  # داده‌های جدید (اختیاری)
+
+    def __str__(self):
+        return f"{self.user} edited on {self.edited_at}"

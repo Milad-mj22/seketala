@@ -4,7 +4,7 @@ from django.http import HttpResponse
 # views.py
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from .models import CustomForm, FormField, FormSubmission, FormSubmissionData
+from .models import CustomForm, FormField, FormSubmission, FormSubmissionData, NightlyFormHistory
 from django.contrib.auth.models import User
 
 @login_required
@@ -154,3 +154,137 @@ def available_forms(request):
     return render(request, 'available_forms.html', {'forms': forms_with_permission})
 
 
+
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import NightlySalesForm, save_with_persian_labels
+from .models import NightlyFormModel
+from decimal import Decimal  # اضافه کردن این خط
+
+
+
+from django.utils import timezone
+
+
+
+# تابع کمکی برای تبدیل Decimal به float
+def convert_decimals_to_floats(data):
+    """تبدیل تمام مقادیر Decimal در دیکشنری به float"""
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if isinstance(value, Decimal):
+                data[key] = float(value)
+            elif isinstance(value, dict):
+                convert_decimals_to_floats(value)
+    return data
+
+@login_required
+def nightly_sales_view(request):
+    if request.method == 'POST':
+        form = NightlySalesForm(request.POST)
+        if form.is_valid():
+            # تبدیل Decimal به float قبل از ذخیره
+            cleaned_data = convert_decimals_to_floats(form.cleaned_data)
+            cleaned_data = save_with_persian_labels(cleaned_data)
+            NightlyFormModel.objects.create(
+                user=request.user,
+                data=cleaned_data
+            )
+            return redirect('success_page')
+    else:
+        form = NightlySalesForm()
+    
+    return render(request, 'nightly_form.html', {'form': form})
+
+@login_required
+def form_detail(request, form_id):
+    form_instance = get_object_or_404(NightlyFormModel, id=form_id, user=request.user)
+    now = timezone.now()
+    time_diff = now - form_instance.created_at
+    is_editable = time_diff.total_seconds() < 7200 or request.user.is_staff
+
+    if request.method == 'POST' and is_editable:
+        form = NightlySalesForm(request.POST)
+        if form.is_valid():
+            # تبدیل Decimal به float قبل از ذخیره
+            cleaned_data = convert_decimals_to_floats(form.cleaned_data)
+            form_instance.data = cleaned_data
+            form_instance.save()
+            
+            NightlyFormHistory.objects.create(
+                form=form_instance,
+                user=request.user,
+                old_data=form_instance.data,
+                new_data=cleaned_data
+            )
+            return redirect('form_detail', form_id=form_id)
+    else:
+        # تبدیل Decimal به float برای نمایش در فرم
+        initial_data = convert_decimals_to_floats(form_instance.data)
+        form = NightlySalesForm(initial=initial_data)
+
+    return render(request, 'form_detail.html', {
+        'form': form,
+        'form_instance': form_instance,
+        'is_editable': is_editable
+    })
+
+
+
+
+
+
+
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
+from django.views.generic import ListView
+from django.urls import reverse_lazy
+from .models import NightlyFormModel
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+from io import BytesIO
+import json
+
+class NightlyFormListView(ListView):
+    model = NightlyFormModel
+    template_name = 'nightly_forms_list.html'
+    context_object_name = 'forms'
+    ordering = ['-created_at']
+    paginate_by = 30
+
+    def get_queryset(self):
+        return NightlyFormModel.objects.filter(user=self.request.user).order_by('-created_at')[:30]
+
+def download_excel(request, form_id):
+    form = get_object_or_404(NightlyFormModel, id=form_id, user=request.user)
+    
+    # ایجاد کتابکار Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "فرم شبانه"
+    
+    # اضافه کردن سرستون‌ها
+    headers = list(form.data.keys())
+    for col_num, header in enumerate(headers, 1):
+        ws.cell(row=1, column=col_num, value=header)
+        ws.column_dimensions[get_column_letter(col_num)].width = 20
+    
+    # اضافه کردن داده‌ها
+    for col_num, value in enumerate(form.data.values(), 1):
+        ws.cell(row=2, column=col_num, value=value)
+    
+    # تنظیمات خروجی
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    # ایجاد پاسخ دانلود
+    response = HttpResponse(
+        output.read(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename=form_{form.id}_{form.date}.xlsx'
+    return response
