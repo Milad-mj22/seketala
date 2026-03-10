@@ -211,5 +211,7 @@ def save_with_persian_labels(form_data):
         persian_key = persian_mapping.get(field_name)
         if persian_key:
             persian_data[persian_key] = value
+        else:
+            persian_data[field_name] = value
     
     return persian_data
