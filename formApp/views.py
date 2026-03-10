@@ -189,9 +189,9 @@ def nightly_sales_view(request):
         form = NightlySalesForm(request.POST)
         if form.is_valid():
             # تبدیل Decimal به float قبل از ذخیره
-            # other_form = get_data_from_form(request=request)
-
-            cleaned_data = convert_decimals_to_floats(form.cleaned_data)
+            additional_form_dict = get_data_from_form(request=request)
+            merged_dict = {**form.cleaned_data,**additional_form_dict}
+            cleaned_data = convert_decimals_to_floats(merged_dict)
             cleaned_data = save_with_persian_labels(cleaned_data)
             NightlyFormModel.objects.create(
                 user=request.user,
@@ -217,7 +217,7 @@ def get_data_from_form(request):
     form_data = request.POST
         
     # داده‌های فرم‌های پویا (فرم 1)
-    form1_data = []
+    additional_form_dict = {}
     for i in range(1, 10):  # حداکثر 10 فرم
         name = request.POST.get(f'name_{i}')
         value1 = request.POST.get(f'value1_{i}')
@@ -229,35 +229,29 @@ def get_data_from_form(request):
         value7 = request.POST.get(f'value7_{i}')
         
         if name or value1 or value2 or value3 or value4 or value5 or value6 or value7:
-            form1_data.append({
-                'نام پیک': name,
-                'اسنپ': value1,
-                'تلفنی': value2,
-                'جمع کارکرد': value3,
-                'کمیسیون': value4,
-                'غذا': value5,
-                'انعام': value6,
-                'خالص پرداخت': value7,
-            })
+            additional_form_dict.update({f'نام پیک_{i}': name})
+            additional_form_dict.update({f'اسنپ_{i}': value1})
+            additional_form_dict.update({f'تلفنی_{i}': value2})
+            additional_form_dict.update({f'جمع کارکرد_{i}': value3})
+            additional_form_dict.update({f'کمیسیون_{i}': value4})
+            additional_form_dict.update({f'غذا_{i}': value5})
+            additional_form_dict.update({f'انعام_{i}': value6})
+            additional_form_dict.update({f'خالص پرداخت_{i}': value7})
     
-    # داده‌های فرم‌های پویا (فرم 2)
-    form2_data = []
+
     for i in range(1, 10):
-        value1 = request.POST.get(f'value1_{i}')
-        value2 = request.POST.get(f'value2_{i}')
+        f2_value1 = request.POST.get(f'f2_value1_{i}')
+        f2_value2 = request.POST.get(f'f2_value2_{i}')
 
         
-        if value1 or value2 :
-            form2_data.append({
-                'شرح': value1,
-                'مبلغ - ریال': value2,
-
-            })
+        if f2_value1 or f2_value2 :
+            additional_form_dict.update({f'شرح_{i}': f2_value1})
+            additional_form_dict.update({f'مبلغ - ریال_{i}': f2_value2})
 
     
 
 
-    return form1_data+form2_data
+    return additional_form_dict
 
 
 @login_required
