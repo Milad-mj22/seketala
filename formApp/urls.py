@@ -11,4 +11,15 @@ urlpatterns = [
 
     path('my-forms/', views.available_forms, name='available_forms'),
 
+
+    path('night_form_create/', views.nightly_sales_view, name='available_forms'),
+    path('form/<int:form_id>/', views.form_detail, name='form_detail'),
+    
+    path('nightforms/', views.NightlyFormListView.as_view(), name='nightly_forms_list'),
+    path('nightforms/download/<int:form_id>/', views.download_excel, name='download_excel'),
+
+
+    path('nightforms/peyk_create/', views.peyk_create, name='peyk_create'),
+    path('api/people/', views.get_people, name='get_people'),
+    
 ]

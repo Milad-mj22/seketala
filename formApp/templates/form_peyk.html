@@ -1,0 +1,583 @@
+{% extends "users/base.html" %}
+{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرم فروش پیک</title>
+    <style>
+        :root {
+            --primary: #b6a400;
+            --primary-dark: #807d01;
+            --success: #4cc9f0;
+            --gray: #e2e8f0;
+            --dark: #1a202c;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+            font-family: 'Vazirmatn', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .form-card {
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(67, 97, 238, 0.15);
+            overflow: hidden;
+            border: none;
+            margin-bottom: 2.5rem;
+        }
+        
+        .form-header {
+            background: linear-gradient(120deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.8rem 2rem;
+            border-radius: 20px 20px 0 0 !important;
+        }
+        
+        .form-header h2 {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .form-header i {
+            font-size: 1.8rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.8rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-control {
+            border-radius: 14px;
+            padding: 14px 18px;
+            border: 1px solid var(--gray);
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            height: 56px;
+            text-align: right;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+            outline: none;
+        }
+        
+        .number-display {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-top: 0.4rem;
+            font-weight: 500;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .number-display i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(120deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: 14px;
+            padding: 16px 32px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .form-text {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+        
+        .form-error {
+            color: #e53e3e;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .form-error i {
+            font-size: 0.9rem;
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #718096;
+            font-size: 0.95rem;
+        }
+        
+        .form-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .entry-container {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .remove-entry {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-entry-btn {
+            background: linear-gradient(120deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .add-entry-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .form-card {
+                border-radius: 16px;
+            }
+            
+            .form-header {
+                padding: 1.5rem 1.5rem;
+            }
+            
+            .form-control {
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card form-card">
+                    <div class="form-header" style="text-align: center; display: block;">
+                        <h2><i class="fas fa-shipping-fast"></i> فرم فروش پیک</h2>
+                        <h6 style="text-align: right;">همکار گرامی اطلاعات مطابق با رویدادهای واقعی و بدون تهاتر ثبت گردد</h6>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5">
+                        <form method="post" id="deliveryForm">
+                            {% csrf_token %}
+                            
+                            <div id="entries-container">
+                                <!-- Entry 1 -->
+                                <div class="entry-container" id="entry-1">
+                                    <button type="button" class="remove-entry" onclick="removeEntry(1)">&times;</button>
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">
+                                                    <i class="fas fa-user"></i> انتخاب فرد
+                                                </label>
+                                                <select name="person_1" class="form-control" required>
+                                                    <option value="">لطفاً فرد را انتخاب کنید</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">
+                                                    <i class="fas fa-money-bill-wave"></i> مبلغ
+                                                </label>
+                                                <div class="input-group">
+                                                    <input type="text" name="amount_1" id="amount_1" class="form-control formatted-number" placeholder="مقدار را وارد کنید..." required>
+                                                </div>
+                                                <div class="number-display" id="number-display-text-amount_1">
+                                                    <span class="number-text">صفر ریال</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">
+                                                    <i class="fas fa-calendar-alt"></i> تاریخ
+                                                </label>
+                                                <input type="date" name="date_1" class="form-control" required>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">
+                                                    <i class="fas fa-comment-alt"></i> توضیحات
+                                                </label>
+                                                <textarea name="notes_1" class="form-control" rows="2" placeholder="توضیحات اضافی..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button type="button" id="add-entry-btn" class="add-entry-btn">
+                                    <i class="fas fa-plus-circle"></i> افزودن مورد جدید (حداکثر ۶ مورد)
+                                </button>
+                            </div>
+                            
+                            <div class="text-center mt-5">
+                                <button type="submit" class="btn submit-btn">
+                                    <i class="fas fa-check-circle me-2"></i> ثبت فروش پیک
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script>
+        // تابع تبدیل عدد به فارسی
+        function numberToWords(num) {
+            const units = ["", "یک", "دو", "سه", "چهار", "پنج", "شش", "هفت", "هشت", "نه"];
+            const teens = ["ده", "یازده", "دوازده", "سیزده", "چهارده", "پانزده", "شانزده", "هفده", "هجده", "نوزده"];
+            const tens = ["", "", "بیست", "سی", "چهل", "پنجاه", "شصت", "هفتاد", "هشتاد", "نود"];
+            const thousands = ["", "هزار", "میلیون", "میلیارد"];
+            
+            if (num === 0) return "صفر ریال";
+            
+            let words = "";
+            let thousandsCount = 0;
+            
+            while (num > 0) {
+                let chunk = num % 1000;
+                num = Math.floor(num / 1000);
+                
+                if (chunk > 0) {
+                    let chunkWords = "";
+                    
+                    if (chunk >= 100) {
+                        chunkWords += units[Math.floor(chunk / 100)] + "صد";
+                        chunk %= 100;
+                    }
+                    
+                    if (chunk >= 20) {
+                        chunkWords += (chunkWords ? " و " : "") + tens[Math.floor(chunk / 10)];
+                        chunk %= 10;
+                    }
+                    
+                    if (chunk > 0) {
+                        chunkWords += (chunkWords ? " و " : "") + units[chunk];
+                    }
+                    
+                    if (thousandsCount > 0) {
+                        chunkWords += " " + thousands[thousandsCount];
+                    }
+                    
+                    words = chunkWords + (words ? " و " + words : words);
+                }
+                thousandsCount++;
+            }
+            
+            return words + " ریال";
+        }
+        
+        // تابع فرمت کردن اعداد با سه رقم سه رقم
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // افزودن تبدیل اعداد به فارسی و فرمت کردن اعداد
+        function setupNumberInput(inputId, displayId) {
+            const input = document.getElementById(inputId);
+            const displayElement = document.getElementById(displayId);
+            
+            // نمایش مثال اولیه
+            if (displayElement) {
+                displayElement.querySelector('.number-text').textContent = "صفر ریال";
+            }
+            
+            // فرمت کردن اعداد هنگام تایپ
+            input.addEventListener('input', function() {
+                let value = this.value.replace(/[^0-9]/g, '');
+                
+                if (value) {
+                    // فرمت کردن عدد با سه رقم سه رقم
+                    const formattedValue = formatNumber(value);
+                    this.value = formattedValue;
+                    
+                    // محاسبه مبلغ برای نمایش فارسی
+                    const amount = parseInt(value);
+                    const words = numberToWords(amount);
+                    
+                    // نمایش در پایین فیلد
+                    if (displayElement) {
+                        displayElement.querySelector('.number-text').textContent = words;
+                    }
+                } else {
+                    this.value = '';
+                    if (displayElement) {
+                        displayElement.querySelector('.number-text').textContent = "صفر ریال";
+                    }
+                }
+            });
+            
+            // نمایش مقدار اولیه
+            if (input.value) {
+                const amount = parseInt(input.value.replace(/[^0-9]/g, ''));
+                if (amount > 0) {
+                    const words = numberToWords(amount);
+                    const formattedValue = formatNumber(input.value.replace(/[^0-9]/g, ''));
+                    input.value = formattedValue;
+                    
+                    if (displayElement) {
+                        displayElement.querySelector('.number-text').textContent = words;
+                    }
+                }
+            }
+        }
+        
+        // حذف یک مورد
+        function removeEntry(entryId) {
+            const entry = document.getElementById(`entry-${entryId}`);
+            if (entry) {
+                entry.remove();
+                updateEntryNumbers();
+            }
+        }
+        
+        // به‌روزرسانی شماره موارد
+        function updateEntryNumbers() {
+            const entries = document.querySelectorAll('.entry-container');
+            entries.forEach((entry, index) => {
+                const entryId = index + 1;
+                entry.id = `entry-${entryId}`;
+                
+                // به‌روزرسانی نام فیلدها
+                const inputs = entry.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    const name = input.name;
+                    if (name) {
+                        input.name = name.replace(/\d+$/, entryId);
+                    }
+                });
+                
+                // به‌روزرسانی IDها
+                const numberDisplay = entry.querySelector('.number-display');
+                if (numberDisplay) {
+                    const displayId = numberDisplay.id;
+                    if (displayId) {
+                        numberDisplay.id = displayId.replace(/\d+$/, entryId);
+                    }
+                }
+            });
+        }
+        
+        // تابع پر کردن dropdown با اطلاعات از بکاند
+        function populateDropdown(index, peopleData) {
+            const dropdown = document.querySelector(`select[name="person_${index}"]`);
+            if (dropdown) {
+                dropdown.innerHTML = `<option value="">لطفاً فرد را انتخاب کنید</option>`;
+                
+                peopleData.forEach(person => {
+                    const option = document.createElement('option');
+                    option.value = person.id;
+                    option.textContent = person.name;
+                    dropdown.appendChild(option);
+                });
+            }
+        }
+        
+        // دریافت لیست افراد از بکاند
+        function fetchPeopleData() {
+            fetch('/formApp/api/people/') // این آدرس باید با آدرس API بکاند شما سازگار باشد
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('خطا در دریافت لیست افراد');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // ذخیره لیست افراد برای استفاده در موارد جدید
+                    window.peopleData = data;
+                    
+                    // پر کردن اولین dropdown
+                    populateDropdown(1, data);
+                    
+                    // پر کردن dropdownهای جدید هنگام افزودن
+                    window.populateDropdown = function(index) {
+                        populateDropdown(index, window.peopleData);
+                    };
+                })
+                .catch(error => {
+                    console.error('خطا در دریافت لیست افراد:', error);
+                    alert('خطا در دریافت لیست افراد. لطفاً دوباره تلاش کنید.');
+                });
+        }
+        
+        // افزودن مورد جدید
+        document.addEventListener('DOMContentLoaded', function() {
+            const maxEntries = 6;
+            let currentEntries = 1;
+            
+            // دریافت لیست افراد از بکاند
+            fetchPeopleData();
+            
+            // تنظیم فرمت کردن برای مقدار اولیه
+            setupNumberInput('amount_1', 'number-display-text-amount_1');
+            
+            // افزودن مورد جدید
+            document.getElementById('add-entry-btn').addEventListener('click', function() {
+                if (currentEntries >= maxEntries) {
+                    alert('حداکثر ۶ مورد مجاز است.');
+                    return;
+                }
+                
+                currentEntries++;
+                
+                // ایجاد مورد جدید
+                const newEntry = document.createElement('div');
+                newEntry.className = 'entry-container';
+                newEntry.id = `entry-${currentEntries}`;
+                newEntry.innerHTML = `
+                    <button type="button" class="remove-entry" onclick="removeEntry(${currentEntries})">&times;</button>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i> انتخاب فرد
+                                </label>
+                                <select name="person_${currentEntries}" class="form-control" required>
+                                    <option value="">لطفاً فرد را انتخاب کنید</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-money-bill-wave"></i> مبلغ
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" name="amount_${currentEntries}" id="amount_${currentEntries}" class="form-control formatted-number" placeholder="مقدار را وارد کنید..." required>
+                                </div>
+                                <div class="number-display" id="number-display-text-amount_${currentEntries}">
+                                    <span class="number-text">صفر ریال</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-calendar-alt"></i> تاریخ
+                                </label>
+                                <input type="date" name="date_${currentEntries}" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-comment-alt"></i> توضیحات
+                                </label>
+                                <textarea name="notes_${currentEntries}" class="form-control" rows="2" placeholder="توضیحات اضافی..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('entries-container').appendChild(newEntry);
+                
+                // پر کردن dropdown جدید
+                if (window.peopleData) {
+                    populateDropdown(currentEntries, window.peopleData);
+                }
+                
+                // تنظیم فرمت کردن برای مقدار جدید
+                setupNumberInput(`amount_${currentEntries}`, `number-display-text-amount_${currentEntries}`);
+            });
+            
+            // اعتبارسنجی فرم با پیام تأیید
+            const form = document.getElementById('deliveryForm');
+            form.addEventListener('submit', function(e) {
+                const requiredFields = form.querySelectorAll('input[required], select[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('لطفاً تمام فیلدهای ضروری را پر کنید.');
+                } else {
+                    // پیام تأیید قبل از ثبت
+                    if (!confirm('آیا از ثبت اطلاعات اطمینان دارید؟ این عملیات قابل بازگشت نیست.')) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock %}
