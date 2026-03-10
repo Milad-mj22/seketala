@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فرم فروش شبانه </title>
-
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
     <style>
         :root {
             --primary: #b6a400;
@@ -16,13 +16,11 @@
             --gray: #e2e8f0;
             --dark: #1a202c;
         }
-        
         body {
             background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
             font-family: 'Vazirmatn', sans-serif;
             min-height: 100vh;
         }
-        
         .form-card {
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(67, 97, 238, 0.15);
@@ -30,14 +28,12 @@
             border: none;
             margin-bottom: 2.5rem;
         }
-        
         .form-header {
             background: linear-gradient(120deg, var(--primary), var(--primary-dark));
             color: white;
             padding: 1.8rem 2rem;
             border-radius: 20px 20px 0 0 !important;
         }
-        
         .form-header h2 {
             font-weight: 700;
             letter-spacing: 0.5px;
@@ -45,15 +41,12 @@
             align-items: center;
             gap: 12px;
         }
-        
         .form-header i {
             font-size: 1.8rem;
         }
-        
         .form-group {
             margin-bottom: 1.8rem;
         }
-        
         .form-label {
             font-weight: 600;
             color: var(--dark);
@@ -63,7 +56,6 @@
             align-items: center;
             gap: 8px;
         }
-        
         .form-control {
             border-radius: 14px;
             padding: 14px 18px;
@@ -73,13 +65,11 @@
             height: 56px;
             text-align: right;
         }
-        
         .form-control:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
             outline: none;
         }
-        
         .number-display {
             font-size: 0.85rem;
             color: #4a5568;
@@ -90,12 +80,10 @@
             align-items: center;
             gap: 6px;
         }
-        
         .number-display i {
             color: var(--primary);
             font-size: 1.1rem;
         }
-        
         .submit-btn {
             background: linear-gradient(120deg, var(--primary), var(--primary-dark));
             border: none;
@@ -106,18 +94,15 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
         }
-        
         .submit-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
         }
-        
         .form-text {
             color: #718096;
             font-size: 0.85rem;
             margin-top: 0.3rem;
         }
-        
         .form-error {
             color: #e53e3e;
             font-size: 0.85rem;
@@ -126,37 +111,57 @@
             align-items: center;
             gap: 6px;
         }
-        
         .form-error i {
             font-size: 0.9rem;
         }
-        
         .form-footer {
             text-align: center;
             margin-top: 2rem;
             color: #718096;
             font-size: 0.95rem;
         }
-        
         .form-footer a {
             color: var(--primary);
             text-decoration: none;
             transition: all 0.2s;
         }
-        
         .form-footer a:hover {
             text-decoration: underline;
         }
-        
+        .added-form {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            border: 1px solid var(--gray);
+            position: relative;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .remove-btn i {
+            font-size: 0.9rem;
+        }
         @media (max-width: 768px) {
             .form-card {
                 border-radius: 16px;
             }
-            
             .form-header {
                 padding: 1.5rem 1.5rem;
             }
-            
             .form-control {
                 height: 50px;
             }
@@ -170,15 +175,11 @@
                 <div class="card form-card">
                     <div class="form-header" style="text-align: center; display: block;">
                         <h2><i class="fas fa-chart-line"></i> فرم فروش شبانه</h2>
-                        <h4 style="text-align: right;"></i>همکار گرامی مطابق با رویدادهای واقعی و بدون تهاتر ثبت گردد </h4>
-
-
+                        <h6 style="text-align: right;">همکار گرامی اطلاعات مطابق با رویدادهای واقعی و بدون تهاتر ثبت گردد</h6>
                     </div>
-                    
                     <div class="card-body p-4 p-md-5">
                         <form method="post" id="nightlyForm">
                             {% csrf_token %}
-                            
                             <div class="row g-4">
                                 {% for field in form %}
                                     <div class="col-md-6">
@@ -186,24 +187,20 @@
                                             <label class="form-label">
                                                 <i class="fas fa-tag"></i> {{ field.label }}
                                             </label>
-                                            
                                             {% if field.field.widget.input_type == 'number' %}
                                                 <div class="input-group">
-                                                    <input type="text" name="{{ field.name }}" id="{{ field.id }}" class="form-control formatted-number" placeholder="مقدار را وارد کنید..."  >
+                                                    <input type="text" name="{{ field.name }}" id="{{ field.id }}" class="form-control formatted-number" placeholder="مقدار را وارد کنید..." value="{{field.initial}}">
                                                 </div>
                                                 <div class="number-display" id="number-display-text-{{ field.auto_id }}">
-                                                    <!-- <i class="fas fa-language"></i> <span class="number-text">صفر ریال</span> -->
                                                 </div>
                                             {% else %}
                                                 {{ field }}
                                             {% endif %}
-                                            
                                             {% if field.errors %}
                                                 <div class="form-error">
                                                     <i class="fas fa-exclamation-circle"></i> {{ field.errors.0 }}
                                                 </div>
                                             {% endif %}
-                                            
                                             {% if field.help_text %}
                                                 <div class="form-text">{{ field.help_text }}</div>
                                             {% endif %}
@@ -211,15 +208,21 @@
                                     </div>
                                 {% endfor %}
                             </div>
-                            
+                            <!-- دکمه‌های افزودن فرم جدید -->
+                            <div class="text-center mt-4">
+                                <button type="button" class="btn btn-primary" id="addForm1">
+                                    <i class="fas fa-plus-circle me-1"></i> افزودن پیک
+                                </button>
+                                <button type="button" class="btn btn-primary" id="addForm2">
+                                    <i class="fas fa-plus-circle me-1"></i> افزودن فروش نسیه
+                                </button>
+                            </div>
+
+                            <!-- دکمه‌های افزودن فرم -->
                             <div class="text-center mt-5">
                                 <button type="submit" class="btn submit-btn">
                                     <i class="fas fa-check-circle me-2"></i> ثبت فروش شبانه
                                 </button>
-                            </div>
-                            
-                            <div class="form-footer mt-4">
-                                <p>فرم فروش شبانه - بوف پلاس پلاس | <i class="fas fa-copyright"></i> 2026 ژرفاتک</p>
                             </div>
                         </form>
                     </div>
@@ -227,10 +230,12 @@
             </div>
         </div>
     </div>
-
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script>
-        // تابع تبدیل عدد به فارسی (اصلاح شده)
+        // تعریف لیست نام‌ها از بک‌اند
+        const namesList = {{ names_list|safe }};
+        
+        // تابع تبدیل عدد به فارسی
         function numberToWords(num) {
             const units = ["", "یک", "دو", "سه", "چهار", "پنج", "شش", "هفت", "هشت", "نه"];
             const teens = ["ده", "یازده", "دوازده", "سیزده", "چهارده", "پانزده", "شانزده", "هفده", "هجده", "نوزده"];
@@ -275,38 +280,144 @@
             return words + " ریال";
         }
         
-        // تابع فرمت کردن اعداد با سه رقم سه رقم
+        // تابع فرمت کردن اعداد
         function formatNumber(num) {
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         
-        // افزودن تبدیل اعداد به فارسی و فرمت کردن اعداد
         document.addEventListener('DOMContentLoaded', function() {
+            const formCounter = { count: 0 };
+            
+            // افزودن فرم جدید با تفاوت بین فرم ۱ و فرم ۲
+            document.getElementById('addForm1').addEventListener('click', (e) => addNewForm(e, 'form1'));
+            document.getElementById('addForm2').addEventListener('click', (e) => addNewForm(e, 'form2'));
+            
+            function addNewForm(event, formType) {
+                formCounter.count++;
+                const formId = `dynamic-form-${formCounter.count}`;
+                const newForm = document.createElement('div');
+                newForm.className = 'added-form';
+                newForm.id = formId;
+                
+                if (formType === 'form1') {
+                    newForm.innerHTML = `
+                        <div class="row g-4" style="margin-top: 30px;">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-user"></i> نام شخص</label>
+                                    <select class="form-control" style="padding: 0.0rem;" name="name_${formCounter.count}">
+                                        <option value="">انتخاب کنید</option>
+                                        ${namesList.map(name => `<option value="${name}">${name}</option>`).join('')}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-tag"></i> اسنپ</label>
+                                    <input type="text" class="form-control" name="value1_${formCounter.count}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-tag"></i> تلفنی</label>
+                                    <input type="text" class="form-control" name="value2_${formCounter.count}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-tag"></i> جمع کارکرد</label>
+                                    <input type="text" class="form-control" name="value3_${formCounter.count}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-tag"></i> کمیسیون</label>
+                                    <input type="text" class="form-control" name="value4_${formCounter.count}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-tag"></i> غذا</label>
+                                    <input type="text" class="form-control" name="value5_${formCounter.count}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-tag"></i> انعام</label>
+                                    <input type="text" class="form-control" name="value6_${formCounter.count}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-tag"></i> خالص برداشت</label>
+                                    <input type="text" class="form-control" name="value7_${formCounter.count}">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="remove-btn" data-form-id="${formId}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                } else if (formType === 'form2') {
+                    newForm.innerHTML = `
+                        <div class="row g-4" style="margin-top: 30px;">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" ><i class="fas fa-tag"></i> شرح</label>
+                                    <input type="text" class="form-control" name="value1_${formCounter.count}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-tag"></i> نسیه</label>
+                                    <input type="text" class="form-control" name="value2_${formCounter.count}">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="remove-btn" data-form-id="${formId}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                }
+                
+                // این خط تغییر کرد: فرم جدید قبل از دکمه‌های افزودن قرار می‌گیرد
+                const addButtonsDiv = document.querySelector('.text-center.mt-4');
+                if (addButtonsDiv) {
+                    document.getElementById('nightlyForm').insertBefore(newForm, addButtonsDiv);
+                } else {
+                    document.getElementById('nightlyForm').appendChild(newForm);
+                }
+            }
+            
+            // حذف فرم
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-btn')) {
+                    const formId = e.target.dataset.formId;
+                    document.getElementById(formId).remove();
+                }
+            });
+            
+            // تابع فرمت کردن اعداد
             const numberInputs = document.querySelectorAll('.formatted-number');
             
             numberInputs.forEach(input => {
                 const displayId = `number-display-text-${input.id}`;
                 const displayElement = document.getElementById(displayId);
                 
-                // نمایش مثال اولیه
                 if (displayElement) {
                     displayElement.querySelector('.number-text').textContent = "صفر ریال";
                 }
                 
-                // فرمت کردن اعداد هنگام تایپ
                 input.addEventListener('input', function() {
                     let value = this.value.replace(/[^0-9]/g, '');
                     
                     if (value) {
-                        // فرمت کردن عدد با سه رقم سه رقم
                         const formattedValue = formatNumber(value);
                         this.value = formattedValue;
                         
-                        // محاسبه مبلغ برای نمایش فارسی
                         const amount = parseInt(value);
                         const words = numberToWords(amount);
                         
-                        // نمایش در پایین فیلد
                         if (displayElement) {
                             displayElement.querySelector('.number-text').textContent = words;
                         }
@@ -318,7 +429,6 @@
                     }
                 });
                 
-                // نمایش مقدار اولیه
                 if (input.value) {
                     const amount = parseInt(input.value.replace(/[^0-9]/g, ''));
                     if (amount > 0) {
@@ -353,6 +463,10 @@
                 if (!isValid) {
                     e.preventDefault();
                     alert('لطفاً تمام فیلدهای ضروری را پر کنید.');
+                } else {
+                    if (!confirm('آیا از ثبت اطلاعات اطمینان دارید؟ این عملیات قابل بازگشت نیست.')) {
+                        e.preventDefault();
+                    }
                 }
             });
         });

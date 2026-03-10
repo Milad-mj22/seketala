@@ -4,6 +4,8 @@ from django.http import HttpResponse
 # views.py
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+
+from users.models import Profile
 from .models import CustomForm, FormField, FormSubmission, FormSubmissionData, NightlyFormHistory
 from django.contrib.auth.models import User
 
@@ -187,6 +189,8 @@ def nightly_sales_view(request):
         form = NightlySalesForm(request.POST)
         if form.is_valid():
             # تبدیل Decimal به float قبل از ذخیره
+            # other_form = get_data_from_form(request=request)
+
             cleaned_data = convert_decimals_to_floats(form.cleaned_data)
             cleaned_data = save_with_persian_labels(cleaned_data)
             NightlyFormModel.objects.create(
@@ -196,8 +200,65 @@ def nightly_sales_view(request):
             return redirect('success_page')
     else:
         form = NightlySalesForm()
+
+
+    context = {
+        'form': form,
+        'names_list': json.dumps(['milad','ali']),
+        # ... سایر داده‌ها
+    }
+
+        
+    return render(request, 'nightly_form.html',context)
+
+
+
+def get_data_from_form(request):
+    form_data = request.POST
+        
+    # داده‌های فرم‌های پویا (فرم 1)
+    form1_data = []
+    for i in range(1, 10):  # حداکثر 10 فرم
+        name = request.POST.get(f'name_{i}')
+        value1 = request.POST.get(f'value1_{i}')
+        value2 = request.POST.get(f'value2_{i}')
+        value3 = request.POST.get(f'value3_{i}')
+        value4 = request.POST.get(f'value4_{i}')
+        value5 = request.POST.get(f'value5_{i}')
+        value6 = request.POST.get(f'value6_{i}')
+        value7 = request.POST.get(f'value7_{i}')
+        
+        if name or value1 or value2 or value3 or value4 or value5 or value6 or value7:
+            form1_data.append({
+                'نام پیک': name,
+                'اسنپ': value1,
+                'تلفنی': value2,
+                'جمع کارکرد': value3,
+                'کمیسیون': value4,
+                'غذا': value5,
+                'انعام': value6,
+                'خالص پرداخت': value7,
+            })
     
-    return render(request, 'nightly_form.html', {'form': form})
+    # داده‌های فرم‌های پویا (فرم 2)
+    form2_data = []
+    for i in range(1, 10):
+        value1 = request.POST.get(f'value1_{i}')
+        value2 = request.POST.get(f'value2_{i}')
+
+        
+        if value1 or value2 :
+            form2_data.append({
+                'شرح': value1,
+                'مبلغ - ریال': value2,
+
+            })
+
+    
+
+
+    return form1_data+form2_data
+
 
 @login_required
 def form_detail(request, form_id):
@@ -288,3 +349,20 @@ def download_excel(request, form_id):
     )
     response['Content-Disposition'] = f'attachment; filename=form_{form.id}_{form.date}.xlsx'
     return response
+
+
+
+
+
+def peyk_create(request):
+    return render(request, 'form_peyk.html')
+
+
+
+# views.py
+from django.http import JsonResponse
+
+def get_people(request):
+    people = Profile.objects.all().values('id', 'name')
+    
+    return JsonResponse(list(people), safe=False)

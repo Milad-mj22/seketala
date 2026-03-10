@@ -17,4 +17,9 @@ urlpatterns = [
     
     path('nightforms/', views.NightlyFormListView.as_view(), name='nightly_forms_list'),
     path('nightforms/download/<int:form_id>/', views.download_excel, name='download_excel'),
+
+
+    path('nightforms/peyk_create/', views.peyk_create, name='peyk_create'),
+    path('api/people/', views.get_people, name='get_people'),
+    
 ]
