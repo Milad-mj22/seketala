@@ -311,10 +311,10 @@ class NightlyFormListView(ListView):
     paginate_by = 30
 
     def get_queryset(self):
-        return NightlyFormModel.objects.filter(user=self.request.user).order_by('-created_at')[:30]
+        return NightlyFormModel.objects.order_by('-created_at')[:30]
 
 def download_excel(request, form_id):
-    form = get_object_or_404(NightlyFormModel, id=form_id, user=request.user)
+    form = get_object_or_404(NightlyFormModel, id=form_id)
     
     # ایجاد کتابکار Excel
     wb = Workbook()
