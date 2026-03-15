@@ -30,6 +30,14 @@ class Invoice(models.Model):
     peyk = models.PositiveIntegerField(default=0)
     anaam = models.PositiveIntegerField(default=0)
 
+    moshtarak = models.CharField(max_length=20,null=True,blank=True)
+    serv = models.CharField(max_length=20,null=True,blank=True)
+    pnum =models.CharField(max_length=20,null=True,blank=True)
+    shomare_pos =models.CharField(max_length=20,null=True,blank=True)
+    mablagh_pos = models.CharField(max_length=20,null=True,blank=True)
+    hazine_peyk = models.CharField(max_length=20,null=True,blank=True)
+    naghdi = models.CharField(max_length=20,null=True,blank=True)
+
 
 
 class InvoiceItem(models.Model):
