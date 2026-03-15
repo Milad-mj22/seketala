@@ -191,14 +191,14 @@ class ReceiveInvoice(APIView):
                 "total_price": data["total_price"],
                 "discount" : data['takhfif'],
                 "peyk" : data['peyk'],
-                "anaam" : data['anaam'],
-                
+                # "anaam" : data['anaam'],
+
                 "moshtarak" : data['moshtarak'],
                 "serv" : data['serv'],
                 "pnum" : data['pnum'],
-                "shomare_pos" : data['shomare_pos'],
+                "shomare_pos" : data['shomareh_pos'],
                 "mablagh_pos" : data['mablagh_pos'],
-                "hazine_peyk" : data['hazine_peyk'],
+                "hazine_peyk" : data['hazineh_peyk'],
                 "naghdi" : data['naghdi'],
                 "mandeh" : data['mandeh'],
 
