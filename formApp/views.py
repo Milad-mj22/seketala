@@ -324,12 +324,12 @@ def download_excel(request, form_id):
     # اضافه کردن سرستون‌ها
     headers = list(form.data.keys())
     for col_num, header in enumerate(headers, 1):
-        ws.cell(row=1, column=col_num, value=header)
+        ws.cell(row=col_num, column=1, value=header)
         ws.column_dimensions[get_column_letter(col_num)].width = 20
     
     # اضافه کردن داده‌ها
     for col_num, value in enumerate(form.data.values(), 1):
-        ws.cell(row=2, column=col_num, value=value)
+        ws.cell(row=col_num, column=2, value=value)
     
     # تنظیمات خروجی
     output = BytesIO()

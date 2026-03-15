@@ -1353,7 +1353,7 @@ def add_store(request):
 
 from .forms import MaterialCompositionForm
 
-def material_composition_view(request):
+def material_composition_view_first(request):
     if request.method == 'POST':
         form = MaterialCompositionForm(request.POST)
         if form.is_valid():

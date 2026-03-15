@@ -164,8 +164,12 @@ def import_raw_materials_csv(request):
             col_name = request.POST.get('col_name')
             col_unit = request.POST.get('col_unit')
             col_pattern = request.POST.get('col_pattern')
+            col_pattern_code = request.POST.get('col_pattern_code')
+
+            
 
 
+            mode_obj = mode_raw_materials.objects.filter(name = 'خوراکی').first()
 
 
             for _, row in df.iterrows():
@@ -173,52 +177,29 @@ def import_raw_materials_csv(request):
                 describe = str(row.get(col_id, '')).strip()
                 unit = str(row.get(col_unit, '')).strip()
                 mother_name = str(row.get(col_pattern, '')).strip()
-                mode_name = str(row.get('mode', '')).strip()
+                mother_name_code = str(row.get(col_pattern_code, '')).strip()
+                mode_name = mode_obj
 
                 if not name or not describe:
                     skipped_count += 1
                     skipped_names.append(name or 'نام نامشخص')
                     continue
+                
+                if name =='' or describe =='' or unit =='' or mother_name =='' or mother_name_code =='':
+                    print('Item scaped',e)
+                    skipped_count += 1
+                    skipped_names.append(name or 'نام نامشخص')
+
+                    continue
 
 
+                mother_object = mother_material.objects.get_or_create(name=mother_name,describe=mother_name_code,mode=mode_name)
+                
+                raw_material_object = raw_material.objects.get_or_create(name=name,describe=describe,unit = unit,mother = mother_object[0],mode=mode_name)
+                        
 
-                # Get all names from the DB
-                all_mother_names = mother_material.objects.values_list('name', flat=True)
-
-                # Find the closest match using difflib
-                closest_matches = difflib.get_close_matches(mother_name, all_mother_names, n=1, cutoff=0.1)
-
-                mother = None
-                if closest_matches:
-                    mother = mother_material.objects.filter(name=closest_matches[0]).first()
-
-
-
-                mode = None
-                if mode_name:
-                    mode = mode_raw_materials.objects.filter(name__iexact=mode_name).first()
-
-                raw = raw_material.objects.filter(name=name).first()
-                if raw:
-                    # Update existing
-                    raw.describe = describe
-                    raw.unit = unit
-                    raw.mother = mother
-                    raw.mode = mode
-                    raw.save()
-                    updated_count += 1
-                    updated_names.append(name)
-                else:
-                    # Create new
-                    raw_material.objects.create(
-                        name=name,
-                        describe=describe,
-                        unit=unit,
-                        mother=mother,
-                        mode=mode,
-                    )
-                    created_count += 1
-                    created_names.append(name)
+                created_count += 1
+                created_names.append(name)
 
             return render(request, 'import_result_material.html', {
                 'created': created_count,
@@ -268,58 +249,53 @@ def import_composition_materials_csv(request):
                     'error': 'خطا در خواندن فایل CSV: ' + str(e),
                 })
             
-            col_material_code = request.POST.get('col_id')
-            col_sub_material_code = request.POST.get('col_id2')
-            col_name = request.POST.get('col_name')
-            col_ratio = request.POST.get('col_ratio')
-            col_unit = request.POST.get('col_unit')
+            main_name = request.POST.get('col_name')
+            main_code = request.POST.get('col_code')
+            main_unit = request.POST.get('col_unit')
+            sub_name = request.POST.get('col_zir_name')
+            sub_code = request.POST.get('col_zir_code')
+            sub_unit = request.POST.get('col_zir_unit')
+            ratio = request.POST.get('col_ratio')
 
+            item_type = 'نوع قلم'
 
 
 
             for _, row in df.iterrows():
-                material_code = str(row.get(col_material_code, '')).strip()
-                sub_material_code = str(row.get(col_sub_material_code, '')).strip()
-                name = str(row.get(col_name, '')).strip()
-                ratio = str(row.get(col_ratio, '')).strip()
-                unit = str(row.get(col_unit, '')).strip()
+                
+                value_item_type = str(row.get(item_type, '')).strip()
 
-
-
-
-                if material_code[:4] == '1007' :
-                    raw_material_obj = create_new_composition_materail(name = name , unit = unit , code= material_code)
-                    composition_material_obj_flag = True
+                if value_item_type != 'FormulaBomItem':
+                    
                     continue
-                    food_material = False
-                elif material_code[:4] == '1008':
-                    composition_material_obj_flag = False
-                    food_material = True
 
-                if  composition_material_obj_flag:
-                        
-                    composition_material = raw_material_obj[0]
+                value_main_name = str(row.get(main_name, '')).strip()
+                value_main_code = str(row.get(main_code, '')).strip()
+                value_main_unit = str(row.get(main_unit, '')).strip()
 
-                    if sub_material_code !='' :
-                        sub_material_obj = raw_material.objects.filter(describe=sub_material_code)  
-                        if sub_material_obj.exists():
-                            sub_material_obj = sub_material_obj.first()
-                            # materaial_coposition_obj = MaterialComposition.objects.filter(main_material=composition_material)
-                            # if materaial_coposition_obj.exists():
-                            MaterialComposition.objects.get_or_create(main_material=composition_material,ingredient =sub_material_obj,ratio=ratio )
-                                
-                        else:
-                            try:
-                                #print('not exist : ',name)
-                                mother_code = sub_material_code[:4]
-                                mother_code  = int(float(mother_code))
-                                mother_obj = mother_material.objects.filter(describe=mother_code).first()
-                                sub_material_obj = raw_material.objects.create(name=name,describe=sub_material_code,unit=unit,mother=mother_obj)
-                                MaterialComposition.objects.get_or_create(main_material=composition_material,ingredient =sub_material_obj,ratio=ratio )
-                            except:
-                                print('Errior in imnport composition')
-                
-                
+                value_sub_name = str(row.get(sub_name, '')).strip()
+                value_sub_code = str(row.get(sub_code, '')).strip()
+                value_sub_unit = str(row.get(sub_unit, '')).strip()
+
+                value_ratio = float(row.get(ratio, 0))
+
+
+
+                try:
+                    main_material_object = raw_material.objects.filter(name=value_main_name).first()
+                    sub_material_obj = raw_material.objects.filter(name=value_sub_name).first()
+
+                    
+                    composition_object = MaterialComposition.objects.get_or_create(main_material=main_material_object,ingredient =sub_material_obj,ratio=value_ratio )
+
+                    print(composition_object)
+                    created_count+=1
+                    created_names.append(main_material_object.name)
+
+                except Exception as e:
+                        print('Error in formoula , ',e)
+                        skipped_count+=1
+                        continue
 
             return render(request, 'import_result_material.html', {
                 'created': created_count,

@@ -302,15 +302,16 @@
                 if (formType === 'form1') {
                     newForm.innerHTML = `
                         <div class="row g-4" style="margin-top: 30px;">
+
+
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-user"></i> نام شخص</label>
-                                    <select class="form-control" style="padding: 0.0rem;" name="name_${formCounter.count}">
-                                        <option value="">انتخاب کنید</option>
-                                        ${namesList.map(name => `<option value="${name}">${name}</option>`).join('')}
-                                    </select>
+                                    <label class="form-label"><i class="fas fa-tag"></i> نام شخص</label>
+                                    <input type="text" class="form-control formatted-number" name="name_${formCounter.count}">
                                 </div>
                             </div>
+
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label"><i class="fas fa-tag"></i> اسنپ</label>
