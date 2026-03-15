@@ -345,7 +345,9 @@ def create_order(request):
 
         user = request.user
         # Get all categories the user can see
-        user_categories = user.profile.categories.all()  # assumes Profile model with ManyToMany to MaterialCategory
+        # user_categories = user.profile.categories.all() 
+        user_categories = user.material_categories.all()
+         # assumes Profile model with ManyToMany to MaterialCategory
 
         # Get all mother materials
         mother_materials = MotherMaterial.objects.prefetch_related('mother_material').order_by('describe').all()
