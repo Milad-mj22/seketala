@@ -631,7 +631,16 @@ def tasvieh_sepidar_download_excel(request):
         
         if float(inv.nonaghdi)>0:
             inv.mablagh_pos = inv.nonaghdi
+
+        if float(inv.naghdi)>0:
+            naghdi = inv.naghdi
+        else:
+            naghdi = ''
             
+        if float(inv.mablagh_pos)>0:
+            mablagh_pos = inv.mablagh_pos
+        else:
+            mablagh_pos = ''
 
         rows.append({
             'نوع قلم' : 'ReceiptDraft',
@@ -639,12 +648,12 @@ def tasvieh_sepidar_download_excel(request):
             'رسيد دريافت طرف مقابل':'متفرقه/فروش',
             'رسيد دريافت تاريخ':format_jalali_datetime(inv.created_at),
             'رسيد دريافت كد معين':121201,
-            'رسيد دريافت مبلغ نقد':inv.naghdi,
+            'رسيد دريافت مبلغ نقد':naghdi,
             'رسيد دريافت شرح':f'فاكتور شماره {inv.invoice_number}',
             'رسيد دريافت مبلغ دريافت ':inv.total_price-inv.discount,
             'حواله شماره':inv.invoice_number,
             'حواله تاريخ':format_jalali_datetime(inv.created_at),
-            'حواله مبلغ':inv.mablagh_pos,
+            'حواله مبلغ':mablagh_pos,
             'حواله حساب بانكي':f'فاكتور شماره {inv.invoice_number}',
             'حواله تفصيل حساب بانكي':1,
 

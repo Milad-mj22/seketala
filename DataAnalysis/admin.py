@@ -37,7 +37,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         'mablagh_pos',
         'hazine_peyk',
         'naghdi',
-        'nonaghdi'
+        'nonaghdi',
         'mandeh',
 
     )
