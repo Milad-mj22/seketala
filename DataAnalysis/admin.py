@@ -29,7 +29,17 @@ class InvoiceAdmin(admin.ModelAdmin):
         'total_price_formatted',
         'discount',
         'peyk',
-        'anaam'
+        'anaam',
+        'moshtarak',
+        'serv',
+        'pnum',
+        'shomare_pos',
+        'mablagh_pos',
+        'hazine_peyk',
+        'naghdi',
+        'nonaghdi'
+        'mandeh',
+
     )
 
     list_filter = ('created_at',)

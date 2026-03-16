@@ -152,8 +152,13 @@ tr.clickable:hover {
             </a>
 
             <a href="{% url 'download_invoice_summary_excel' %}?date={{ selected_date }}">
-                <button type="button" class="secondary">Sepidar Format</button>
+                <button type="button" class="secondary">Factors Sepidar</button>
             </a>
+            <a href="{% url 'tasvieh_download_invoice_summary_excel' %}?date={{ selected_date }}">
+                <button type="button" class="secondary">Resid Sepidar</button>
+            </a>
+
+
         </form>
     </div>
 

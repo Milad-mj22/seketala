@@ -15,6 +15,7 @@ urlpatterns = [
     path("report/", views.invoice_report, name="invoice_report"),
     path("report/download/", views.download_invoice_excel, name="download_invoice_excel"),
     path("report/download-summary/", views.sepidar_download_excel, name="download_invoice_summary_excel"),
+    path("report/tasvieh_download_summary/", views.tasvieh_sepidar_download_excel, name="tasvieh_download_invoice_summary_excel"),
     path(
         "api/invoices/<str:invoice_number>/",
         views.invoice_detail_api,
