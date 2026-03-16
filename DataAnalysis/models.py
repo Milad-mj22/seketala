@@ -37,6 +37,7 @@ class Invoice(models.Model):
     mablagh_pos = models.CharField(max_length=20,null=True,blank=True)
     hazine_peyk = models.CharField(max_length=20,null=True,blank=True)
     naghdi = models.CharField(max_length=20,null=True,blank=True)
+    nonaghdi = models.CharField(max_length=20,null=True,blank=True)
     mandeh = models.CharField(max_length=20,null=True,blank=True)
 
 
