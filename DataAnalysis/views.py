@@ -7,11 +7,14 @@ import sqlite3
 from django.shortcuts import render, redirect
 from django.conf import settings
 import jdatetime
-
-from .folder_utils.sepidar_date import format_jalali_datetime
+import xlrd
+import xlwt
+from .folder_utils.sepidar_date import format_jalali_date, format_jalali_datetime, havale_format_jalali_datetime
 from .forms import DBUploadForm
 from .models import InvoiceItem, Sale
 from persiantools.jdatetime import JalaliDate
+from user_management.utils import check_server
+SERVER = check_server()
 
 
 def upload_db(request):
@@ -164,7 +167,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Invoice
-from .utils import extract_payment_methods, jalali_date_time_to_gregorian
+from .utils import extract_payment_methods, jalali_date_time_to_gregorian, read_excel
 
 
 
@@ -435,6 +438,34 @@ def invoice_detail_api(request, invoice_number):
 
 
 
+
+
+
+def vaset_convert_peyk_details(peyk_id:int):
+
+    data =  read_excel(excel_name='peyk.xlsx')
+    # مثال: چاپ سلول A1
+
+
+    select1 = None
+    select2 = None
+    select3 = None
+
+    for d in data:
+        try:
+            if 'متفرقه' in str(d[0]):
+                select1 = int(d[2])
+                select2 = int(d[3])
+                select3 = int(d[4])
+            if int(d[1])== int(peyk_id):
+                if d[2] is not None and d[3] is not None and d[4] is not None:
+                    return int(d[2]),int(d[3]),int(d[4])
+        except :
+            pass
+    
+    return select1,select2,select3
+
+
 from io import BytesIO
 from pathlib import Path
 from datetime import datetime
@@ -468,11 +499,23 @@ def sepidar_download_excel(request):
         .prefetch_related("items")
     )
 
+
+
     # -----------------------------
     # 1) Build rows (one row per invoice item)
     # -----------------------------
     rows = []
     for inv in invoices:
+
+        tasvie_model = 1
+
+        if float(inv.mandeh)>0:
+            if float(inv.mandeh)== float(inv.total_price)+float(inv.hazine_peyk)-float(inv.discount) :
+                tasvie_model = 2
+            else:
+                tasvie_model = 3
+
+
         for it in inv.items.all():
 
 
@@ -486,6 +529,8 @@ def sepidar_download_excel(request):
             else:
                 moshtarak = 10012
 
+
+
             
                 
 
@@ -493,8 +538,9 @@ def sepidar_download_excel(request):
                 'نوع قلم' : 'InvoiceItem',
                 "فاكتور شماره": inv.invoice_number,
                 "فاكتور نام مشتري": inv.name,
-                'فاكتور كد مشتري': moshtarak,
+                'فاكتور كد مشتري': 10006,
                 'فاكتور تخفيف': inv.discount,
+                'فاكتور كد نوع فروش': 1,
                 # "phone": inv.phone,
                 "قلم فاكتور كد": code,
                 "فاكتور كل": inv.total_price,
@@ -503,22 +549,40 @@ def sepidar_download_excel(request):
                 'قلم فاكتور كد انبار':5,
                 "قلم فاكتور كل": it.total,
                 "فاكتور تاريخ": format_jalali_datetime(inv.created_at),
+                'فاكتور ارز1':'ريال',
+                'فاكتور نرخ ارز':1,
+                'فاكتور نوع تسويه':tasvie_model,
+                'فاكتور محل  تحويل':'آدرس مشتري',
+                'اطلاعات مبالغ دريافتي فاكتور مبلغ حواله' : float(inv.mablagh_pos),
+                'اطلاعات مبالغ دريافتي فاكتور مبلغ نقد' : float(inv.naghdi),
+
 
             })
 
+        
+
         if float(inv.peyk>0):
+            peyk_code,peyk_tafzil,peyk_vaset = vaset_convert_peyk_details(inv.peyk)
 
             rows.append({
                 'نوع قلم' : 'InvoiceBroker',
                 "فاكتور شماره": inv.invoice_number,
+                'فاكتور كد نوع فروش': 1,
                 "فاكتور نام مشتري": inv.name,
-                'فاكتور كد مشتري': moshtarak,
+                'فاكتور كد مشتري': 10006,
                 # "phone": inv.phone,
-                'واسط مبلغ پورسانت':inv.hazine_peyk,
-                'واسط تفصيلي واسط':87,
-                'واسط كد واسط':10072,
+                'واسط مبلغ پورسانت':int(float(inv.hazine_peyk)),
+                'واسط تفصيلي واسط':peyk_code,
+                'واسط كد واسط':peyk_tafzil,
+                'واسط واسط':peyk_vaset,
         
                 "فاكتور تاريخ": format_jalali_datetime(inv.created_at),
+                'فاكتور ارز1':'ريال',
+                'فاكتور نرخ ارز':1,
+                'فاكتور نوع تسويه':tasvie_model,
+                'فاكتور محل  تحويل':'آدرس مشتري',
+
+
 
             })
 
@@ -526,7 +590,6 @@ def sepidar_download_excel(request):
     # 2) Template + mapping
     # -----------------------------
 
-    from user_management.utils import check_server
 
 
     # Load once at import time
@@ -544,22 +607,32 @@ def sepidar_download_excel(request):
     # مثال: اگر نمیخوای ستون C پر بشه، اصلا اینجا قرارش نده
     COL_MAP = {
         'نوع قلم' : 'A',
-        "فاكتور شماره": 'AD',
-        "فاكتور نام مشتري": 'AA',
-        'فاكتور كد مشتري': 'BD',
-        'فاكتور تخفيف': 'T',
+        "فاكتور شماره": 'B',
+        "فاكتور تاريخ": 'C',
+        'فاكتور كد مشتري': 'D',
+        'فاكتور كد نوع فروش': 'E',
+        "قلم فاكتور كد": 'F',
+        'قلم فاكتور كد انبار':'G',
+        "قلم فاكتور واحد اصلي": 'I',
+        "قلم فاكتور في": 'K',
+        "قلم فاكتور كل": 'L',
+        "فاكتور نام مشتري": 'R',
+        'فاكتور محل  تحويل':'S',
+
+        'فاكتور تخفيف': 'Y',
         # "phone": inv.phone,
-        "قلم فاكتور كد": 'B',
-        "قلم فاكتور في": 'G',
-        "قلم فاكتور واحد اصلي": 'E',
-        "قلم فاكتور كل": 'H',
-        "فاكتور تاريخ": 'AB',
-        'واسط مبلغ پورسانت':'AY',
-        'واسط تفصيلي واسط':'BB',
-        'واسط كد واسط':'BC',
-        'قلم فاكتور كد انبار':'C',
-        "فاكتور كل":'V',
-        # "date": "M",   # if you don't want it, comment/remove it
+        'واسط مبلغ پورسانت':'Z',
+        'فاكتور ارز1':'V',
+        'فاكتور نرخ ارز':'W',
+        'فاكتور نوع تسويه':'X',
+
+        'واسط كد واسط':'AA',
+
+        'واسط تفصيلي واسط':'AB',
+        'واسط واسط':'AD',
+        "فاكتور كل":'AC',
+        'اطلاعات مبالغ دريافتي فاكتور مبلغ حواله' : 'AE',
+        'اطلاعات مبالغ دريافتي فاكتور مبلغ نقد' : 'AF',
     }
 
     # Precompute numeric column indexes (faster)
@@ -580,15 +653,64 @@ def sepidar_download_excel(request):
     wb.save(output)
     output.seek(0)
 
-    j_date = jdatetime.date.fromgregorian(date=selected_date)
+    output =  convert_xlsx2xls(output=output)
 
-    filename = f"sepidar_{j_date.strftime('%Y-%m-%d')}.xlsx"
+
+
+    j_date = jdatetime.date.fromgregorian(date=selected_date)
+    filename = f"sepidar_{j_date.strftime('%Y-%m-%d')}.xls"  # تغییر پسوند به .xls
+    
     resp = HttpResponse(
         output.getvalue(),
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        content_type="application/vnd.ms-excel",  # مقدار جدید برای XLS
     )
     resp["Content-Disposition"] = f'attachment; filename="{filename}"'
     return resp
+
+
+def convert_xlsx2xls(output):
+
+    wb_xlsx = load_workbook(output)
+    
+    # ایجاد فایل XLS جدید با xlwt
+    wb_xls = xlwt.Workbook()
+    
+    # کپی تمام صفحات به فرمت XLS
+    for sheet_name in wb_xlsx.sheetnames:
+        ws_xlsx = wb_xlsx[sheet_name]
+        ws_xls = wb_xls.add_sheet(sheet_name)
+        
+        # کپی داده‌ها از XLSX به XLS
+        for row_idx, row in enumerate(ws_xlsx.iter_rows()):
+            for col_idx, cell in enumerate(row):
+                ws_xls.write(row_idx, col_idx, cell.value)
+    
+    # ذخیره فایل XLS در BytesIO جدید
+    output_xls = BytesIO()
+    wb_xls.save(output_xls)
+    output_xls.seek(0)
+
+    return output_xls
+
+
+def bank_vaset(pos_id:int):
+
+    data =  read_excel(excel_name='Bank_vaset.xlsx')
+
+
+    select1 = None
+    select2 = None
+
+    for d in data:
+        try:
+            if int(d[0])== int(pos_id):
+                if d[1] is not None and d[2] is not None :
+                    return int(d[1]),str(d[2])
+        except :
+            pass
+    
+    return select1,select2
+
 
 
 
@@ -624,38 +746,74 @@ def tasvieh_sepidar_download_excel(request):
     rows = []
     for inv in invoices:
 
+        tafsil_bank,havale_bank = None , None
+
         if int(inv.moshtarak) ==1:
             continue
         if float(inv.mandeh)>0:
             continue
-        
-        if float(inv.nonaghdi)>0:
-            inv.mablagh_pos = inv.nonaghdi
+
+        today_payment = False
+
+
+        try:
+            if float(inv.nonaghdi)>0:
+                inv.mablagh_pos = inv.nonaghdi
+                if '[واريز به کارت ملي 2' in  inv.nahveh:
+                    tafsil_bank,havale_bank = bank_vaset(int(31))
+                    today_payment = True
+
+                elif '[واريز به کارت ملي 1' in  inv.nahveh:
+                    tafsil_bank,havale_bank = bank_vaset(int(32))    
+                    today_payment = True
+
+                else:
+                    print('Error New type Detected')
+        except:
+            pass
 
         if float(inv.naghdi)>0:
-            naghdi = inv.naghdi
+            naghdi = int(float(inv.naghdi))
+            today_payment = True
+
         else:
-            naghdi = ''
+            naghdi = 0 
             
         if float(inv.mablagh_pos)>0:
-            mablagh_pos = inv.mablagh_pos
+            mablagh_pos = int(float(inv.mablagh_pos))
+            if tafsil_bank is None and havale_bank is None:
+                tafsil_bank,havale_bank = bank_vaset(int(inv.shomare_pos))
+            type= 'ReceiptDraft'
+            sandogh = ''
         else:
             mablagh_pos = ''
+            type = ''
+            sandogh = 'صندوق مركزي'
+
+        if today_payment:
+            payment_date = format_jalali_datetime(inv.created_at)
+        else:
+            payment_date = havale_format_jalali_datetime(inv.created_at)
 
         rows.append({
-            'نوع قلم' : 'ReceiptDraft',
+            'نوع قلم' : type,
             'رسيد دريافت نوع دريافت':1,
             'رسيد دريافت طرف مقابل':'متفرقه/فروش',
-            'رسيد دريافت تاريخ':format_jalali_datetime(inv.created_at),
+            'رسيد دريافت شماره':inv.invoice_number,
+            'رسيد دريافت تاريخ':payment_date,
             'رسيد دريافت كد معين':121201,
+            'رسيد دريافت صندوق':sandogh,
             'رسيد دريافت مبلغ نقد':naghdi,
             'رسيد دريافت شرح':f'فاكتور شماره {inv.invoice_number}',
-            'رسيد دريافت مبلغ دريافت ':inv.total_price-inv.discount,
+            'رسيد دريافت مبلغ دريافت':inv.total_price-inv.discount,
             'حواله شماره':inv.invoice_number,
-            'حواله تاريخ':format_jalali_datetime(inv.created_at),
+            'حواله تاريخ':payment_date,
             'حواله مبلغ':mablagh_pos,
-            'حواله حساب بانكي':f'فاكتور شماره {inv.invoice_number}',
-            'حواله تفصيل حساب بانكي':1,
+            'حواله شرح':f'فاكتور شماره {inv.invoice_number}',
+            'حواله تفصيل حساب بانكي':tafsil_bank,
+            'حواله حساب بانکی':havale_bank,
+            'رسید دریافت تخفیف' : 0,
+            'رسید دریافت استقراری' : 'False'
 
         })
 
@@ -665,7 +823,6 @@ def tasvieh_sepidar_download_excel(request):
     # 2) Template + mapping
     # -----------------------------
 
-    from user_management.utils import check_server
 
 
     # Load once at import time
@@ -685,16 +842,25 @@ def tasvieh_sepidar_download_excel(request):
         'نوع قلم' : 'A',
         'رسيد دريافت نوع دريافت':'B',
         'رسيد دريافت طرف مقابل':'C',
+        'رسيد دريافت شماره':'D',
         'رسيد دريافت تاريخ':'E',
         'رسيد دريافت كد معين':'F',
+        'رسيد دريافت صندوق':'G',
+
         'رسيد دريافت مبلغ نقد':'H',
         'رسيد دريافت شرح':'I',
-        'رسيد دريافت مبلغ دريافت ':'K',
-        'حواله شماره':'L',
-        'حواله تاريخ':'M',
-        'حواله مبلغ':'N',
-        'حواله حساب بانكي':'O',
-        'حواله تفصيل حساب بانكي':'Q',
+        'رسيد دريافت مبلغ دريافت':'AA',
+        'حواله شماره':'AB',
+        'حواله تاريخ':'AC',
+        'حواله مبلغ':'AD',
+        'حواله شرح':'AF',
+        'حواله تفصيل حساب بانكي':'AH',
+
+        'رسید دریافت تخفیف' : 'AL',
+        'رسید دریافت استقراری' : 'AM',
+    
+        'حواله حساب بانکی':'AE',
+
         # "date": "M",   # if you don't want it, comment/remove it
     }
 
@@ -716,12 +882,14 @@ def tasvieh_sepidar_download_excel(request):
     wb.save(output)
     output.seek(0)
 
+    output = convert_xlsx2xls(output=output)
+
     j_date = jdatetime.date.fromgregorian(date=selected_date)
 
     filename = f"resid_sepidar_{j_date.strftime('%Y-%m-%d')}.xls"
     resp = HttpResponse(
         output.getvalue(),
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        content_type="application/vnd.ms-excel",  # مقدار جدید برای XLS
     )
     resp["Content-Disposition"] = f'attachment; filename="{filename}"'
     return resp

@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
+from user_management.utils import check_server
 from users.models import Profile
 from .models import CustomForm, FormField, FormSubmission, FormSubmissionData, NightlyFormHistory
 from django.contrib.auth.models import User
@@ -298,10 +299,11 @@ from django.http import HttpResponse
 from django.views.generic import ListView
 from django.urls import reverse_lazy
 from .models import NightlyFormModel
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 from io import BytesIO
 import json
+from openpyxl.utils import column_index_from_string
 
 class NightlyFormListView(ListView):
     model = NightlyFormModel
@@ -320,17 +322,48 @@ def download_excel(request, form_id):
     wb = Workbook()
     ws = wb.active
     ws.title = "فرم شبانه"
-    
+
+    new_version = False
+    if new_version:
     # اضافه کردن سرستون‌ها
-    headers = list(form.data.keys())
-    for col_num, header in enumerate(headers, 1):
-        ws.cell(row=col_num, column=1, value=header)
-        ws.column_dimensions[get_column_letter(col_num)].width = 20
-    
-    # اضافه کردن داده‌ها
-    for col_num, value in enumerate(form.data.values(), 1):
-        ws.cell(row=col_num, column=2, value=value)
-    
+        headers = list(form.data.keys())
+        for col_num, header in enumerate(headers, 1):
+            ws.cell(row=col_num, column=1, value=header)
+            ws.column_dimensions[get_column_letter(col_num)].width = 20
+        
+        # اضافه کردن داده‌ها
+        for col_num, value in enumerate(form.data.values(), 1):
+            ws.cell(row=col_num, column=2, value=value)
+
+
+    else:
+
+        # Load once at import time
+        SERVER = check_server()
+        if SERVER:
+            template_path = r"/home/seketal1/Seketala_Kitchen_Flow/cache/sandogh.xlsx"  # must be .xlsx
+        else:
+            template_path = r'cache\sandogh.xlsx'
+        wb = load_workbook(template_path)
+        ws = wb[wb.sheetnames[0]]  # or wb["Sheet1"]
+
+        # تعریف مپینگ
+        cell_mapping = {
+            'کارتخوان بانک مهر': ('C', 4),      # C4
+            'کارتخوان بانک پارسیان': ('C', 5),      # C4
+            'کارتخوان بانک ملی': ('C', 6),      # C4
+
+        }
+
+        # پر کردن سلول‌ها
+        for key, (col_letter, row_num) in cell_mapping.items():
+            ws.cell(
+                row=row_num,
+                column=column_index_from_string(col_letter),
+                value=form.data.get(key, '')
+            )
+
+
     # تنظیمات خروجی
     output = BytesIO()
     wb.save(output)
