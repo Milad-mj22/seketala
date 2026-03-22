@@ -37,7 +37,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         'mablagh_pos',
         'hazine_peyk',
         'naghdi',
-        'nonaghdi'
+        'nonaghdi',
         'mandeh',
 
     )
@@ -59,7 +59,17 @@ class InvoiceAdmin(admin.ModelAdmin):
                 'created_at',
                 'discount',
                 'peyk',
-                'anaam'
+                'anaam',
+                        'moshtarak',
+        'serv',
+        'pnum',
+        'shomare_pos',
+        'mablagh_pos',
+        'hazine_peyk',
+        'naghdi',
+        'nonaghdi',
+        'mandeh',
+
             )
         }),
         ('مبالغ', {
