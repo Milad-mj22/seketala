@@ -345,22 +345,67 @@ def download_excel(request, form_id):
         else:
             template_path = r'cache\sandogh.xlsx'
         wb = load_workbook(template_path)
-        ws = wb[wb.sheetnames[0]]  # or wb["Sheet1"]
+        ws = wb["Sheet3"]  # or wb["Sheet1"]
 
         # تعریف مپینگ
         cell_mapping = {
             'کارتخوان بانک مهر': ('C', 4),      # C4
             'کارتخوان بانک پارسیان': ('C', 5),      # C4
             'کارتخوان بانک ملی': ('C', 6),      # C4
+            'واریزی های بانک.....' :  ('C', 7),      # C4
+            'وجه نقد صندوق' :  ('C', 8),      # 
+            'نسیه پرسنل' : ('C',9),
+            'اسنپ فود' : ('C',10),
+            'پیک اسنپ فود' : ('C',11),
+            'تخفیفات' : ('C',12),
+            'جمع خالص' : ('C',13),
+            'فروش ناخالص' : ('F',4),
+            'کمیسیون پیک ها' : ('F',5),
+            'پرداختی به آقای شمس' : ('F',6),
+            'استرداد به مشتری' : ('F',7),
+            'جمع ناخالص' : ('F',8),
+            'کسر/اضافه صندوق' : ('F',9),
+            'سایر هزینه ها' : ('F',10),
+            'توضیحات' : ('F',11),
+
 
         }
 
+        for iter in range(1,6):
+            
+            cell_mapping.update({f'نام پیک_{iter}':('G',iter+2)})
+            cell_mapping.update({f'اسنپ_{iter}':('H',iter+2)})
+            cell_mapping.update({f'تلفنی_{iter}':('I',iter+2)})
+            cell_mapping.update({f'جمع کارکرد_{iter}':('J',iter+2)})
+            cell_mapping.update({f'کمیسیون_{iter}':('K',iter+2)})
+            cell_mapping.update({f'غذا_{iter}':('L',iter+2)})
+            cell_mapping.update({f'انعام_{iter}':('M',iter+2)})
+            cell_mapping.update({f'خالص پرداخت_{iter}':('N',iter+2)})
+
+
+        nesieh_cells = [('G','H'),('i','j'),('K','L'),('M','N')]
+        row_nesieh = [11,12,13]
+        iter=1
+        for cels in nesieh_cells:
+            for row in row_nesieh:
+
+                cell_mapping.update({f'شرح_{iter}':(cels[0],row)})
+                cell_mapping.update({f'مبلغ - ریال_{iter}':(cels[1],row)})
+                iter+=1
+
+
+
         # پر کردن سلول‌ها
         for key, (col_letter, row_num) in cell_mapping.items():
+            v = form.data.get(key, '')
+            try: 
+                v= float(v)
+            except:
+                pass
             ws.cell(
                 row=row_num,
                 column=column_index_from_string(col_letter),
-                value=form.data.get(key, '')
+                value=v
             )
 
 

@@ -1080,3 +1080,138 @@ def api_factors(request):
         'current_page': page,
         'total_pages': paginator.num_pages
     })
+
+
+
+
+
+
+
+def all_contancts_excel(request):
+
+
+
+    from persian_gender_detection import get_gender,clean_name
+
+    # -----------------------------
+    # 1) Build rows (one row per invoice item)
+    # -----------------------------
+    rows = []
+    phone_name_pairs = Invoice.objects.values_list('phone','name').distinct()
+
+    for inv in phone_name_pairs:
+        # try:
+            if inv[0]!='':
+                phone = inv[0]
+                name = clean_name(inv[1])
+                w = is_persian_name(name)
+                if w:
+                    if name!='':
+                        print(w)
+                    ret = evaluate_phone_number(phone_number=phone)
+                    if ret:
+                        rows.append({
+                            'اسم' : name,
+                            'همراه':phone,
+
+
+                        })
+        # except :
+        #     pass
+
+
+
+    # -----------------------------
+    # 2) Template + mapping
+    # -----------------------------
+
+
+
+    # Load once at import time
+    SERVER = check_server()
+    if SERVER:
+        template_path = r"/home/seketal1/Seketala_Kitchen_Flow/cache/contact.xlsx"  # must be .xlsx
+    else:
+        template_path = r'cache\contact.xlsx'
+    wb = load_workbook(template_path)
+    ws = wb[wb.sheetnames[0]]  # or wb["Sheet1"]
+
+    START_ROW =2 # where the first data row begins in your template
+
+    # Only these columns will be filled; everything else stays unchanged
+    # مثال: اگر نمیخوای ستون C پر بشه، اصلا اینجا قرارش نده
+    COL_MAP = {
+            'اسم' : 'A',
+            'همراه':'D',
+
+
+        # "date": "M",   # if you don't want it, comment/remove it
+    }
+
+    # Precompute numeric column indexes (faster)
+    col_idx_map = {k: column_index_from_string(v) for k, v in COL_MAP.items()}
+
+    # -----------------------------
+    # 3) Write only mapped columns
+    # -----------------------------
+    for i, record in enumerate(rows):
+        excel_row = START_ROW + i
+        for field, col_idx in col_idx_map.items():
+            ws.cell(row=excel_row, column=col_idx, value=record.get(field))
+
+    # -----------------------------
+    # 4) Return as download
+    # -----------------------------
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    output = convert_xlsx2xls(output=output)
+
+    j_date = jdatetime.date.today()
+
+    filename = f"resid_sepidar_{j_date}.xls"
+    resp = HttpResponse(
+        output.getvalue(),
+        content_type="application/vnd.ms-excel",  # مقدار جدید برای XLS
+    )
+    resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return resp
+
+
+
+
+import re
+
+def evaluate_phone_number(phone_number):
+    """
+    یک تابع ساده برای ارزیابی شماره تلفن.
+    """
+    # حذف کاراکترهای غیر عددی
+    phone_number = re.sub(r'\D', '', phone_number)
+
+    # بررسی طول شماره
+    if len(phone_number) <= 10 or len(phone_number) > 11:
+        return False
+
+    # بررسی قالب شماره (مثال: شروع با 0 یا +98)
+    if not (phone_number.startswith('0') or phone_number.startswith('+98')):
+        return False
+
+    # بررسی بیشتر (می‌توانید قوانین خاص خود را اضافه کنید)
+    # ...
+
+    return True
+
+
+
+
+from persian_names import male_names_fa,female_names_fa
+
+# تبدیل به set برای جستجوی سریع
+male_set   = set(male_names_fa)
+female_set = set(female_names_fa)
+
+def is_persian_name(word: str) -> bool:
+    w = word.strip().lower()
+    return w in male_set or w in female_set
