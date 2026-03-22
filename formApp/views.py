@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
+from user_management.utils import check_server
 from users.models import Profile
 from .models import CustomForm, FormField, FormSubmission, FormSubmissionData, NightlyFormHistory
 from django.contrib.auth.models import User
@@ -189,6 +190,7 @@ def nightly_sales_view(request):
         form = NightlySalesForm(request.POST)
         if form.is_valid():
             # تبدیل Decimal به float قبل از ذخیره
+            date = request.POST.get('date',False)
             additional_form_dict = get_data_from_form(request=request)
             merged_dict = {**form.cleaned_data,**additional_form_dict}
             cleaned_data = convert_decimals_to_floats(merged_dict)
@@ -197,6 +199,7 @@ def nightly_sales_view(request):
                 user=request.user,
                 data=cleaned_data
             )
+
             return redirect('success_page')
     else:
         form = NightlySalesForm()
@@ -218,6 +221,8 @@ def get_data_from_form(request):
         
     # داده‌های فرم‌های پویا (فرم 1)
     additional_form_dict = {}
+    additional_form_dict.update({'date':request.POST.get('date','')})
+
     for i in range(1, 10):  # حداکثر 10 فرم
         name = request.POST.get(f'name_{i}')
         value1 = request.POST.get(f'value1_{i}')
@@ -298,10 +303,11 @@ from django.http import HttpResponse
 from django.views.generic import ListView
 from django.urls import reverse_lazy
 from .models import NightlyFormModel
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 from io import BytesIO
 import json
+from openpyxl.utils import column_index_from_string
 
 class NightlyFormListView(ListView):
     model = NightlyFormModel
@@ -320,17 +326,92 @@ def download_excel(request, form_id):
     wb = Workbook()
     ws = wb.active
     ws.title = "فرم شبانه"
-    
+
+    new_version = False
+    if new_version:
     # اضافه کردن سرستون‌ها
-    headers = list(form.data.keys())
-    for col_num, header in enumerate(headers, 1):
-        ws.cell(row=col_num, column=1, value=header)
-        ws.column_dimensions[get_column_letter(col_num)].width = 20
-    
-    # اضافه کردن داده‌ها
-    for col_num, value in enumerate(form.data.values(), 1):
-        ws.cell(row=col_num, column=2, value=value)
-    
+        headers = list(form.data.keys())
+        for col_num, header in enumerate(headers, 1):
+            ws.cell(row=col_num, column=1, value=header)
+            ws.column_dimensions[get_column_letter(col_num)].width = 20
+        
+        # اضافه کردن داده‌ها
+        for col_num, value in enumerate(form.data.values(), 1):
+            ws.cell(row=col_num, column=2, value=value)
+
+
+    else:
+
+        # Load once at import time
+        SERVER = check_server()
+        if SERVER:
+            template_path = r"/home/seketal1/Seketala_Kitchen_Flow/cache/sandogh.xlsx"  # must be .xlsx
+        else:
+            template_path = r'cache\sandogh.xlsx'
+        wb = load_workbook(template_path)
+        ws = wb["Sheet3"]  # or wb["Sheet1"]
+
+        # تعریف مپینگ
+        cell_mapping = {
+            'کارتخوان بانک مهر': ('C', 4),      # C4
+            'کارتخوان بانک پارسیان': ('C', 5),      # C4
+            'کارتخوان بانک ملی': ('C', 6),      # C4
+            'واریزی های بانک.....' :  ('C', 7),      # C4
+            'وجه نقد صندوق' :  ('C', 8),      # 
+            'نسیه پرسنل' : ('C',9),
+            'اسنپ فود' : ('C',10),
+            'پیک اسنپ فود' : ('C',11),
+            'تخفیفات' : ('C',12),
+            'جمع خالص' : ('C',13),
+            'فروش ناخالص' : ('F',4),
+            'کمیسیون پیک ها' : ('F',5),
+            'پرداختی به آقای شمس' : ('F',6),
+            'استرداد به مشتری' : ('F',7),
+            'جمع ناخالص' : ('F',8),
+            'کسر/اضافه صندوق' : ('F',9),
+            'سایر هزینه ها' : ('F',10),
+            'توضیحات' : ('F',11),
+            'date': ('E',2)
+        }
+
+        for iter in range(1,6):
+            
+            cell_mapping.update({f'نام پیک_{iter}':('G',iter+2)})
+            cell_mapping.update({f'اسنپ_{iter}':('H',iter+2)})
+            cell_mapping.update({f'تلفنی_{iter}':('I',iter+2)})
+            cell_mapping.update({f'جمع کارکرد_{iter}':('J',iter+2)})
+            cell_mapping.update({f'کمیسیون_{iter}':('K',iter+2)})
+            cell_mapping.update({f'غذا_{iter}':('L',iter+2)})
+            cell_mapping.update({f'انعام_{iter}':('M',iter+2)})
+            cell_mapping.update({f'خالص پرداخت_{iter}':('N',iter+2)})
+
+
+        nesieh_cells = [('G','H'),('i','j'),('K','L'),('M','N')]
+        row_nesieh = [11,12,13]
+        iter=1
+        for cels in nesieh_cells:
+            for row in row_nesieh:
+
+                cell_mapping.update({f'شرح_{iter}':(cels[0],row)})
+                cell_mapping.update({f'مبلغ - ریال_{iter}':(cels[1],row)})
+                iter+=1
+
+
+
+        # پر کردن سلول‌ها
+        for key, (col_letter, row_num) in cell_mapping.items():
+            v = form.data.get(key, '')
+            try: 
+                v= float(v)
+            except:
+                pass
+            ws.cell(
+                row=row_num,
+                column=column_index_from_string(col_letter),
+                value=v
+            )
+
+
     # تنظیمات خروجی
     output = BytesIO()
     wb.save(output)

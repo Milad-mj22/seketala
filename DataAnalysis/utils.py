@@ -65,3 +65,28 @@ def get_date_range(selected_date):
     end = start + timedelta(days=1)
 
     return start, end
+
+
+from user_management.utils import check_server
+SERVER = check_server()
+from openpyxl import load_workbook
+
+
+def read_excel(excel_name:str):
+
+    if SERVER:
+        template_path = f"/home/seketal1/Seketala_Kitchen_Flow/cache/{excel_name}"  # must be .xlsx
+    else:
+        template_path = f'cache\{excel_name}'
+
+
+        # بارگذاری فایل و خواندن داده‌ها
+    wb = load_workbook(template_path)
+    ws =  wb[wb.sheetnames[0]] # یا wb["نام_سیت"] برای انتخاب سیت خاص
+
+    # خواندن تمام داده‌های سیت
+    data = []
+    for row in ws.iter_rows(values_only=True):
+        data.append(list(row))
+
+    return data

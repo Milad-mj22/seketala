@@ -80,7 +80,8 @@
                                 <tbody>
                                     {% for form in forms %}
                                     <tr>
-                                        <td>{{ form.date }}</td>
+                                        <td>{{ form.data.date | default:form.date }}</td>
+
                                         <td>{{ form.data|length }}</td>
                                         <td>
                                             {% if form.data.notes %}

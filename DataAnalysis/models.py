@@ -78,3 +78,4 @@ class Payment(models.Model):
 
     amount = models.BigIntegerField()
     created_at = models.DateTimeField()
+
