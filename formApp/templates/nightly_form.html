@@ -2,12 +2,15 @@
 {% block content %}
 {% load static %}
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl"
+>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فرم فروش شبانه </title>
     <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/persian.datepicker.css' %}">
+
     <style>
         :root {
             --primary: #b6a400;
@@ -181,6 +184,8 @@
                         <form method="post" id="nightlyForm">
                             {% csrf_token %}
                             <div class="row g-4">
+                                <input type="text" id="datepicker" name="date" class="form-control" placeholder="تاریخ را انتخاب کنید">
+
                                 {% for field in form %}
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -365,13 +370,13 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label" ><i class="fas fa-tag"></i> شرح</label>
-                                    <input type="text" class="form-control" name="f2_value1_${formCounter.count}">
+                                    <input type="text" class="form-control " name="f2_value1_${formCounter.count}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label"><i class="fas fa-tag"></i> نسیه</label>
-                                    <input type="text" class="form-control" name="f2_value2_${formCounter.count}">
+                                    <input type="text" class="form-control " name="f2_value2_${formCounter.count}">
                                 </div>
                             </div>
                         </div>
@@ -472,6 +477,31 @@
             });
         });
     </script>
+
+
+    <!-- jQuery -->
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+
+    <!-- Persian Date and Datepicker (Local versions) -->
+    <script src="{% static 'js/persian.date.js' %}"></script>
+    <script src="{% static 'js/persian.datepicker.js' %}"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#datepicker").persianDatepicker({
+            autoClose: true,
+            calendarType: 'persian',
+            calendar: {
+            persian: {
+                locale: 'fa',
+                leapYearMode: 'astronomical', // ✅ مهم: جلوگیری از اختلاف ۱ روزه
+            }
+            }
+            });
+        });
+    </script>
+
+
 </body>
 </html>
 {% endblock %}

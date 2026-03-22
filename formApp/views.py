@@ -190,6 +190,7 @@ def nightly_sales_view(request):
         form = NightlySalesForm(request.POST)
         if form.is_valid():
             # تبدیل Decimal به float قبل از ذخیره
+            date = request.POST.get('date',False)
             additional_form_dict = get_data_from_form(request=request)
             merged_dict = {**form.cleaned_data,**additional_form_dict}
             cleaned_data = convert_decimals_to_floats(merged_dict)
@@ -198,6 +199,7 @@ def nightly_sales_view(request):
                 user=request.user,
                 data=cleaned_data
             )
+
             return redirect('success_page')
     else:
         form = NightlySalesForm()
@@ -219,6 +221,8 @@ def get_data_from_form(request):
         
     # داده‌های فرم‌های پویا (فرم 1)
     additional_form_dict = {}
+    additional_form_dict.update({'date':request.POST.get('date','')})
+
     for i in range(1, 10):  # حداکثر 10 فرم
         name = request.POST.get(f'name_{i}')
         value1 = request.POST.get(f'value1_{i}')
@@ -367,8 +371,7 @@ def download_excel(request, form_id):
             'کسر/اضافه صندوق' : ('F',9),
             'سایر هزینه ها' : ('F',10),
             'توضیحات' : ('F',11),
-
-
+            'date': ('E',2)
         }
 
         for iter in range(1,6):
