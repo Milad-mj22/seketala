@@ -222,7 +222,7 @@ def nightly_sales_view(request):
                     except:
                         pass
 
-                    ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.VALUE:total,})
+                    # ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.VALUE:total,})
 
 
             return redirect('success_page')
@@ -425,7 +425,33 @@ def download_excel(request, form_id):
 
         # پر کردن سلول‌ها
         for key, (col_letter, row_num) in cell_mapping.items():
-            v = form.data.get(key, '')
+            if key == 'واریزی های بانک.....' :
+                key = 'واریزی های بانک مارال'
+                v = form.data.get(key, 0)
+                key = 'واریزی های بانک مارینا'
+                new_v = form.data.get(key, 0)
+                new_text = 'واریزی های بانک '
+                if v>0:
+                    new_text += ' - مارال'
+                if new_v>0:
+                    new_text += ' - مارینا'
+                    v+=new_v
+
+                    
+
+                ws.cell(
+                    row=row_num,
+                    column=column_index_from_string('B'),
+                    value=new_text
+                )
+             
+            
+
+            else:
+                v = form.data.get(key, '')
+
+
+
             try: 
                 v= float(v)
             except:
