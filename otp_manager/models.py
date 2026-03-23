@@ -8,6 +8,7 @@ class SMSServiceTemplate_Enum(models.TextChoices):
     SIGNUP = "signup", "ثبت نام"
     LOGIN = "login", "ورود"
     CLOSESANDOGH = 'close_sandogh','بستن صندوق'
+    NIGHTORDER = 'night_order','سفارش شب'
 
 class SMSServiceName_Enum(models.TextChoices):
     SMS_IR = "SMS.IR", "SMS.IR"
@@ -20,6 +21,11 @@ class OTPVar_Enum(models.TextChoices):
     NAME = 'NAME','نام'
     VALUE = 'VALUE','مبلغ'
     CLOSE = 'CLOSE','بسته کننده'
+    DOUBLE = 'DOUBLE','دوبل'
+    SINGLE = 'SINGLE','دوبل'
+    HAMBER = 'HAMBER','همبر'
+    ORDERID = 'ORDERID','شماره سفارش'
+    USER = 'USER','کاربر'
 
 
 from django.db import models
