@@ -1104,18 +1104,25 @@ def all_contancts_excel(request):
             if inv[0]!='':
                 phone = inv[0]
                 name = clean_name(inv[1])
+
+                if 'اسنپ' in name:
+                    name = name.replace('اسنپ','')
+                if name == 'مشتری' or name=='':
+                    continue
+                if len(name)<=1:
+                    continue
                 w = is_persian_name(name)
-                if w:
-                    if name!='':
-                        print(w)
-                    ret = evaluate_phone_number(phone_number=phone)
-                    if ret:
-                        rows.append({
-                            'اسم' : name,
-                            'همراه':phone,
+                # if w:
+                # if name!='':
+                #     print(w)
+                ret = evaluate_phone_number(phone_number=phone)
+                if ret:
+                    rows.append({
+                        'اسم' : name,
+                        'همراه':phone,
 
 
-                        })
+                    })
         # except :
         #     pass
 
@@ -1124,6 +1131,10 @@ def all_contancts_excel(request):
     # -----------------------------
     # 2) Template + mapping
     # -----------------------------
+
+    for row in rows:
+        if row['اسم']=='':
+            print('empty')
 
 
 
@@ -1196,6 +1207,9 @@ def evaluate_phone_number(phone_number):
 
     # بررسی قالب شماره (مثال: شروع با 0 یا +98)
     if not (phone_number.startswith('0') or phone_number.startswith('+98')):
+        return False
+
+    if phone_number == '09130000000':
         return False
 
     # بررسی بیشتر (می‌توانید قوانین خاص خود را اضافه کنید)
