@@ -4,22 +4,14 @@ from sms_ir import SmsIr
 api_key = "NFwDOyzDoUCVBxB2CSlO374WlXOAeaKGST1ubHFziSEcLbhf"
 linenumber = "300790"
 
-number = "09135689040"
+number = "09136563913"
 
 message = "سلام"
 
 template_id = "859705"
 parameters = [
-    {"name": "CODE", "value": "1378"}
+    {"name": "CODE", "value": "1378"},{"name": "CODE2", "value": "1379"},{"name": "awdE2", "value": "1380"},{"name": "CODE", "value": "111"}
 ]
-
-template_id = "941248"
-parameters = [
-    {"name": "NAME", "value": "میلاد"}
-]
-
-
-
 sms_ir = SmsIr(api_key,linenumber,)
 
 # ret = sms_ir.send_sms(number,message,linenumber,)

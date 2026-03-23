@@ -5,6 +5,8 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
+from otp_manager.models import OTPVar_Enum, SMS_Recievers, SMS_Template, SMSServiceTemplate_Enum
+from otp_manager.service import send_sms
 from user_management.utils import check_server
 from users.models import Profile
 from .models import CustomForm, FormField, FormSubmission, FormSubmissionData, NightlyFormHistory
@@ -199,6 +201,29 @@ def nightly_sales_view(request):
                 user=request.user,
                 data=cleaned_data
             )
+            
+            sms_template = SMS_Template.objects.filter(name =SMSServiceTemplate_Enum.CLOSESANDOGH )
+            if sms_template.exists():
+                sms_template = sms_template.first()
+                sms_recievers = SMS_Recievers.objects.filter(template = sms_template)
+                for sms_rec in sms_recievers:
+                    phone = sms_rec.persons.phone
+                    f_name = sms_rec.persons.f_name
+                    total = 0
+                    try:
+                        total = cleaned_data['جمع خالص']
+                        total = format_number(number=total)
+                    except:
+                        pass
+
+                    name = 'نامشخص'
+                    try:
+                        name = request.user.profile.first_name
+                    except:
+                        pass
+
+                    ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.VALUE:total,})
+
 
             return redirect('success_page')
     else:
@@ -441,3 +466,9 @@ def get_people(request):
     people = Profile.objects.all().values('id', 'name')
     
     return JsonResponse(list(people), safe=False)
+
+
+
+def format_number(number):
+  """یک عدد را دریافت کرده و سه رقم سه رقم با کاما جدا می‌کند."""
+  return "{:,}".format(number)

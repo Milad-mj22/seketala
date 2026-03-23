@@ -11,6 +11,7 @@ from khayyam import JalaliDatetime
 
 from StoneFlow.models import PreInvoice, PreInvoiceItem
 from order_flow.models import MaterialUsage, OrderStep
+from otp_manager.utils import send_night_order_sms
 from users.EntryModule.EntryUtils import get_latest_exit, is_user_in , UserWorkTimeManager
 from .decorators import job_required
 from users.utils.CalulatedDistance import calculate_distance
@@ -1007,26 +1008,31 @@ def night_food_order(request):
 
         raw_material={}
         required_items = {}
+        number_type = {}
 
         for food_name,value in data.items():
             # if value.isnumeric():
                 data[food_name]=float(value)
                 
                 ret = FoodRawMaterial.objects.filter(name=food_name).first()
-
                 if ret :
-                    for material in ret.data.keys():
-                        
-                        
-                        new_value = round(float(ret.data[material])*float(value),4)
+                    if ret.data is not None:
+                        n_value = number_type.get(ret.mother.name,0)
+                        n_value+= float(value)
+                        number_type.update({ret.mother.name:n_value})
+
+                        for material in ret.data.keys():
+                            
+                            
+                            new_value = round(float(ret.data[material])*float(value),4)
 
 
-                        if material in raw_material.keys():
+                            if material in raw_material.keys():
 
-                            raw_material[material]+=new_value
-                        
-                        else:
-                            raw_material[material]=new_value
+                                raw_material[material]+=new_value
+                            
+                            else:
+                                raw_material[material]=new_value
 
 
 
@@ -1051,6 +1057,9 @@ def night_food_order(request):
 
         if status:
             messages.success(request,'New Forum Successfully Added')
+
+
+        send_night_order_sms(request=request,status=status,number_type=number_type)
 
         if required_items=={}:
             return redirect('/profile/my_orders')
@@ -1109,6 +1118,9 @@ def night_food_order(request):
 
         return render(request, 'users/night_order.html', {'mother_foods': mother_foods,'exist_materials':materials_in_step_4})
     
+
+
+
 
 
 
