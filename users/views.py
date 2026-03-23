@@ -1015,18 +1015,19 @@ def night_food_order(request):
                 ret = FoodRawMaterial.objects.filter(name=food_name).first()
 
                 if ret :
-                    for material in ret.data.keys():
-                        
-                        
-                        new_value = round(float(ret.data[material])*float(value),4)
+                    if ret.data is not None:
+                        for material in ret.data.keys():
+                            
+                            
+                            new_value = round(float(ret.data[material])*float(value),4)
 
 
-                        if material in raw_material.keys():
+                            if material in raw_material.keys():
 
-                            raw_material[material]+=new_value
-                        
-                        else:
-                            raw_material[material]=new_value
+                                raw_material[material]+=new_value
+                            
+                            else:
+                                raw_material[material]=new_value
 
 
 
