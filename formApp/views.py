@@ -222,7 +222,7 @@ def nightly_sales_view(request):
                     except:
                         pass
 
-                    # ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.VALUE:total,})
+                    ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.VALUE:total,})
 
 
             return redirect('success_page')
