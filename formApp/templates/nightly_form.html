@@ -292,19 +292,23 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             const formCounter = { count: 0 };
+            const f_2_formCounter = { count: 0 };
             
             // افزودن فرم جدید با تفاوت بین فرم ۱ و فرم ۲
             document.getElementById('addForm1').addEventListener('click', (e) => addNewForm(e, 'form1'));
             document.getElementById('addForm2').addEventListener('click', (e) => addNewForm(e, 'form2'));
             
             function addNewForm(event, formType) {
-                formCounter.count++;
-                const formId = `dynamic-form-${formCounter.count}`;
+
                 const newForm = document.createElement('div');
-                newForm.className = 'added-form';
-                newForm.id = formId;
+
+
                 
                 if (formType === 'form1') {
+                    formCounter.count++;
+                    const formId = `dynamic-form-${formCounter.count}`;
+                    newForm.className = 'added-form';
+                    newForm.id = formId;
                     newForm.innerHTML = `
                         <div class="row g-4" style="margin-top: 30px;">
 
@@ -365,18 +369,23 @@
                         </button>
                     `;
                 } else if (formType === 'form2') {
+                    f_2_formCounter.count++;
+                    const formId = `dynamic-form-${f_2_formCounter.count}`;
+                    newForm.className = 'added-form';
+                    newForm.id = formId;
+
                     newForm.innerHTML = `
                         <div class="row g-4" style="margin-top: 30px;">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label" ><i class="fas fa-tag"></i> شرح</label>
-                                    <input type="text" class="form-control " name="f2_value1_${formCounter.count}">
+                                    <input type="text" class="form-control " name="f2_value1_${f_2_formCounter.count}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label"><i class="fas fa-tag"></i> نسیه</label>
-                                    <input type="text" class="form-control " name="f2_value2_${formCounter.count}">
+                                    <input type="text" class="form-control " name="f2_value2_${f_2_formCounter.count}">
                                 </div>
                             </div>
                         </div>

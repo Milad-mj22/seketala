@@ -222,7 +222,7 @@ def nightly_sales_view(request):
                     except:
                         pass
 
-                    # ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.VALUE:total,})
+                    ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.VALUE:total,})
 
 
             return redirect('success_page')
@@ -248,7 +248,7 @@ def get_data_from_form(request):
     additional_form_dict = {}
     additional_form_dict.update({'date':request.POST.get('date','')})
 
-    for i in range(1, 10):  # حداکثر 10 فرم
+    for i in range(1, 30):  # حداکثر 10 فرم
         name = request.POST.get(f'name_{i}')
         value1 = request.POST.get(f'value1_{i}')
         value2 = request.POST.get(f'value2_{i}')
@@ -269,7 +269,7 @@ def get_data_from_form(request):
             additional_form_dict.update({f'خالص پرداخت_{i}': value7})
     
 
-    for i in range(1, 10):
+    for i in range(1, 30):
         f2_value1 = request.POST.get(f'f2_value1_{i}')
         f2_value2 = request.POST.get(f'f2_value2_{i}')
 
