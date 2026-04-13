@@ -150,7 +150,7 @@ class NightlySalesForm(forms.Form):
 
 
         # Add default values via __init__ method
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args,pardakht_data=None, **kwargs):
         super().__init__(*args, **kwargs)
         # Set default values for all fields
         self.initial.update({
@@ -174,7 +174,21 @@ class NightlySalesForm(forms.Form):
             'other_expenses': 0,
             'notes': '',
         })
-
+        # اضافه کردن متن راهنما از داده‌های pardakht
+        if pardakht_data:
+            field_mapping = {
+                'bank_mehr': 'کیوسک۱',
+                'bank_parsian': 'پارسیان',
+                'bank_melli': 'کیوسک۲',
+                'bank_maral': 'کیوسک۳',
+                'snapp_food': 'اسنپ',
+                'snapp_delivery': 'اسنپ',
+            }
+            
+            for field_name, pardakht_key in field_mapping.items():
+                if field_name in self.fields and pardakht_key in pardakht_data:
+                    value = pardakht_data[pardakht_key]
+                    self.fields[field_name].help_text = f"💰 مبلغ ثبت شده: {value:,} تومان"
 
 def save_with_persian_labels(form_data):
     """

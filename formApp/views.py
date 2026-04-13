@@ -1,3 +1,6 @@
+from collections import defaultdict
+from datetime import datetime, timedelta
+
 from django.shortcuts import get_object_or_404, render
 # Create your views here.
 from django.http import HttpResponse
@@ -5,6 +8,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
+from DataAnalysis.models import Invoice
 from otp_manager.models import OTPVar_Enum, SMS_Recievers, SMS_Template, SMSServiceTemplate_Enum
 from otp_manager.service import send_sms
 from user_management.utils import check_server
@@ -159,8 +163,48 @@ def available_forms(request):
     return render(request, 'available_forms.html', {'forms': forms_with_permission})
 
 
+from django.db.models import Max
+from datetime import datetime, timedelta, time
+
+def calc_pardakht():
 
 
+    last_date = Invoice.objects.aggregate(
+            max_date=Max('created_at')
+        )['max_date']
+    selected_date = last_date.date()
+
+    start_datetime = datetime.combine(selected_date, time(3, 0))
+    end_datetime = start_datetime - timedelta(days=1)
+
+    invoices = Invoice.objects.filter(
+        created_at__gte=end_datetime,
+        created_at__lt=start_datetime
+    ).prefetch_related("items")
+    
+    totals = defaultdict(int)
+
+    total_items = 0
+
+    for invoice in invoices:
+
+        price = invoice.total_price - int(float(invoice.discount))
+        invoice.pnum = int(invoice.pnum)
+        if 'کیوسک۱' in invoice.name or invoice.pnum==2:
+            totals['کیوسک۱'] += price
+        elif 'کیوسک۲' in invoice.name or invoice.pnum==2:
+            totals['کیوسک۲'] += price
+        elif 'کیوسک۳' in invoice.name or invoice.pnum==2:
+            totals['کیوسک۳'] += price
+        
+        elif 'پارسیان' in invoice.name :
+            totals['پارسیان'] +=invoice.naghdi
+
+        elif 'اسنپ' in invoice.name or invoice.pnum==1:
+            totals['اسنپ'] += price + float(invoice.hazine_peyk)
+
+
+    return totals  
 
 
 from django.shortcuts import render, redirect
@@ -226,12 +270,15 @@ def nightly_sales_view(request):
 
 
             return redirect('success_page')
+        return redirect('error_page')
     else:
-        form = NightlySalesForm()
+        pardakht = calc_pardakht()
+        form = NightlySalesForm(pardakht_data=pardakht)
 
 
     context = {
         'form': form,
+        'pardakht': pardakht,
         'names_list': json.dumps(['milad','ali']),
         # ... سایر داده‌ها
     }
