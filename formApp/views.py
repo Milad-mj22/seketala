@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
 from DataAnalysis.models import Invoice
+from DataAnalysis.utils import get_date_range, get_date_range_night_form
 from otp_manager.models import OTPVar_Enum, SMS_Recievers, SMS_Template, SMSServiceTemplate_Enum
 from otp_manager.service import send_sms
 from user_management.utils import check_server
@@ -166,45 +167,101 @@ def available_forms(request):
 from django.db.models import Max
 from datetime import datetime, timedelta, time
 
-def calc_pardakht():
+def calc_pardakht(date = None):
 
-
-    last_date = Invoice.objects.aggregate(
-            max_date=Max('created_at')
-        )['max_date']
-    selected_date = last_date.date()
-
-    start_datetime = datetime.combine(selected_date, time(3, 0))
-    end_datetime = start_datetime - timedelta(days=1)
+    date_str = date
+    current_time = timezone.now()
+    if date_str:
+        selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    else:
+        selected_date = timezone.now().date()
+        if current_time.hour >= 18:
+            selected_date += timedelta(days=1)
+    start, end = get_date_range_night_form(selected_date)
 
     invoices = Invoice.objects.filter(
-        created_at__gte=end_datetime,
-        created_at__lt=start_datetime
+        created_at__range=(start, end)
     ).prefetch_related("items")
     
     totals = defaultdict(int)
 
     total_items = 0
+    nes_items = 0
+    kiosk1,kiosk2,kiosk3 = 15,16,17
+    parsian_kiosk = [8,9,10,12]
+    komision_peyk = 10/100
+    nesieh = {}
 
     for invoice in invoices:
 
-        price = invoice.total_price - int(float(invoice.discount))
+
+
         invoice.pnum = int(invoice.pnum)
-        if 'کیوسک۱' in invoice.name or invoice.pnum==2:
-            totals['کیوسک۱'] += price
-        elif 'کیوسک۲' in invoice.name or invoice.pnum==2:
-            totals['کیوسک۲'] += price
-        elif 'کیوسک۳' in invoice.name or invoice.pnum==2:
-            totals['کیوسک۳'] += price
-        
-        elif 'پارسیان' in invoice.name :
-            totals['پارسیان'] +=invoice.naghdi
+        invoice.mablagh_pos = float(invoice.mablagh_pos)
+        invoice.hazine_peyk = float(invoice.hazine_peyk)
+        invoice.discount = float(invoice.discount)
+
+        if invoice.name == 'کنسل':
+            continue
+
+        if 'کیوسک۱' in invoice.name or invoice.pnum==kiosk1:
+            totals['کیوسک۱'] += invoice.mablagh_pos
+        elif 'کیوسک۲' in invoice.name or invoice.pnum==kiosk2:
+            totals['کیوسک۲'] +=  invoice.mablagh_pos
+        elif 'کیوسک۳' in invoice.name or invoice.pnum==kiosk3:
+            totals['کیوسک۳'] +=  invoice.mablagh_pos
+
+
+
 
         elif 'اسنپ' in invoice.name or invoice.pnum==1:
-            totals['اسنپ'] += price + float(invoice.hazine_peyk)
+            totals['اسنپ'] += invoice.total_price - float(invoice.discount)
+            totals['اسنپ پیک'] += float(invoice.hazine_peyk)
+
+        elif float(invoice.mandeh) > 0:
+            if float(invoice.hazine_peyk)==0:
+                if 20000>float(invoice.moshtarak)>10000 or float(invoice.moshtarak)==0:  ### check is personel
+                    nes_items +=1
+                    totals['نسیه پرسنل'] += float(invoice.mandeh)
+
+                nesieh.update({invoice.name:(invoice.total_price +  invoice.hazine_peyk - invoice.discount)})
 
 
-    return totals  
+
+
+        if  int(invoice.shomare_pos) in parsian_kiosk :
+            totals['پارسیان'] += invoice.total_price 
+
+        if 'واريز به کارت ملي 1]:' in invoice.nahveh:
+            totals['واریز1'] +=  float(invoice.nonaghdi)
+        elif 'کارت ملي ' in invoice.nahveh:
+            totals['واریز'] += float(invoice.nonaghdi)
+
+        if float(invoice.discount) > 0:
+            totals['تخفیفات'] += float(invoice.discount)
+
+        if 'نقدي' in invoice.nahveh:
+            totals['نقدی'] += float(invoice.naghdi)
+        
+        if 'متفرقه' in invoice.nahveh:
+            totals['ملی'] += float(invoice.mablagh_pos)
+
+
+        totals['جمع خالص'] += invoice.total_price + float(invoice.hazine_peyk) 
+        
+
+
+        totals['پیک'] += float(invoice.hazine_peyk)
+
+
+    # print('peyk : ',totals['پیک'])
+
+    totals['مهر'] = 0
+    totals['کمیسیون پیک'] = round(totals['پیک']*komision_peyk ,1)
+
+
+
+    return totals , nesieh
 
 
 from django.shortcuts import render, redirect
@@ -237,6 +294,8 @@ def nightly_sales_view(request):
         if form.is_valid():
             # تبدیل Decimal به float قبل از ذخیره
             date = request.POST.get('date',False)
+            pardakht , nesieh = calc_pardakht(date = date)
+
             additional_form_dict = get_data_from_form(request=request)
             merged_dict = {**form.cleaned_data,**additional_form_dict}
             cleaned_data = convert_decimals_to_floats(merged_dict)
@@ -272,13 +331,14 @@ def nightly_sales_view(request):
             return redirect('success_page')
         return redirect('error_page')
     else:
-        pardakht = calc_pardakht()
+        pardakht , nesieh = calc_pardakht()
         form = NightlySalesForm(pardakht_data=pardakht)
 
 
     context = {
         'form': form,
         'pardakht': pardakht,
+        'nesieh': json.dumps(nesieh, ensure_ascii=False),  # ✅ تبدیل به JSON
         'names_list': json.dumps(['milad','ali']),
         # ... سایر داده‌ها
     }

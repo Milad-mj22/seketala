@@ -59,12 +59,22 @@ from django.utils import timezone
 
 def get_date_range(selected_date):
     # Start at 03:00 of selected date
-    start = datetime.combine(selected_date, time(3, 0))
+    start = datetime.combine(selected_date, time(7, 0))
 
     # End at 03:00 of next day
     end = start + timedelta(days=1)
 
     return start, end
+
+
+def get_date_range_night_form(selected_date):
+    # Start at 03:00 of selected date
+    start = datetime.combine(selected_date, time(3, 0))
+
+    # End at 03:00 of next day
+    end = start + timedelta(days=-1)
+
+    return end, start
 
 
 from user_management.utils import check_server

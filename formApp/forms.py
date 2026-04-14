@@ -177,18 +177,24 @@ class NightlySalesForm(forms.Form):
         # اضافه کردن متن راهنما از داده‌های pardakht
         if pardakht_data:
             field_mapping = {
-                'bank_mehr': 'کیوسک۱',
+                'bank_mehr': 'مهر',
                 'bank_parsian': 'پارسیان',
-                'bank_melli': 'کیوسک۲',
-                'bank_maral': 'کیوسک۳',
+                'bank_melli': 'ملی',
                 'snapp_food': 'اسنپ',
-                'snapp_delivery': 'اسنپ',
+                'snapp_delivery': 'اسنپ پیک',
+                'employee_salary': 'نسیه پرسنل',
+                'discounts': 'تخفیفات',
+                'bank_maral': 'واریز',
+                'bank_marina': 'واریز1',
+                'cash': 'نقدی',
+                'net_total': 'جمع خالص',
+                'delivery_commission': 'کمیسیون پیک',
             }
             
             for field_name, pardakht_key in field_mapping.items():
                 if field_name in self.fields and pardakht_key in pardakht_data:
                     value = pardakht_data[pardakht_key]
-                    self.fields[field_name].help_text = f"💰 مبلغ ثبت شده: {value:,} تومان"
+                    self.fields[field_name].help_text = f"💰 مبلغ ثبت شده: {value:,} ریال"
 
 def save_with_persian_labels(form_data):
     """
