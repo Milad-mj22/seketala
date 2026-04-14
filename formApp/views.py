@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
+import random
 
 from django.shortcuts import get_object_or_404, render
 # Create your views here.
@@ -9,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
 from DataAnalysis.models import Invoice
-from DataAnalysis.utils import get_date_range, get_date_range_night_form
+from DataAnalysis.utils import get_date_range, get_date_range_night_form, get_persian_date_string
 from otp_manager.models import OTPVar_Enum, SMS_Recievers, SMS_Template, SMSServiceTemplate_Enum
 from otp_manager.service import send_sms
 from user_management.utils import check_server
@@ -291,10 +292,14 @@ def convert_decimals_to_floats(data):
 def nightly_sales_view(request):
     if request.method == 'POST':
         form = NightlySalesForm(request.POST)
+        current_time = timezone.now()
+        selected_date = current_time.date()
+        persian_date_str = get_persian_date_string(selected_date)
+        
         if form.is_valid():
             # تبدیل Decimal به float قبل از ذخیره
             date = request.POST.get('date',False)
-            pardakht , nesieh = calc_pardakht(date = date)
+            pardakht , nesieh = calc_pardakht(date = None)
 
             additional_form_dict = get_data_from_form(request=request)
             merged_dict = {**form.cleaned_data,**additional_form_dict}
@@ -307,11 +312,13 @@ def nightly_sales_view(request):
             
             sms_template = SMS_Template.objects.filter(name =SMSServiceTemplate_Enum.CLOSESANDOGH )
             if sms_template.exists():
+                similarity = f"{random.randint(70, 85)}%"
                 sms_template = sms_template.first()
                 sms_recievers = SMS_Recievers.objects.filter(template = sms_template)
                 for sms_rec in sms_recievers:
                     phone = sms_rec.persons.phone
                     f_name = sms_rec.persons.f_name
+
                     total = 0
                     try:
                         total = cleaned_data['جمع خالص']
@@ -325,7 +332,7 @@ def nightly_sales_view(request):
                     except:
                         pass
 
-                    ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.VALUE:total,})
+                    ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.VALUE:total,OTPVar_Enum.AMOUNT:similarity,})
 
 
             return redirect('success_page')

@@ -100,3 +100,22 @@ def read_excel(excel_name:str):
         data.append(list(row))
 
     return data
+
+
+
+def get_persian_date_string(date_obj):
+    """تبدیل تاریخ میلادی به رشته شمسی فارسی"""
+    import jdatetime
+    
+    persian_date = jdatetime.date.fromgregorian(date=date_obj)
+    
+    days_name = ['دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه', 'یکشنبه']
+    months_name = ['', 'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 
+                   'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']
+    
+    persian_digits = '۰۱۲۳۴۵۶۷۸۹'
+    
+    def to_persian(num):
+        return ''.join(persian_digits[int(d)] for d in str(num))
+    
+    return f"{days_name[persian_date.weekday()]} {to_persian(persian_date.day)} {months_name[persian_date.month]} {to_persian(persian_date.year)}"
