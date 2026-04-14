@@ -174,11 +174,13 @@ from .utils import extract_payment_methods, jalali_date_time_to_gregorian, read_
 class ReceiveInvoice(APIView):
     authentication_classes = []
     permission_classes = []
+    print('req reciev'*20)
     def post(self, request):
         data = request.data
         if request.headers.get("X-API-KEY") != "SECRET123":
             return Response({"error": "unauthorized"}, status=403)
     
+
         
         
         date_time = jalali_date_time_to_gregorian(data['date'],data['time'])
@@ -208,7 +210,7 @@ class ReceiveInvoice(APIView):
 
             }
         )
-        
+        print('created : ',created)
         # اگر فاکتور قبلاً وجود داشته است، آیتم‌های قدیمی آن را پاک می‌کنیم تا آیتم‌های جدید جایگزین شوند
         if not created:
             InvoiceItem.objects.filter(invoice=invoice).delete()
