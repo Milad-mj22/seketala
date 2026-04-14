@@ -26,6 +26,8 @@ class OTPVar_Enum(models.TextChoices):
     HAMBER = 'HAMBER','همبر'
     ORDERID = 'ORDERID','شماره سفارش'
     USER = 'USER','کاربر'
+    DATE = 'DATE','تاریخ'
+    AMOUNT = 'AMOUNT','مقدار'
 
 
 from django.db import models

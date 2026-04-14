@@ -192,6 +192,10 @@
                                             <label class="form-label">
                                                 <i class="fas fa-tag"></i> {{ field.label }}
                                             </label>
+                                            {% if field.help_text %}
+                                                <div class="form-text">{{ field.help_text }}</div>
+                                            {% endif %}
+
                                             {% if field.field.widget.input_type == 'number' %}
                                                 <div class="input-group">
                                                     <input type="text" name="{{ field.name }}" id="{{ field.id }}" class="form-control formatted-number" placeholder="مقدار را وارد کنید..." value="{{field.initial}}">
@@ -206,9 +210,7 @@
                                                     <i class="fas fa-exclamation-circle"></i> {{ field.errors.0 }}
                                                 </div>
                                             {% endif %}
-                                            {% if field.help_text %}
-                                                <div class="form-text">{{ field.help_text }}</div>
-                                            {% endif %}
+
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -291,146 +293,80 @@
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-            const formCounter = { count: 0 };
-            const f_2_formCounter = { count: 0 };
+        const formCounter = { count: 0 };
+        const f_2_formCounter = { count: 0 };
+        
+        // ✅ دریافت دیکشنری نسیه از بک‌اند
+        const nesiehDict = {{ nesieh|safe }};
+        
+        // ✅ تابع ساخت فرم نسیه
+        function createNesiehForm(name, value) {
+            f_2_formCounter.count++;
+            const formId = `dynamic-form-nesieh-${f_2_formCounter.count}`;
             
-            // افزودن فرم جدید با تفاوت بین فرم ۱ و فرم ۲
-            document.getElementById('addForm1').addEventListener('click', (e) => addNewForm(e, 'form1'));
-            document.getElementById('addForm2').addEventListener('click', (e) => addNewForm(e, 'form2'));
-            
-            function addNewForm(event, formType) {
-
-                const newForm = document.createElement('div');
-
-
-                
-                if (formType === 'form1') {
-                    formCounter.count++;
-                    const formId = `dynamic-form-${formCounter.count}`;
-                    newForm.className = 'added-form';
-                    newForm.id = formId;
-                    newForm.innerHTML = `
-                        <div class="row g-4" style="margin-top: 30px;">
-
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-tag"></i> نام شخص</label>
-                                    <input type="text" class="form-control formatted-number" name="name_${formCounter.count}">
-                                </div>
-                            </div>
-
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-tag"></i> اسنپ</label>
-                                    <input type="text" class="form-control formatted-number" name="value1_${formCounter.count}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-tag"></i> تلفنی</label>
-                                    <input type="text" class="form-control" name="value2_${formCounter.count}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-tag"></i> جمع کارکرد</label>
-                                    <input type="text" class="form-control" name="value3_${formCounter.count}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-tag"></i> کمیسیون</label>
-                                    <input type="text" class="form-control" name="value4_${formCounter.count}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-tag"></i> غذا</label>
-                                    <input type="text" class="form-control" name="value5_${formCounter.count}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-tag"></i> انعام</label>
-                                    <input type="text" class="form-control" name="value6_${formCounter.count}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-tag"></i> خالص برداشت</label>
-                                    <input type="text" class="form-control" name="value7_${formCounter.count}">
-                                </div>
+            const newForm = document.createElement('div');
+            newForm.className = 'added-form';
+            newForm.id = formId;
+            newForm.innerHTML = `
+                <div class="row g-4" style="margin-top: 30px;">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-tag"></i> شرح
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                name="f2_value1_${f_2_formCounter.count}"
+                                value="${name}"
+                                readonly
+                            >
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-tag"></i> نسیه
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control formatted-number" 
+                                name="f2_value2_${f_2_formCounter.count}"
+                                value="${formatNumber(value)}"
+                            >
+                            <div class="number-display">
+                                <i class="fas fa-coins"></i>
+                                <span class="number-text">${numberToWords(value)}</span>
                             </div>
                         </div>
-                        <button type="button" class="remove-btn" data-form-id="${formId}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    `;
-                } else if (formType === 'form2') {
-                    f_2_formCounter.count++;
-                    const formId = `dynamic-form-${f_2_formCounter.count}`;
-                    newForm.className = 'added-form';
-                    newForm.id = formId;
-
-                    newForm.innerHTML = `
-                        <div class="row g-4" style="margin-top: 30px;">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label" ><i class="fas fa-tag"></i> شرح</label>
-                                    <input type="text" class="form-control " name="f2_value1_${f_2_formCounter.count}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-tag"></i> نسیه</label>
-                                    <input type="text" class="form-control " name="f2_value2_${f_2_formCounter.count}">
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="remove-btn" data-form-id="${formId}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    `;
-                }
-                
-                // این خط تغییر کرد: فرم جدید قبل از دکمه‌های افزودن قرار می‌گیرد
-                const addButtonsDiv = document.querySelector('.text-center.mt-4');
-                if (addButtonsDiv) {
-                    document.getElementById('nightlyForm').insertBefore(newForm, addButtonsDiv);
-                } else {
-                    document.getElementById('nightlyForm').appendChild(newForm);
-                }
+                    </div>
+                </div>
+                <button type="button" class="remove-btn" data-form-id="${formId}">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // قرار دادن در صفحه
+            const addButtonsDiv = document.querySelector('.text-center.mt-4');
+            if (addButtonsDiv) {
+                document.getElementById('nightlyForm').insertBefore(newForm, addButtonsDiv);
+            } else {
+                document.getElementById('nightlyForm').appendChild(newForm);
             }
             
-            // حذف فرم
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-btn')) {
-                    const formId = e.target.dataset.formId;
-                    document.getElementById(formId).remove();
-                }
-            });
-            
-            // تابع فرمت کردن اعداد
-            const numberInputs = document.querySelectorAll('.formatted-number');
-            
-            numberInputs.forEach(input => {
-                const displayId = `number-display-text-${input.id}`;
-                const displayElement = document.getElementById(displayId);
+            // اتصال event listener به فیلد عددی
+            const numberInput = newForm.querySelector('.formatted-number');
+            if (numberInput) {
+                const displayElement = numberInput.parentElement.querySelector('.number-display');
                 
-                if (displayElement) {
-                    displayElement.querySelector('.number-text').textContent = "صفر ریال";
-                }
-                
-                input.addEventListener('input', function() {
-                    let value = this.value.replace(/[^0-9]/g, '');
+                numberInput.addEventListener('input', function() {
+                    let val = this.value.replace(/[^0-9]/g, '');
                     
-                    if (value) {
-                        const formattedValue = formatNumber(value);
+                    if (val) {
+                        const formattedValue = formatNumber(val);
                         this.value = formattedValue;
                         
-                        const amount = parseInt(value);
+                        const amount = parseInt(val);
                         const words = numberToWords(amount);
                         
                         if (displayElement) {
@@ -443,48 +379,151 @@
                         }
                     }
                 });
-                
-                if (input.value) {
-                    const amount = parseInt(input.value.replace(/[^0-9]/g, ''));
-                    if (amount > 0) {
-                        const words = numberToWords(amount);
-                        const formattedValue = formatNumber(input.value.replace(/[^0-9]/g, ''));
-                        input.value = formattedValue;
-                        
-                        const displayId = `number-display-text-${input.id}`;
-                        const displayElement = document.getElementById(displayId);
-                        if (displayElement) {
-                            displayElement.querySelector('.number-text').textContent = words;
-                        }
-                    }
+            }
+        }
+        
+        // ✅ پر کردن خودکار فرم‌های نسیه هنگام لود صفحه
+        if (nesiehDict && Object.keys(nesiehDict).length > 0) {
+            Object.entries(nesiehDict).forEach(([name, value]) => {
+                createNesiehForm(name, value);
+            });
+        }
+        
+        // دکمه‌های افزودن فرم
+        document.getElementById('addForm1').addEventListener('click', (e) => addNewForm(e, 'form1'));
+        document.getElementById('addForm2').addEventListener('click', (e) => addNewForm(e, 'form2'));
+        
+        function addNewForm(event, formType) {
+            const newForm = document.createElement('div');
+
+            if (formType === 'form1') {
+                formCounter.count++;
+                const formId = `dynamic-form-${formCounter.count}`;
+                newForm.className = 'added-form';
+                newForm.id = formId;
+                newForm.innerHTML = `
+                    <div class="row g-4" style="margin-top: 30px;">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-tag"></i> نام شخص</label>
+                                <input type="text" class="form-control" name="name_${formCounter.count}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-tag"></i> اسنپ</label>
+                                <input type="text" class="form-control formatted-number" name="value1_${formCounter.count}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-tag"></i> تلفنی</label>
+                                <input type="text" class="form-control" name="value2_${formCounter.count}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-tag"></i> جمع کارکرد</label>
+                                <input type="text" class="form-control" name="value3_${formCounter.count}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-tag"></i> کمیسیون</label>
+                                <input type="text" class="form-control" name="value4_${formCounter.count}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-tag"></i> غذا</label>
+                                <input type="text" class="form-control" name="value5_${formCounter.count}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-tag"></i> انعام</label>
+                                <input type="text" class="form-control" name="value6_${formCounter.count}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-tag"></i> خالص برداشت</label>
+                                <input type="text" class="form-control" name="value7_${formCounter.count}">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="remove-btn" data-form-id="${formId}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+            } else if (formType === 'form2') {
+                f_2_formCounter.count++;
+                const formId = `dynamic-form-${f_2_formCounter.count}`;
+                newForm.className = 'added-form';
+                newForm.id = formId;
+                newForm.innerHTML = `
+                    <div class="row g-4" style="margin-top: 30px;">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-tag"></i> شرح</label>
+                                <input type="text" class="form-control" name="f2_value1_${f_2_formCounter.count}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-tag"></i> نسیه</label>
+                                <input type="text" class="form-control formatted-number" name="f2_value2_${f_2_formCounter.count}">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="remove-btn" data-form-id="${formId}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+            }
+            
+            const addButtonsDiv = document.querySelector('.text-center.mt-4');
+            if (addButtonsDiv) {
+                document.getElementById('nightlyForm').insertBefore(newForm, addButtonsDiv);
+            } else {
+                document.getElementById('nightlyForm').appendChild(newForm);
+            }
+        }
+        
+        // حذف فرم
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-btn')) {
+                const btn = e.target.closest('.remove-btn');
+                const formId = btn.dataset.formId;
+                document.getElementById(formId).remove();
+            }
+        });
+        
+        // اعتبارسنجی فرم
+        const form = document.getElementById('nightlyForm');
+        form.addEventListener('submit', function(e) {
+            const inputs = form.querySelectorAll('input[required]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
                 }
             });
             
-            // اعتبارسنجی فرم
-            const form = document.getElementById('nightlyForm');
-            form.addEventListener('submit', function(e) {
-                const inputs = form.querySelectorAll('input[required]');
-                let isValid = true;
-                
-                inputs.forEach(input => {
-                    if (!input.value.trim()) {
-                        input.classList.add('is-invalid');
-                        isValid = false;
-                    } else {
-                        input.classList.remove('is-invalid');
-                    }
-                });
-                
-                if (!isValid) {
+            if (!isValid) {
+                e.preventDefault();
+                alert('لطفاً تمام فیلدهای ضروری را پر کنید.');
+            } else {
+                if (!confirm('آیا از ثبت اطلاعات اطمینان دارید؟')) {
                     e.preventDefault();
-                    alert('لطفاً تمام فیلدهای ضروری را پر کنید.');
-                } else {
-                    if (!confirm('آیا از ثبت اطلاعات اطمینان دارید؟ این عملیات قابل بازگشت نیست.')) {
-                        e.preventDefault();
-                    }
                 }
-            });
+            }
         });
+    });
     </script>
 
 
