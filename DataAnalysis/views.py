@@ -1289,6 +1289,14 @@ class ReceiveUser(APIView):
             )
         
 
+        check_eshterak = Profile.objects.filter(code_vaset=eshterak)
+        if check_eshterak.exists():
+
+            return Response(
+                {"error": "Eshterak Exist"}, 
+                status=status.HTTP_400_BAD_REQUEST  # 403 → 400 برای bad request بهتر است
+            )
+
         # ── جداسازی نام و نام خانوادگی ──
         parts = name.split(' ')
         if len(parts) < 2:
@@ -1322,6 +1330,7 @@ class ReceiveUser(APIView):
         profile.first_name = f_name
         profile.last_name = l_name
         profile.job_position = job
+        profile.code_vaset = eshterak
         profile.save()
 
 
