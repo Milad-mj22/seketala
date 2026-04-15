@@ -1,3 +1,5 @@
+import random
+
 from django.shortcuts import get_object_or_404, render
 
 # Create your views here.
@@ -9,6 +11,9 @@ from django.conf import settings
 import jdatetime
 import xlrd
 import xlwt
+
+from otp_manager.models import OTPVar_Enum, SMS_Recievers, SMS_Template, SMSServiceTemplate_Enum
+from otp_manager.service import send_sms
 from .folder_utils.sepidar_date import format_jalali_date, format_jalali_datetime, havale_format_jalali_datetime
 from .forms import DBUploadForm
 from .models import InvoiceItem, Sale
@@ -1229,3 +1234,124 @@ female_set = set(female_names_fa)
 def is_persian_name(word: str) -> bool:
     w = word.strip().lower()
     return w in male_set or w in female_set
+
+
+
+
+
+def generate_unique_username(base_name):
+    """ساخت نام کاربری یکتا با اضافه کردن عدد در صورت تکراری بودن"""
+    username = base_name
+    counter = 1
+    
+    while User.objects.filter(username=username).exists():
+        username = f"{base_name}{counter}"
+        counter += 1
+    
+    return username
+
+
+
+
+
+from users.models import Profile, User, jobs
+from Constatns import Constants
+
+
+
+class ReceiveUser(APIView):
+    def post(self, request):
+        data = request.data
+
+        # ── احراز هویت ──
+        if request.headers.get("X-API-KEY") != "SECRET123":
+            return Response({"error": "unauthorized"}, status=403)
+
+        # ── دریافت فیلدها ──
+        name     = data.get('name')
+        eshterak = data.get('eshterak')
+        semat    = data.get('semat')
+        sematid  = data.get('sematid')
+        phone    = data.get('phone')
+
+        # ── اعتبارسنجی فیلدهای اجباری ──
+        if not all([name, eshterak, semat, sematid]):
+            return Response(
+                {"error": "Some Data not Found"}, 
+                status=status.HTTP_400_BAD_REQUEST  # 403 → 400 برای bad request بهتر است
+            )
+        
+        if 'متفرقه' in name:
+
+            return Response(
+                {"error": "Data not Correct"}, 
+                status=status.HTTP_400_BAD_REQUEST  # 403 → 400 برای bad request بهتر است
+            )
+        
+
+        # ── جداسازی نام و نام خانوادگی ──
+        parts = name.split(' ')
+        if len(parts) < 2:
+            return Response(
+                {"error": "Name must contain first and last name"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        f_name = parts[0]
+        l_name = ' '.join(parts[1:])  # برای نام‌های چندکلمه‌ای
+        # ── ساخت نام کاربری یکتا ──
+        username = generate_unique_username(f_name)
+        # ── ساخت کاربر ──
+        password = Constants.DEFAULT_PASSWORD
+
+        user,user_created = User.objects.get_or_create(
+            username=username, 
+            password=password
+        )
+
+        # ── ساخت یا دریافت شغل ──
+        short_name = semat[:4] if len(semat) >= 4 else semat
+        job, _ = jobs.objects.get_or_create(
+            name=semat,
+            defaults={
+                'persian_name': semat,
+                'short_name': short_name
+            }
+        )
+        profile, created = Profile.objects.get_or_create(user=user)
+        profile.phone = phone
+        profile.first_name = f_name
+        profile.last_name = l_name
+        profile.job_position = job
+        profile.save()
+
+
+
+        sms_template = SMS_Template.objects.filter(name =SMSServiceTemplate_Enum.AUTO_SIGNUP )
+        if sms_template.exists():
+            sms_template = sms_template.first()
+            sms_recievers = SMS_Recievers.objects.filter(template = sms_template)
+            for sms_rec in sms_recievers:
+                send_phone = sms_rec.persons.phone
+                f_name = sms_rec.persons.f_name
+
+
+                ret = send_sms(sms_template,phone_number=send_phone,vars={OTPVar_Enum.NAME:username,OTPVar_Enum.NAME:name,OTPVar_Enum.JOBNAME:semat,OTPVar_Enum.PHONE:phone,})
+
+
+
+
+
+
+
+
+
+        if created:
+            return Response({
+                "status": "ok",
+                "username": username          # ✅ نام کاربری برگردانده می‌شود
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response({
+                "status": "Existed",
+                "username": username
+            }, status=status.HTTP_200_OK)

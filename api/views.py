@@ -23,6 +23,11 @@ import json
 def receive_sms(request):
     sender = request.GET.get("sender", "Unknown")
     message = request.GET.get("message", "")
+    if sender=='Unknown':
+        sender = request.GET.get("from", "Unknown")
+    if message=='':
+        message = request.GET.get("text", "")
+
 
     if message:
         SMS.objects.create(sender=sender, message=message)
