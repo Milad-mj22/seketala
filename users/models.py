@@ -46,8 +46,8 @@ class jobs(models.Model):
     name = models.CharField(max_length=200)
     persian_name = models.CharField(max_length=200)
     short_name = models.CharField(max_length=3,unique=True)
-    describe = models.CharField(max_length=800)
-    level = models.IntegerField()
+    describe = models.CharField(max_length=800,null=True,blank=True)
+    level = models.IntegerField(default=100,null=True,blank=True)
 
     items = models.ManyToManyField(MenuItem, blank=True, related_name="roles", verbose_name="دسترسی به آیتم‌ها",null=True)  # 👈 این خط را اضافه کن
 
@@ -997,3 +997,6 @@ class UserRole(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.role.name}"
+    
+
+

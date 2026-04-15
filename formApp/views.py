@@ -202,8 +202,12 @@ def calc_pardakht(date = None):
         invoice.hazine_peyk = float(invoice.hazine_peyk)
         invoice.discount = float(invoice.discount)
 
-        if invoice.name == 'کنسل':
+        if invoice.name == 'کنسل' or invoice.name =='کنسلی':
             continue
+        if invoice.items.count() ==1:
+            item = invoice.items.all()[0]
+            if item.food_name  == '65' and item.quantity ==1:
+                continue
 
         if 'کیوسک۱' in invoice.name or invoice.pnum==kiosk1:
             totals['کیوسک۱'] += invoice.mablagh_pos
@@ -221,11 +225,11 @@ def calc_pardakht(date = None):
 
         elif float(invoice.mandeh) > 0:
             if float(invoice.hazine_peyk)==0:
-                if 20000>float(invoice.moshtarak)>10000 or float(invoice.moshtarak)==0:  ### check is personel
+                if 20000>float(invoice.moshtarak)>10000 :  ### check is personel
                     nes_items +=1
                     totals['نسیه پرسنل'] += float(invoice.mandeh)
 
-                nesieh.update({invoice.name:(invoice.total_price +  invoice.hazine_peyk - invoice.discount)})
+                    nesieh.update({invoice.name:(invoice.total_price +  invoice.hazine_peyk - invoice.discount)})
 
 
 
@@ -233,22 +237,22 @@ def calc_pardakht(date = None):
         if  int(invoice.shomare_pos) in parsian_kiosk :
             totals['پارسیان'] += invoice.total_price 
 
-        if 'واريز به کارت ملي 1]:' in invoice.nahveh:
+        if 'واريز به کارت ملي 1]:' in invoice.nahveh or 'واريز به حساب ملي 1]:' in invoice.nahveh:
             totals['واریز1'] +=  float(invoice.nonaghdi)
-        elif 'کارت ملي ' in invoice.nahveh:
+        elif 'کارت ملي ' in invoice.nahveh or 'حساب ملي ' in invoice.nahveh:
             totals['واریز'] += float(invoice.nonaghdi)
 
         if float(invoice.discount) > 0:
             totals['تخفیفات'] += float(invoice.discount)
 
-        if 'نقدي' in invoice.nahveh:
-            totals['نقدی'] += float(invoice.naghdi)
+
         
         if 'متفرقه' in invoice.nahveh:
             totals['ملی'] += float(invoice.mablagh_pos)
 
 
         totals['جمع خالص'] += invoice.total_price + float(invoice.hazine_peyk) 
+        totals['نقدی'] += float(invoice.naghdi)
         
 
 

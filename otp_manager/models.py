@@ -6,6 +6,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 class SMSServiceTemplate_Enum(models.TextChoices):
     SIGNUP = "signup", "ثبت نام"
+    AUTO_SIGNUP = "auto_signup", "ثبت نام اتوماتیک"
     LOGIN = "login", "ورود"
     CLOSESANDOGH = 'close_sandogh','بستن صندوق'
     NIGHTORDER = 'night_order','سفارش شب'
@@ -28,6 +29,7 @@ class OTPVar_Enum(models.TextChoices):
     USER = 'USER','کاربر'
     DATE = 'DATE','تاریخ'
     AMOUNT = 'AMOUNT','مقدار'
+    JOBNAME = 'JOBNAME','شغل'
 
 
 from django.db import models
