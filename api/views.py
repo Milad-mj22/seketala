@@ -28,7 +28,7 @@ def receive_sms(request):
     if message=='':
         message = request.GET.get("text", "")
 
-
+    print('sender,message',sender,message)
     if message:
         SMS.objects.create(sender=sender, message=message)
         # Replace the number that comes after "مانده"

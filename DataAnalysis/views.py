@@ -1275,6 +1275,8 @@ class ReceiveUser(APIView):
         semat    = data.get('semat')
         sematid  = data.get('sematid')
         phone    = data.get('phone')
+        
+        print('eshterak'*80)
 
         # ── اعتبارسنجی فیلدهای اجباری ──
         if not all([name, eshterak, semat, sematid]):
