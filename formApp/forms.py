@@ -42,9 +42,32 @@ class NightlySalesForm(forms.Form):
     bank_parsian = CommaDecimalField(
         max_digits=10,
         decimal_places=0,
-        label="کارتخوان بانک پارسیان",
+        label="کارتخوان بانک پارسیان پایین",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
+
+
+    kiosk1 = CommaDecimalField(
+        max_digits=10,
+        decimal_places=0,
+        label="کارتخوان بانک پارسیان کیوسک۱",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
+    )
+
+    kiosk2 = CommaDecimalField(
+        max_digits=10,
+        decimal_places=0,
+        label="کارتخوان بانک پارسیان کیوسک۲",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
+    )
+
+    kiosk3 = CommaDecimalField(
+        max_digits=10,
+        decimal_places=0,
+        label="کارتخوان بانک پارسیان کیوسک۳",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
+    )
+
     bank_melli = CommaDecimalField(
         max_digits=10,
         decimal_places=0,
@@ -156,6 +179,9 @@ class NightlySalesForm(forms.Form):
         self.initial.update({
             'bank_mehr': 0,
             'bank_parsian': 0,
+            'kiosk1': 0,
+            'kiosk2': 0,
+            'kiosk3': 0,
             'bank_melli': 0,
             'bank_maral': 0,
             'bank_marina': 0,
@@ -178,7 +204,10 @@ class NightlySalesForm(forms.Form):
         if pardakht_data:
             field_mapping = {
                 'bank_mehr': 'مهر',
-                'bank_parsian': 'پارسیان',
+                'bank_parsian': 'parsian_pain',
+                'kiosk1': 'کیوسک۱',
+                'kiosk2': 'کیوسک۲',
+                'kiosk3': 'کیوسک۳',
                 'bank_melli': 'ملی',
                 'snapp_food': 'اسنپ',
                 'snapp_delivery': 'اسنپ پیک',
@@ -195,6 +224,8 @@ class NightlySalesForm(forms.Form):
                 if field_name in self.fields and pardakht_key in pardakht_data:
                     value = pardakht_data[pardakht_key]
                     self.fields[field_name].help_text = f"💰 مبلغ ثبت شده: {value:,} ریال"
+
+
 
 def save_with_persian_labels(form_data):
     """

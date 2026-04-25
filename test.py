@@ -1,6 +1,7 @@
 import requests
 
-url = "http://192.168.1.107:8200/data_analysis/api/receive-user/"
+API_URL = 'https://seketalamanager.ir/data_analysis/api/receive-user/'
+
 headers = {
     "Content-Type": "application/json",
     "X-API-KEY": "SECRET123"
@@ -13,7 +14,7 @@ payload = {
     "phone": "09121234567"
 }
 
-response = requests.post(url, json=payload, headers=headers)
+response = requests.post(API_URL, json=payload, headers=headers)
 
 print(response.status_code)
 print(response.json())

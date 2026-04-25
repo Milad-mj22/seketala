@@ -176,6 +176,8 @@ def calc_pardakht(date = None):
         selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
     else:
         selected_date = timezone.now().date()
+        selected_date -= timedelta(days=1)
+        
         if current_time.hour >= 18:
             selected_date += timedelta(days=1)
     start, end = get_date_range_night_form(selected_date)
@@ -189,9 +191,22 @@ def calc_pardakht(date = None):
     total_items = 0
     nes_items = 0
     kiosk1,kiosk2,kiosk3 = 15,16,17
-    parsian_kiosk = [8,9,10,12]
     komision_peyk = 10/100
     nesieh = {}
+
+    all_parsian = {
+    'parsian_kiosk_1': 8,
+    'parsian_kiosk_2': 9,
+    'parsian_kiosk_3':10,
+    'parsian_pain':12,
+    'parsian_shomare_1':15,
+    'parsian_shomare_2':16,
+    'parsian_shomare_3':17,
+    'parsian_shomare_4':18,
+    'parsian_shomare_5':19,
+    }
+
+    print('len(invoices) : ' ,len(invoices))
 
     for invoice in invoices:
 
@@ -220,7 +235,7 @@ def calc_pardakht(date = None):
 
 
         elif 'اسنپ' in invoice.name or invoice.pnum==1:
-            totals['اسنپ'] += invoice.total_price - float(invoice.discount)
+            totals['اسنپ'] += invoice.total_price - float(invoice.discount) 
             totals['اسنپ پیک'] += float(invoice.hazine_peyk)
 
         elif float(invoice.mandeh) > 0:
@@ -233,9 +248,18 @@ def calc_pardakht(date = None):
 
 
 
+        if int(invoice.shomare_pos) in all_parsian.values():
+            for pos in all_parsian:
+                if all_parsian[pos] == int(invoice.shomare_pos):
+                    totals[pos] += invoice.mablagh_pos
+                    pass
 
-        if  int(invoice.shomare_pos) in parsian_kiosk :
-            totals['پارسیان'] += invoice.total_price 
+
+
+
+
+        if  int(invoice.shomare_pos) in all_parsian :
+            totals['پارسیان'] += invoice.mablagh_pos 
 
         if 'واريز به کارت ملي 1]:' in invoice.nahveh or 'واريز به حساب ملي 1]:' in invoice.nahveh:
             totals['واریز1'] +=  float(invoice.nonaghdi)
