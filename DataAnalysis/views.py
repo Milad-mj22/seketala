@@ -1038,7 +1038,7 @@ def api_factors(request):
     pryk_id = request.user.profile.code_vaset
     page = int(request.GET.get('page', 1))
     filter_type = request.GET.get('filter', 'today')  # 'today' or 'all'
-    
+    pryk_id = int(pryk_id)
     # Base queryset
     queryset = Invoice.objects.filter(peyk=pryk_id)
     

@@ -170,6 +170,7 @@ from datetime import datetime, timedelta, time
 
 def calc_pardakht(date = None):
 
+
     date_str = date
     current_time = timezone.now()
     if date_str:
@@ -360,7 +361,7 @@ def nightly_sales_view(request):
                     except:
                         pass
 
-                    ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.VALUE:total,OTPVar_Enum.AMOUNT:similarity,})
+                    # ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.VALUE:total,OTPVar_Enum.AMOUNT:similarity,})
 
 
             return redirect('success_page')
@@ -494,7 +495,7 @@ def download_excel(request, form_id):
     ws = wb.active
     ws.title = "فرم شبانه"
 
-    new_version = False
+    new_version = True
     if new_version:
     # اضافه کردن سرستون‌ها
         headers = list(form.data.keys())

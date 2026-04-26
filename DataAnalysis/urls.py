@@ -18,11 +18,7 @@ urlpatterns = [
     path("report/download-summary/", views.sepidar_download_excel, name="download_invoice_summary_excel"),
     path("report/tasvieh_download_summary/", views.tasvieh_sepidar_download_excel, name="tasvieh_download_invoice_summary_excel"),
     path("report/phone_numbers/", views.all_contancts_excel, name="phone_numbers"),
-    path(
-        "api/invoices/<str:invoice_number>/",
-        views.invoice_detail_api,
-        name="invoice_detail_api"
-    ),
+    path("api/invoices/<str:invoice_number>/",views.invoice_detail_api,name="invoice_detail_api"),
     path('factors/', views.factor_list, name='factor_list'),
     path('factors/<int:invoice_id>/', views.factor_detail, name='factor_detail'),
     path('factors/<int:invoice_id>/update-payments/', views.update_payments, name='update_payments'),

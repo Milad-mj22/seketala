@@ -1,339 +1,430 @@
+<!-- templates/factor_detail.html -->
 {% extends "users/base.html" %}
 {% load static %}
-
 {% block content %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>جزئیات فاکتور - {{ invoice.invoice_number }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @font-face {
-            font-family: 'Vazir';
-            src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-        }
-        
-        body {
-            font-family: 'Vazir', sans-serif;
-        }
-        
-        /* Hide number input spinners */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-        
-        /* Responsive improvements */
-        @media (max-width: 640px) {
-            .container {
-                padding-left: 0.75rem;
-                padding-right: 0.75rem;
-            }
-            
-            /* Better touch targets on mobile */
-            button, a {
-                min-height: 44px;
-                min-width: 44px;
-            }
-            
-            /* Adjust payment method inputs for mobile */
-            .payment-method-row {
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-            
-            .payment-method-label {
-                width: 100%;
-                margin-bottom: 0.25rem;
-            }
-            
-            .payment-method-input {
-                width: calc(100% - 80px);
-            }
-            
-            .payment-method-amount {
-                width: 70px;
-            }
-        }
-        
-        /* Smooth transitions */
-        .transition-all {
-            transition: all 0.3s ease;
-        }
-        
-        /* Better touch feedback */
-        .touch-feedback:active {
-            opacity: 0.7;
-            transform: scale(0.98);
-        }
-        
-        /* RTL specific adjustments */
-        .space-x-reverse {
-            --tw-space-x-reverse: 1;
-        }
-        
-        /* Responsive grid adjustments */
-        .responsive-grid {
-            display: grid;
-            gap: 1rem;
-        }
-        
-        @media (min-width: 640px) {
-            .responsive-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .responsive-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        
-        /* Improve readability on mobile */
-        @media (max-width: 480px) {
-            .text-2xl {
-                font-size: 1.25rem;
-            }
-            
-            .text-xl {
-                font-size: 1.125rem;
-            }
-            
-            .p-8 {
-                padding: 1.25rem;
-            }
-            
-            .px-8 {
-                padding-left: 1.25rem;
-                padding-right: 1.25rem;
-            }
-            
-            .py-6 {
-                padding-top: 1.25rem;
-                padding-bottom: 1.25rem;
-            }
-        }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">
-        <!-- Header with Back Button -->
-        <div class="mb-4 sm:mb-6">
-            <a href="{% url 'factor_list' %}" class="inline-flex items-center text-gray-600 hover:text-gray-800 touch-feedback py-2 px-3 -mx-3 rounded-lg">
-                <i class="fas fa-arrow-right ml-2"></i> 
-                <span class="text-sm sm:text-base">بازگشت به لیست فاکتورها</span>
-            </a>
-        </div>
 
-        <!-- Main Content -->
-        <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 overflow-hidden" style="text-align: right;">
-            <!-- Invoice Header -->
-            <div class="bg-gradient-to-l from-blue-500 to-blue-600 px-4 sm:px-6 md:px-8 py-4 sm:py-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-                    <div class="w-full sm:w-auto">
-                        <h1 class="text-xl sm:text-2xl font-bold text-white break-words">فاکتور #{{ invoice.invoice_number }}</h1>
-                        <p class="text-blue-100 mt-1 text-sm sm:text-base">ایجاد شده در {{ invoice.created_at|date:"Y/m/d" }}</p>
-                    </div>
-                    <div class="bg-white/20 px-4 sm:px-6 py-2 sm:py-3 rounded-xl w-full sm:w-auto">
-                        <span class="text-white text-xs sm:text-sm">مبلغ کل</span>
-                        <p class="text-white text-xl sm:text-2xl font-bold">{{ invoice.total_price|floatformat:0 }} ریال</p>
-                    </div>
-                </div>
+<style>
+    :root {
+        /* Golden Palette */
+        --gold-primary: #a19f0a;
+        --gold-light: #fcd34d;
+        --gold-bg: #fffdf5;
+        --gold-border: #fde68a;
+        
+        --text-dark: #451a03;
+        --text-muted: #78350f;
+        
+        --success-color: #059669;
+        --warning-color: #d97706;
+        --danger-color: #dc2626;
+        --info-color: #0891b2;
+        --purple-color: #7c3aed;
+    }
+
+    body {
+        font-family: 'Vazir', sans-serif;
+        background-color: #fafaf9;
+        color: var(--text-dark);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .app-card {
+        background: #ffffff;
+        border-radius: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
+        overflow: hidden;
+    }
+
+    .header-gradient {
+        color : #1f1f1e;
+        background: linear-gradient(135deg, #e6d70a 0%, #b8ac11 100%);
+    }
+
+    .payment-input {
+        border: none;
+        background: transparent;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        width: 100%;
+        padding: 0.5rem 0;
+        text-align: left;
+    }
+    
+    .payment-input:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .payment-item {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .payment-item:focus-within {
+        border-color: var(--gold-primary);
+        box-shadow: 0 0 0 4px rgba(180, 83, 9, 0.1);
+        background-color: var(--gold-bg);
+    }
+
+    .summary-card {
+        border-radius: 1rem;
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid transparent;
+    }
+    
+    .summary-paid { background-color: #ecfdf5; color: #065f46; border-color: #d1fae5; }
+    .summary-remaining { background-color: #fffbeb; color: #92400e; border-color: #fef3c7; }
+    .summary-total { background-color: var(--gold-bg); color: var(--text-dark); border-color: var(--gold-border); }
+
+    .btn-save {
+        background-color: var(--gold-primary);
+        color: white;
+        border-radius: 1rem;
+        padding: 0.875rem 2rem;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+    
+    .btn-save:hover {
+        background-color: #92400e;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(180, 83, 9, 0.3);
+        color: white;
+    }
+
+    .progress-thick {
+        height: 8px;
+        border-radius: 9999px;
+        background-color: #e5e7eb;
+    }
+    .progress-bar-fill {
+        background-color: var(--success-color);
+        border-radius: 9999px;
+        transition: width 0.5s ease;
+    }
+</style>
+
+<div class="container py-4 py-md-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            
+            <!-- Breadcrumb / Back Button -->
+            <div class="d-flex align-items-center mb-4 px-2">
+                <a href="{% url 'factor_list' %}" class="btn btn-light rounded-pill p-2 px-3 shadow-sm border-0 text-decoration-none d-flex align-items-center">
+                    <i class="fas fa-arrow-right ms-2 text-warning"></i>
+                    <span class="fw-bold text-dark ms-1">لیست فاکتورها</span>
+                </a>
             </div>
 
-            <!-- Customer Info -->
-            <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6 border-b border-gray-100">
-                <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">اطلاعات مشتری</h2>
-                <div class="responsive-grid" style="text-align: right;">
-                    <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
-                        <p class="text-xs sm:text-sm text-gray-500">نام</p>
-                        <p class="font-medium text-sm sm:text-base break-words">{{ invoice.name }}</p>
-                    </div>
-                    <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
-                        <p class="text-xs sm:text-sm text-gray-500">تلفن</p>
-                        <p class="font-medium text-sm sm:text-base" dir="ltr">{{ invoice.phone }}</p>
-                    </div>
-                    <div class="col-span-1 sm:col-span-2 md:col-span-3 bg-gray-50 p-3 sm:p-4 rounded-lg">
-                        <p class="text-xs sm:text-sm text-gray-500">آدرس</p>
-                        <p class="font-medium text-sm sm:text-base break-words">{{ invoice.address }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Items List -->
-            <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6 border-b border-gray-100">
-                <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">آیتم‌های سفارش</h2>
-                <div class="space-y-2 sm:space-y-3">
-                    {% for item in items %}
-                    <div class="flex flex-col sm:flex-row justify-between sm:items-center py-2 sm:py-3 border-b border-gray-50 last:border-0 gap-2 sm:gap-4">
-                        <div class="flex-1">
-                            <p class="font-medium text-sm sm:text-base">{{ item.food_name }}</p>
-                            <p class="text-xs sm:text-sm text-gray-500">{{ item.quantity }} عدد × {{ item.price|floatformat:0 }} ریال</p>
-                        </div>
-                        <p class="font-semibold text-sm sm:text-base text-left sm:text-right">{{ item.total|floatformat:0 }} ریال</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Payment Management -->
-            <div class="px-4 sm:px-6 md:px-8 py-4 sm:py-6" x-data="paymentManager()" x-init="initPayments({{ payment_by_method|safe }})">
-                <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">مدیریت پرداخت</h2>
+            <!-- Main App Card -->
+            <div class="app-card">
                 
-                <!-- Current Payment Status - Responsive Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                    <div class="bg-green-50 p-3 sm:p-4 rounded-xl">
-                        <p class="text-xs sm:text-sm text-green-600">مجموع پرداخت‌ها</p>
-                        <p class="text-base sm:text-xl font-bold text-green-700 break-words" x-text="formatNumber(totalPaid) + ' ریال'"></p>
+                <!-- 1. Header & Total Overview -->
+                <div class="header-gradient text-white p-4 p-md-5" >
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div style="color: #1f1f1e;">
+                            <h1 class="h3 fw-bold mb-1">فاکتور #{{ invoice.invoice_number }}</h1>
+                            <p class="text-white-50 small mb-0">
+                                <i class="far fa-calendar-alt ms-1"></i>
+                                {{ invoice.created_at|date:"Y/m/d" }}
+                            </p>
+                        </div>
+                        <div class="text-start" style="color: #1f1f1e;">
+                            <div class="small text-white-50 mb-1">مبلغ کل</div>
+                            <div class="fw-bold fs-3">{{ invoice.total_price|floatformat:0 }}</div>
+                            <small class="text-white-75">ریال</small>
+                        </div>
                     </div>
-                    <div class="bg-orange-50 p-3 sm:p-4 rounded-xl">
-                        <p class="text-xs sm:text-sm text-orange-600">باقی مانده</p>
-                        <p class="text-base sm:text-xl font-bold text-orange-700 break-words" x-text="formatNumber(remaining) + ' ریال'"></p>
-                    </div>
-                    <div class="bg-blue-50 p-3 sm:p-4 rounded-xl">
-                        <p class="text-xs sm:text-sm text-blue-600">جمع کل</p>
-                        <p class="text-base sm:text-xl font-bold text-blue-700 break-words">{{ invoice.total_price|floatformat:0 }} ریال</p>
+                    
+                    <!-- Progress Bar -->
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between small mb-1 text-white-75" >
+                            <div style="color: #1f1f1e;">
+                            <span>پیشرفت تسویه</span>
+                            <span id="progress-text">0%</span>
+                            </div>
+                        </div>
+                        <div class="progress-thick">
+                            <div id="progress-bar" class="progress-bar-fill" role="progressbar" style="width: 0%"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Payment Method Inputs - Responsive Design -->
-                <div class="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-                    <template x-for="(method, index) in paymentMethods" :key="method.value">
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 bg-gray-50 rounded-lg">
-                            <div class="w-full sm:w-24 md:w-32">
-                                <span class="text-gray-700 font-medium text-sm sm:text-base" x-text="method.label"></span>
+                <!-- 2. Payment Management Dashboard -->
+                <div class="p-4 p-md-5 bg-white">
+                    <h5 class="fw-bold text-dark mb-4 d-flex align-items-center">
+                        <i class="fas fa-wallet text-warning ms-2"></i>
+                        مدیریت پرداخت
+                    </h5>
+
+                    <!-- Summary Row -->
+                    <div class="row g-3 mb-5">
+                        <div class="col-4">
+                            <div class="summary-card summary-paid">
+                                <div class="small fw-bold mb-1">پرداخت شده</div>
+                                <div class="fw-bold fs-5" id="display-paid">0</div>
                             </div>
-                            <div class="flex-1 flex items-center gap-2">
-                                <input 
-                                    type="number" 
-                                    x-model="method.amount"
-                                    @input="updateTotals()"
-                                    class="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left text-sm sm:text-base"
-                                    placeholder="مبلغ را وارد کنید"
-                                    min="0"
-                                    step="1000"
-                                >
-                                <div class="w-20 sm:w-24 text-left whitespace-nowrap">
-                                    <span class="text-xs sm:text-sm text-gray-500" x-text="formatNumber(method.amount) + ' ریال'"></span>
+                        </div>
+                        <div class="col-4">
+                            <div class="summary-card summary-remaining">
+                                <div class="small fw-bold mb-1">باقی مانده</div>
+                                <div class="fw-bold fs-5" id="display-remaining">0</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="summary-card summary-total">
+                                <div class="small fw-bold mb-1">کل</div>
+                                <div class="fw-bold fs-5">{{ invoice.total_price|floatformat:0 }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Inputs Grid -->
+                    <div class="row g-3 mb-4">
+                        
+                        <!-- Cash -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="payment-item h-100">
+                                <div class="d-flex align-items-center mb-2">
+                                    <!-- آیکون حذف شد -->
+                                    <label class="form-label fw-bold mb-0 text-dark">نقدی</label>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted small ms-2">ریال</span>
+                                    <input type="number" class="payment-input" data-method="cash" value="{{ payment_by_method.cash|default:0 }}">
                                 </div>
                             </div>
                         </div>
-                    </template>
+
+                        <!-- Card (Transfer) -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="payment-item h-100">
+                                <div class="d-flex align-items-center mb-2">
+                                    <!-- آیکون حذف شد -->
+                                    <label class="form-label fw-bold mb-0 text-dark">کارت به کارت</label>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted small ms-2">ریال</span>
+                                    <input type="number" class="payment-input" data-method="card" value="{{ payment_by_method.card|default:0 }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- POS Terminal -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="payment-item h-100">
+                                <div class="d-flex align-items-center mb-2">
+                                    <!-- آیکون حذف شد -->
+                                    <label class="form-label fw-bold mb-0 text-dark">پوز (دستگاه)</label>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted small ms-2">ریال</span>
+                                    <input type="number" class="payment-input" data-method="pos" value="{{ payment_by_method.pos|default:0 }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Online -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="payment-item h-100">
+                                <div class="d-flex align-items-center mb-2">
+                                    <!-- آیکون حذف شد -->
+                                    <label class="form-label fw-bold mb-0 text-dark">آنلاین (درگاه)</label>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted small ms-2">ریال</span>
+                                    <input type="number" class="payment-input" data-method="online" value="{{ payment_by_method.online|default:0 }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nesiye -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="payment-item h-100">
+                                <div class="d-flex align-items-center mb-2">
+                                    <!-- آیکون حذف شد -->
+                                    <label class="form-label fw-bold mb-0 text-dark">نسیه</label>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted small ms-2">ریال</span>
+                                    <input type="number" class="payment-input" data-method="nesiye" value="{{ payment_by_method.nesiye|default:0 }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Anaam -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="payment-item h-100">
+                                <div class="d-flex align-items-center mb-2">
+                                    <!-- آیکون حذف شد -->
+                                    <label class="form-label fw-bold mb-0 text-dark">انعام</label>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted small ms-2">ریال</span>
+                                    <input type="number" class="payment-input" data-method="anaam" value="{{ payment_by_method.anaam|default:0 }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button id="btn-save" class="btn btn-save w-100 shadow-sm">
+                        <i class="fas fa-check-circle ms-2" id="btn-icon"></i>
+                        <span id="btn-text">ثبت و به‌روزرسانی پرداخت‌ها</span>
+                    </button>
+
+                    <!-- Success Toast -->
+                    <div id="success-alert" class="alert alert-success mt-4 d-none align-items-center rounded-3 shadow-sm" role="alert">
+                        <i class="fas fa-check-circle ms-2"></i>
+                        <div class="fw-bold">عملیات موفقیت‌آمیز بود.</div>
+                    </div>
                 </div>
 
-                <!-- Save Button - Touch Friendly -->
-                <button 
-                    @click="savePayments()"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 touch-feedback text-sm sm:text-base"
-                    :disabled="isSaving"
-                >
-                    <i class="fas fa-save ml-2" x-show="!isSaving"></i>
-                    <i class="fas fa-spinner fa-spin ml-2" x-show="isSaving"></i>
-                    <span x-text="isSaving ? 'در حال ذخیره...' : 'ذخیره توزیع پرداخت'"></span>
-                </button>
+                <!-- 3. Customer & Items (Details) -->
+                <div class="bg-light p-4 p-md-5 border-top border-light">
+                    <div class="row g-4">
+                        <!-- Customer Info -->
+                        <div class="col-md-5">
+                            <h6 class="fw-bold text-muted text-uppercase small mb-3">اطلاعات مشتری</h6>
+                            <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                                <div class="mb-3">
+                                    <div class="text-muted small mb-1">نام</div>
+                                    <div class="fw-bold text-dark">{{ invoice.name }}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-muted small mb-1">تلفن</div>
+                                    <div class="fw-bold text-dark" dir="ltr">{{ invoice.phone }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small mb-1">آدرس</div>
+                                    <div class="fw-bold text-dark small">{{ invoice.address }}</div>
+                                </div>
+                            </div>
+                        </div>
 
-                <!-- Success Message -->
-                <div x-show="showSuccess" x-transition:enter="transition ease-out duration-300" 
-                     x-transition:enter-start="opacity-0 transform scale-90"
-                     x-transition:enter-end="opacity-100 transform scale-100"
-                     x-transition:leave="transition ease-in duration-200"
-                     x-transition:leave-start="opacity-100 transform scale-100"
-                     x-transition:leave-end="opacity-0 transform scale-90"
-                     class="mt-4 p-3 sm:p-4 bg-green-50 text-green-700 rounded-xl flex items-center text-sm sm:text-base">
-                    <i class="fas fa-check-circle ml-2"></i>
-                    <span>پرداخت‌ها با موفقیت به‌روزرسانی شد!</span>
+                        <!-- Items List -->
+                        <div class="col-md-7">
+                            <h6 class="fw-bold text-muted text-uppercase small mb-3">اقلام سفارش</h6>
+                            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                                <div class="list-group list-group-flush">
+                                    {% for item in items %}
+                                    <div class="list-group-item px-4 py-3 d-flex justify-content-between align-items-center border-bottom border-light last:border-0 bg-white">
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ item.food_name }}</div>
+                                            <small class="text-muted">{{ item.quantity }} عدد</small>
+                                        </div>
+                                        <div class="fw-bold text-dark">
+                                            {{ item.total|floatformat:0 }}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Alpine.js for interactivity -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    
-    <script>
-    function paymentManager() {
-        return {
-            paymentMethods: [
-                { value: 'cash', label: 'نقدی', amount: 0 },
-                { value: 'card', label: 'کارت خوان', amount: 0 },
-                { value: 'online', label: 'آنلاین', amount: 0 },
-                { value: 'nesiye', label: 'نسیه', amount: 0 },
-                { value: 'anaam', label: 'انعام', amount: 0 }
-            ],
-            totalPaid: 0,
-            remaining: {{ remaining }},
-            totalInvoice: {{ invoice.total_price }},
-            isSaving: false,
-            showSuccess: false,
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const totalInvoice = {{ invoice.total_price }};
+        const inputs = document.querySelectorAll('.payment-input');
+        const btnSave = document.getElementById('btn-save');
+        const btnText = document.getElementById('btn-text');
+        const btnIcon = document.getElementById('btn-icon');
+        const successAlert = document.getElementById('success-alert');
+        
+        const displayPaid = document.getElementById('display-paid');
+        const displayRemaining = document.getElementById('display-remaining');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('fa-IR').format(num);
+        }
+
+        function updateTotals() {
+            let totalPaid = 0;
             
-            initPayments(existingPayments) {
-                // Initialize with existing payments
-                if (existingPayments) {
-                    this.paymentMethods = this.paymentMethods.map(method => {
-                        const amount = existingPayments[method.value] || 0;
-                        return { ...method, amount: amount };
-                    });
-                    this.updateTotals();
-                }
-            },
+            inputs.forEach(input => {
+                const val = parseFloat(input.value) || 0;
+                totalPaid += val;
+            });
+
+            const remaining = totalInvoice - totalPaid;
+            const percentage = Math.min(100, Math.max(0, (totalPaid / totalInvoice) * 100));
+
+            displayPaid.textContent = formatNumber(totalPaid);
+            displayRemaining.textContent = formatNumber(remaining);
             
-            updateTotals() {
-                this.totalPaid = this.paymentMethods.reduce((sum, method) => sum + (parseInt(method.amount) || 0), 0);
-                this.remaining = this.totalInvoice - this.totalPaid;
-            },
-            
-            formatNumber(number) {
-                return new Intl.NumberFormat('fa-IR').format(number);
-            },
-            
-            savePayments() {
-                this.isSaving = true;
-                
-                // Prepare data
-                const paymentData = {
-                    payments: this.paymentMethods.map(m => ({
-                        method: m.value,
-                        amount: parseInt(m.amount) || 0
-                    }))
-                };
-                
-                // Send to server
-                fetch(`/data_analysis/factors/{{ invoice.id }}/update-payments/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify(paymentData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        this.showSuccess = true;
-                        setTimeout(() => {
-                            this.showSuccess = false;
-                        }, 3000);
-                    } else {
-                        alert('خطا: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    alert('خطا در ذخیره پرداخت‌ها');
-                })
-                .finally(() => {
-                    this.isSaving = false;
-                });
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${Math.round(percentage)}%`;
+
+            if (remaining <= 0) {
+                progressBar.style.backgroundColor = '#10b981';
+                displayRemaining.style.color = '#10b981';
+            } else {
+                progressBar.style.backgroundColor = '#f59e0b';
+                displayRemaining.style.color = '#d97706';
             }
         }
-    }
-    </script>
-</body>
+
+        inputs.forEach(input => {
+            input.addEventListener('input', updateTotals);
+            updateTotals();
+        });
+
+        btnSave.addEventListener('click', function() {
+            btnSave.disabled = true;
+            btnText.textContent = 'در حال پردازش...';
+            btnIcon.className = 'fas fa-spinner fa-spin ms-2';
+            successAlert.classList.add('d-none');
+
+            const payments = [];
+            inputs.forEach(input => {
+                payments.push({
+                    method: input.dataset.method,
+                    amount: parseInt(input.value) || 0
+                });
+            });
+
+            fetch(`/data_analysis/factors/{{ invoice.id }}/update-payments/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ payments: payments })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    successAlert.classList.remove('d-none');
+                    successAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    alert('خطا: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('خطا در ارتباط با سرور');
+            })
+            .finally(() => {
+                btnSave.disabled = false;
+                btnText.textContent = 'ثبت و به‌روزرسانی پرداخت‌ها';
+                btnIcon.className = 'fas fa-check-circle ms-2';
+            });
+        });
+    });
+</script>
 {% endblock %}

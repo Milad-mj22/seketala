@@ -164,6 +164,45 @@ class NightlySalesForm(forms.Form):
         label="سایر هزینه ها",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
+
+
+    peyk_pos_1 = CommaDecimalField(
+        max_digits=10,
+        decimal_places=0,
+        label="پیک ۱ پارسیان (99387213)",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
+    )
+
+    peyk_pos_2 = CommaDecimalField(
+        max_digits=10,
+        decimal_places=0,
+        label="پیک ۲ پارسیان (99387216)",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
+    )
+    peyk_pos_3 = CommaDecimalField(
+        max_digits=10,
+        decimal_places=0,
+        label="پیک ۳ پارسیان (99387215)",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
+    )
+    peyk_pos_4 = CommaDecimalField(
+        max_digits=10,
+        decimal_places=0,
+        label="پیک ۴ پارسیان (99387217)",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
+    )
+    peyk_pos_5 = CommaDecimalField(
+        max_digits=10,
+        decimal_places=0,
+        label="پیک ۵ پارسیان (99387214)",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
+    )
+    peyk_pos_6 = CommaDecimalField(
+        max_digits=10,
+        decimal_places=0,
+        label="پیک 6 مهر (6546423)",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
+    )
     
     notes = forms.CharField(
         required=False,
@@ -198,6 +237,12 @@ class NightlySalesForm(forms.Form):
             'gross_total': 0,
             'cashbox_adjustment': 0,
             'other_expenses': 0,
+            'peyk_pos_1': 0,
+            'peyk_pos_2': 0,
+            'peyk_pos_3': 0,
+            'peyk_pos_4': 0,
+            'peyk_pos_5': 0,
+            'peyk_pos_6': 0,
             'notes': '',
         })
         # اضافه کردن متن راهنما از داده‌های pardakht
@@ -253,7 +298,17 @@ def save_with_persian_labels(form_data):
         'gross_total': 'جمع ناخالص',
         'cashbox_adjustment': 'کسر/اضافه صندوق',
         'other_expenses': 'سایر هزینه ها',
-        'notes': 'توضیحات'
+        'notes': 'توضیحات',
+        'kiosk1': 'کیوسک۱',
+        'kiosk2': 'کیوسک۲',
+        'kiosk3': 'کیوسک۳',
+        'peyk_pos_1': 'پیک ۱ پارسیان',
+        'peyk_pos_2': 'پیک ۲ پارسیان',
+        'peyk_pos_3': 'پیک ۳ پارسیان',
+        'peyk_pos_4': 'پیک ۴ پارسیان',
+        'peyk_pos_5': 'پیک ۵ پارسیان',
+        'peyk_pos_6': 'پیک ۶ پارسیان',
+        
     }
     
     # Create new dictionary with Persian keys
