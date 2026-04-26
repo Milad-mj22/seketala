@@ -207,7 +207,7 @@ class NightlySalesForm(forms.Form):
                 'bank_parsian': 'parsian_pain',
                 'kiosk1': 'کیوسک۱',
                 'kiosk2': 'کیوسک۲',
-                'kiosk3': 'کیوسک۳',
+                'kiosk3': 'parsian_kiosk_3',
                 'bank_melli': 'ملی',
                 'snapp_food': 'اسنپ',
                 'snapp_delivery': 'اسنپ پیک',
