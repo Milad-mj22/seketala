@@ -3,258 +3,438 @@
 {% load static %}
 
 {% block content %}
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لیست فاکتورها</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @font-face {
-            font-family: 'Vazir';
-            src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-        }
+
+<style>
+    :root {
+        /* Golden Palette */
+        --gold-primary: #a3b409;
+        --gold-light: #fcd34d;
+        --gold-bg: #fffdf5;
+        --gold-border: #fde68a;
         
-        body {
-            font-family: 'Vazir', sans-serif;
-        }
+        --text-dark: #451a03;
+        --text-muted: #78350f;
         
-        /* Loader animation */
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 3px solid #3b82f6;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
-</head>
-<body class="bg-gray-50">
-    <div class="container mx-auto px-4 py-8 max-w-7xl" x-data="factorManager()" x-init="init()">
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-800">لیست فاکتورها</h1>
-                    <p class="text-gray-600 mt-2">مدیریت و مشاهده تمام فاکتورهای شما</p>
-                </div>
-                <div class="bg-blue-50 px-4 py-2 rounded-lg">
-                    <span class="text-blue-600 font-semibold">کد کاربری: {{ user_code }}</span>
-                </div>
-            </div>
+        --success-color: #059669;
+        --warning-color: #d97706;
+        --danger-color: #dc2626;
+    }
+
+    body {
+        font-family: 'Vazir', sans-serif;
+        background-color: #fafaf9; /* Stone-50 */
+        color: var(--text-dark);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Modern Card Styling */
+    .invoice-card {
+        background: #ffffff;
+        border-radius: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        height: 100%;
+        position: relative;
+    }
+
+    .invoice-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
+    }
+
+    /* Header Gradient */
+    .card-header-gradient {
+        background: linear-gradient(135deg, #e6d70a 0%, #b8ac11 100%);
+        padding: 1.25rem;
+        color: white;
+        position: relative;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        backdrop-filter: blur(4px);
+    }
+    
+    .status-paid { background-color: rgba(5, 150, 105, 0.9); color: white; }
+    .status-partial { background-color: rgba(217, 119, 6, 0.9); color: white; }
+    .status-unpaid { background-color: rgba(220, 38, 38, 0.9); color: white; }
+
+    /* Payment Tags */
+    .payment-tag {
+        background-color: var(--gold-bg);
+        color: var(--text-muted);
+        border: 1px solid var(--gold-border);
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* Loader */
+    .loader {
+        border: 3px solid var(--gold-border);
+        border-top: 3px solid var(--gold-primary);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Fade In Animation */
+    .fade-in-up {
+        animation: fadeInUp 0.5s ease-out forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Button */
+    .btn-gold {
+        background-color: var(--gold-primary);
+        color: white;
+        border: none;
+        border-radius: 1rem;
+        padding: 0.6rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    
+    .btn-gold:hover {
+        background-color: #92400e;
+        color: white;
+        transform: translateY(-1px);
+    }
+</style>
+
+<div class="container py-4 py-md-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            
+
             
             <!-- Filter Tabs -->
-            <div class="flex space-x-4 space-x-reverse mt-6 border-b border-gray-200">
-                <button 
-                    @click="loadTodayFactors()" 
-                    :class="{'border-b-2 border-blue-500 text-blue-600': activeTab === 'today', 'text-gray-500': activeTab !== 'today'}"
-                    class="px-4 py-2 font-medium transition-colors duration-200"
-                >
-                    <i class="fas fa-calendar-day ml-2"></i>
-                    فاکتورهای امروز
-                </button>
-                <button 
-                    @click="loadAllFactors()" 
-                    :class="{'border-b-2 border-blue-500 text-blue-600': activeTab === 'all', 'text-gray-500': activeTab !== 'all'}"
-                    class="px-4 py-2 font-medium transition-colors duration-200"
-                >
-                    <i class="fas fa-list ml-2"></i>
-                    همه فاکتورها
-                </button>
+            <div class="d-flex justify-content-center mb-5">
+                <div class="bg-white p-1 rounded-pill shadow-sm border">
+                    <button 
+                        id="btn-today"
+                        onclick="switchTab('today')"
+                        class="btn rounded-pill px-4 py-2 btn-sm fw-bold transition-all"
+                    >
+                        <i class="fas fa-calendar-day ms-1"></i> امروز
+                    </button>
+                    <button 
+                        id="btn-all"
+                        onclick="switchTab('all')"
+                        class="btn rounded-pill px-4 py-2 btn-sm fw-bold text-muted transition-all"
+                    >
+                        <i class="fas fa-list ms-1"></i> همه
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <!-- Factors Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="factors-grid">
-            <template x-for="invoice in invoices" :key="invoice.id">
-                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border border-gray-100">
+            <!-- Factors Grid -->
+            <div class="row g-4" id="factors-grid">
+                <!-- Items will be injected here -->
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="text-center py-5 d-none">
+                <div class="loader"></div>
+                <p class="text-muted mt-3 small">در حال بارگذاری...</p>
+            </div>
+
+            <!-- End of List Message -->
+            <div id="end-message" class="text-center py-5 text-muted d-none">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle text-success fs-2"></i>
+                </div>
+                <p class="fw-bold">تمام فاکتورها بارگذاری شدند</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="text-center py-5 d-none">
+                <div class="mb-4 text-secondary opacity-50">
+                    <i class="fas fa-folder-open fs-1"></i>
+                </div>
+                <h5 class="text-muted fw-bold">فاکتوری یافت نشد</h5>
+                <p class="text-muted small">کد کاربری: {{ user_code }}</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // State Management
+    let state = {
+        invoices: [],
+        page: 1,
+        loading: false,
+        hasMore: true,
+        activeTab: 'today',
+        filter: 'today',
+        infiniteScrollEnabled: true
+    };
+
+    // DOM Elements
+    const grid = document.getElementById('factors-grid');
+    const loader = document.getElementById('loading-indicator');
+    const emptyState = document.getElementById('empty-state');
+    const endMessage = document.getElementById('end-message');
+    const btnToday = document.getElementById('btn-today');
+    const btnAll = document.getElementById('btn-all');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        loadFactors();
+        setupInfiniteScroll();
+    });
+
+    // Tab Switching
+    function switchTab(tabName) {
+        if (state.activeTab === tabName) return;
+        
+        // Update UI Buttons
+        if (tabName === 'today') {
+            btnToday.className = 'btn rounded-pill px-4 py-2 btn-sm fw-bold transition-all';
+            btnToday.classList.add('text-white'); // Active style
+            btnToday.style.backgroundColor = '#b45309'; // Gold color
+            
+            btnAll.className = 'btn rounded-pill px-4 py-2 btn-sm fw-bold text-muted transition-all';
+            btnAll.style.backgroundColor = 'transparent';
+        } else {
+            btnAll.className = 'btn rounded-pill px-4 py-2 btn-sm fw-bold transition-all';
+            btnAll.classList.add('text-white');
+            btnAll.style.backgroundColor = '#b45309';
+            
+            btnToday.className = 'btn rounded-pill px-4 py-2 btn-sm fw-bold text-muted transition-all';
+            btnToday.style.backgroundColor = 'transparent';
+        }
+
+        // Reset State
+        state.activeTab = tabName;
+        state.filter = tabName;
+        state.invoices = [];
+        state.page = 1;
+        state.hasMore = true;
+        
+        // Clear Grid
+        grid.innerHTML = '';
+        showLoader(true);
+        updateEndMessage();
+        
+        // Load Data
+        loadFactors();
+    }
+
+    // Load Factors Logic
+    async function loadFactors() {
+        if (state.loading || !state.hasMore || !state.infiniteScrollEnabled) return;
+        
+        state.loading = true;
+        showLoader(true);
+        
+        try {
+            const response = await fetch(`/data_analysis/api/factors/?page=${state.page}&filter=${state.filter}`);
+            const data = await response.json();
+            
+            if (data.invoices && data.invoices.length > 0) {
+                state.invoices = [...state.invoices, ...data.invoices];
+                renderInvoices(data.invoices);
+                state.page++;
+                state.hasMore = data.has_more || false;
+            } else {
+                state.hasMore = false;
+            }
+        } catch (error) {
+            console.error('Error loading factors:', error);
+        } finally {
+            state.loading = false;
+            showLoader(false);
+            updateEndMessage();
+        }
+    }
+
+    // Render Invoices to HTML
+    function renderInvoices(invoicesList) {
+        invoicesList.forEach((invoice, index) => {
+            const cardHTML = createInvoiceCard(invoice, index);
+            grid.insertAdjacentHTML('beforeend', cardHTML);
+        });
+    }
+
+    // Helper: Create HTML String for a Card
+    function createInvoiceCard(invoice, index) {
+        const totalFormatted = new Intl.NumberFormat('fa-IR').format(invoice.total_price);
+        const paidFormatted = new Intl.NumberFormat('fa-IR').format(invoice.paid_amount);
+        const remainingFormatted = new Intl.NumberFormat('fa-IR').format(invoice.remaining);
+        const dateFormatted = formatDate(invoice.created_at);
+        
+        // Determine Status Badge
+        let statusBadge = '';
+        if (invoice.remaining <= 0) {
+            statusBadge = `<span class="status-badge status-paid">تسویه شده</span>`;
+        } else if (invoice.paid_amount > 0) {
+            statusBadge = `<span class="status-badge status-partial">نیمه‌کاره</span>`;
+        } else {
+            statusBadge = `<span class="status-badge status-unpaid">بدهکار</span>`;
+        }
+
+        // Payment Methods Preview (Max 2 tags)
+        let paymentTagsHTML = '';
+        if (invoice.payment_methods && Object.keys(invoice.payment_methods).length > 0) {
+            const methods = Object.entries(invoice.payment_methods).slice(0, 2); // Max 2
+            paymentTagsHTML = `
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    ${methods.map(([method, amount]) => {
+                        const methodName = getPaymentMethodName(method);
+                        const amountFormatted = new Intl.NumberFormat('fa-IR').format(amount);
+                        return `
+                            <span class="payment-tag">
+                                ${methodName}
+                            </span>
+                        `;
+                    }).join('')}
+                    ${Object.keys(invoice.payment_methods).length > 2 ? `<span class="payment-tag text-muted">+${Object.keys(invoice.payment_methods).length - 2} مورد دیگر</span>` : ''}
+                </div>
+            `;
+        }
+
+        return `
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="invoice-card fade-in-up" style="animation-delay: ${index * 0.1}s">
                     <!-- Card Header -->
-                    <div class="bg-gradient-to-l from-blue-500 to-blue-600 px-6 py-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-white font-semibold text-lg" x-text="'#' + invoice.invoice_number"></span>
-                            <span class="bg-white/20 text-white px-3 py-1 rounded-full text-sm" x-text="formatDate(invoice.created_at)"></span>
+                    <div class="card-header-gradient">
+                        ${statusBadge}
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h3 class="fw-bold mb-0">#${invoice.invoice_number}</h3>
+                                <small class="opacity-75">${dateFormatted}</small>
+                            </div>
+                            <div class="text-start">
+                                <div class="small opacity-75">مبلغ کل</div>
+                                <div class="fw-bold fs-5">${totalFormatted}</div>
+                                <small class="opacity-75">ریال</small>
+                            </div>
                         </div>
                     </div>
-
+                    
                     <!-- Card Body -->
-                    <div class="p-6">
+                    <div class="p-4">
                         <!-- Customer Info -->
-                        <div class="mb-4">
-                            <div class="flex items-center text-gray-700 mb-2">
-                                <i class="fas fa-user w-5 h-5 text-gray-400 ml-2"></i>
-                                <span class="font-medium" x-text="invoice.name"></span>
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-light rounded-circle p-2 ms-2">
+                                <i class="fas fa-user text-warning"></i>
                             </div>
-                            <div class="flex items-center text-gray-600 text-sm">
-                                <i class="fas fa-phone w-5 h-5 text-gray-400 ml-2"></i>
-                                <span x-text="invoice.phone"></span>
+                            <div>
+                                <div class="fw-bold text-dark">${invoice.name}</div>
+                                <small class="text-muted" dir="ltr">${invoice.phone}</small>
                             </div>
                         </div>
 
                         <!-- Payment Summary -->
-                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-gray-600">مبلغ کل:</span>
-                                <span class="font-bold text-gray-800" x-text="formatNumber(invoice.total_price) + ' ریال'"></span>
+                        <div class="d-flex justify-content-between align-items-center bg-light bg-opacity-50 rounded-3 p-3 mb-3">
+                            <div class="text-center flex-grow-1">
+                                <div class="text-muted small">پرداخت شده</div>
+                                <div class="fw-bold text-success small">${paidFormatted}</div>
                             </div>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-gray-600">پرداخت شده:</span>
-                                <span class="font-semibold text-green-600" x-text="formatNumber(invoice.paid_amount) + ' ریال'"></span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600">باقی مانده:</span>
-                                <span class="font-semibold text-orange-600" x-text="formatNumber(invoice.remaining) + ' ریال'"></span>
+                            <div class="vr"></div>
+                            <div class="text-center flex-grow-1">
+                                <div class="text-muted small">باقی مانده</div>
+                                <div class="fw-bold ${invoice.remaining > 0 ? 'text-warning' : 'text-success'} small">${remainingFormatted}</div>
                             </div>
                         </div>
 
-                        <!-- Payment Methods -->
-                        <template x-if="Object.keys(invoice.payment_methods).length > 0">
-                            <div class="space-y-2 mb-4">
-                                <p class="text-sm font-medium text-gray-700">پرداخت‌ها:</p>
-                                <template x-for="(amount, method) in invoice.payment_methods" :key="method">
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span class="px-2 py-1 bg-gray-100 rounded-full text-gray-600" x-text="getPaymentMethodName(method)"></span>
-                                        <span class="font-medium" x-text="formatNumber(amount) + ' ریال'"></span>
-                                    </div>
-                                </template>
-                            </div>
-                        </template>
+                        ${paymentTagsHTML}
 
                         <!-- Action Button -->
-                        <a :href="'/data_analysis/factors/' + invoice.id + '/'" 
-                           class="block w-full text-center bg-blue-50 hover:bg-blue-100 text-blue-600 font-medium py-3 rounded-lg transition-colors duration-200">
-                            <i class="fas fa-edit ml-2"></i> مدیریت پرداخت
+                        <a href="/data_analysis/factors/${invoice.id}/" class="btn btn-gold w-100 shadow-sm">
+                            مدیریت پرداخت
                         </a>
                     </div>
                 </div>
-            </template>
-        </div>
+            </div>
+        `;
+    }
 
-        <!-- Loading Indicator -->
-        <div x-show="loading" class="flex justify-center py-8">
-            <div class="loader"></div>
-        </div>
-
-        <!-- End of List Message -->
-        <div x-show="!hasMore && invoices.length > 0" class="text-center py-8 text-gray-500">
-            <i class="fas fa-check-circle text-green-500 text-2xl mb-2"></i>
-            <p>تمام فاکتورها بارگذاری شدند</p>
-        </div>
-
-        <!-- Empty State -->
-        <div x-show="!loading && invoices.length === 0" class="text-center py-12">
-            <i class="fas fa-receipt text-gray-300 text-5xl mb-4"></i>
-            <p class="text-gray-500 text-lg">هیچ فاکتوری یافت نشد</p>
-            <p class="text-gray-400 text-sm mt-2">کد کاربری: {{ user_code }}</p>
-        </div>
-    </div>
-
-    <!-- Alpine.js for interactivity -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    
-    <script>
-    function factorManager() {
-        return {
-            invoices: [],
-            page: 1,
-            loading: false,
-            hasMore: true,
-            activeTab: 'today',
-            filter: 'today',
-            
-            init() {
-                this.loadFactors();
-                this.setupInfiniteScroll();
-            },
-            
-            loadTodayFactors() {
-                this.activeTab = 'today';
-                this.filter = 'today';
-                this.resetAndLoad();
-            },
-            
-            loadAllFactors() {
-                this.activeTab = 'all';
-                this.filter = 'all';
-                this.resetAndLoad();
-            },
-            
-            resetAndLoad() {
-                this.invoices = [];
-                this.page = 1;
-                this.hasMore = true;
-                this.loadFactors();
-            },
-            
-            async loadFactors() {
-                if (this.loading || !this.hasMore) return;
-                
-                this.loading = true;
-                
-                try {
-                    const response = await fetch(`/data_analysis/api/factors/?page=${this.page}&filter=${this.filter}`);
-                    const data = await response.json();
-                    
-                    if (data.invoices.length > 0) {
-                        this.invoices = [...this.invoices, ...data.invoices];
-                        this.page++;
-                        this.hasMore = data.has_more;
-                    } else {
-                        this.hasMore = false;
-                    }
-                } catch (error) {
-                    console.error('Error loading factors:', error);
-                } finally {
-                    this.loading = false;
-                }
-            },
-            
-            setupInfiniteScroll() {
-                window.addEventListener('scroll', () => {
-                    const scrollHeight = document.documentElement.scrollHeight;
-                    const scrollTop = document.documentElement.scrollTop;
-                    const clientHeight = document.documentElement.clientHeight;
-                    
-                    if (scrollTop + clientHeight >= scrollHeight - 100) {
-                        this.loadFactors();
-                    }
-                });
-            },
-            
-            formatDate(dateString) {
-                const date = new Date(dateString);
-                return date.toLocaleDateString('fa-IR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-            },
-            
-            formatNumber(number) {
-                return new Intl.NumberFormat('fa-IR').format(number);
-            },
-            
-            getPaymentMethodName(method) {
-                const methods = {
-                    'cash': 'نقدی',
-                    'card': 'کارت خوان',
-                    'online': 'آنلاین',
-                    'nesiye': 'نسیه',
-                    'anaam': 'انعام'
-                };
-                return methods[method] || method;
-            }
+    // Helper: Toggle Loader Visibility
+    function showLoader(show) {
+        if (show) {
+            loader.classList.remove('d-none');
+        } else {
+            loader.classList.add('d-none');
         }
     }
-    </script>
-</body>
+
+    // Helper: Update End of List Message
+    function updateEndMessage() {
+        if (!state.hasMore && state.invoices.length > 0) {
+            endMessage.classList.remove('d-none');
+        } else {
+            endMessage.classList.add('d-none');
+        }
+
+        if (!state.loading && state.invoices.length === 0) {
+            emptyState.classList.remove('d-none');
+        } else {
+            emptyState.classList.add('d-none');
+        }
+    }
+
+    // Helper: Format Date
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fa-IR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    // Helper: Get Payment Method Name
+    function getPaymentMethodName(method) {
+        const methods = {
+            'cash': 'نقدی',
+            'card': 'کارتخوان',
+            'online': 'آنلاین',
+            'pos': 'پوز',
+            'nesiye': 'نسیه',
+            'anaam': 'انعام'
+        };
+        return methods[method] || method;
+    }
+
+    // Helper: Setup Infinite Scroll
+    function setupInfiniteScroll() {
+        window.addEventListener('scroll', () => {
+            const scrollHeight = document.documentElement.scrollHeight;
+            const scrollTop = document.documentElement.scrollTop;
+            const clientHeight = document.documentElement.clientHeight;
+            
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                loadFactors();
+            }
+        });
+    }
+</script>
 {% endblock %}

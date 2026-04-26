@@ -61,6 +61,7 @@ class Payment(models.Model):
     class PaymentMethod(models.TextChoices):
         CASH = "cash", "Cash"
         CARD = "card", "Card"
+        POS = "pos", 'Pos'
         ONLINE = "online", "Online"
         PEYK = "nesiye", "Nesiye"
         ANAAM = "anaam", 'Anaam'
