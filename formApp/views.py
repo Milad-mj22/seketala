@@ -361,10 +361,11 @@ def nightly_sales_view(request):
                     except:
                         pass
 
-                    # ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.VALUE:total,OTPVar_Enum.AMOUNT:similarity,})
+                    ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:f_name,OTPVar_Enum.CLOSE:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.VALUE:total,OTPVar_Enum.AMOUNT:similarity,})
 
 
             return redirect('success_page')
+        print('forem',form)
         return redirect('error_page')
     else:
         pardakht , nesieh = calc_pardakht()
