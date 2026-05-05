@@ -510,15 +510,50 @@ def sepidar_download_excel(request):
     # 1) Build rows (one row per invoice item)
     # -----------------------------
     rows = []
+    final_factors_count = 0
+    invoice_total_price = 0
+    MOSHTARAK_DEFAULT_CODE = 10012
+    codes = (Profile.objects
+            .exclude(code_vaset__isnull=True)
+            .exclude(code_vaset__exact='')
+            .values_list('code_vaset', flat=True)
+            .distinct()
+            .order_by('code_vaset'))
+    codes = list(codes)
     for inv in invoices:
 
         tasvie_model = 1
+
+        it_discount_flag = False
 
         if float(inv.mandeh)>0:
             if float(inv.mandeh)== float(inv.total_price)+float(inv.hazine_peyk)-float(inv.discount) :
                 tasvie_model = 2
             else:
                 tasvie_model = 3
+
+        cancel=False
+        for it in inv.items.all():
+            name = get_kname_by_kcod(it.food_name)
+            code = get_code_by_name(name=name)
+            try:
+                _id = int(it.food_name)
+            except:
+                _id=0
+            if int(code) == 2500013 or _id ==65 :
+                cancel = True
+            else:
+                break
+        if cancel:
+            continue
+
+
+        if inv.created_at.hour<4:
+            date = (inv.created_at - timezone.timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0)
+        else:
+            date = inv.created_at
+        date_time = format_jalali_datetime(date)
+
 
 
         for it in inv.items.all():
@@ -528,22 +563,28 @@ def sepidar_download_excel(request):
             code = get_code_by_name(name=name)
             if code is None:
                 print(f'food soft : {it.food_name}' )
-
+            try:
+                int(inv.moshtarak)
+            except:
+                inv.moshtarak = 0
             if int(inv.moshtarak) ==1:
-                moshtarak = 10059
+                moshtarak = 10059  ### SNAPP DEFAULT CODE
+            elif 10000<int(inv.moshtarak)<=10140:
+                moshtarak = inv.moshtarak
             else:
-                moshtarak = 10012
+                moshtarak = MOSHTARAK_DEFAULT_CODE
 
+            it.discount=0
 
-
+            if int(it.total)>int(inv.discount) and not it_discount_flag:
+                it.discount = inv.discount
+                it_discount_flag = True
             
-                
-
-            rows.append({
+            data = {
                 'نوع قلم' : 'InvoiceItem',
                 "فاكتور شماره": inv.invoice_number,
                 "فاكتور نام مشتري": inv.name,
-                'فاكتور كد مشتري': 10006,
+                'فاكتور كد مشتري': moshtarak,
                 'فاكتور تخفيف': inv.discount,
                 'فاكتور كد نوع فروش': 1,
                 # "phone": inv.phone,
@@ -551,9 +592,10 @@ def sepidar_download_excel(request):
                 "فاكتور كل": inv.total_price,
                 "قلم فاكتور في": it.price,
                 "قلم فاكتور واحد اصلي": it.quantity,
+                'قلم فاكتور تخفيف مشتري':it.discount,
                 'قلم فاكتور كد انبار':5,
                 "قلم فاكتور كل": it.total,
-                "فاكتور تاريخ": format_jalali_datetime(inv.created_at),
+                "فاكتور تاريخ": date_time,
                 'فاكتور ارز1':'ريال',
                 'فاكتور نرخ ارز':1,
                 'فاكتور نوع تسويه':tasvie_model,
@@ -561,33 +603,63 @@ def sepidar_download_excel(request):
                 'اطلاعات مبالغ دريافتي فاكتور مبلغ حواله' : float(inv.mablagh_pos),
                 'اطلاعات مبالغ دريافتي فاكتور مبلغ نقد' : float(inv.naghdi),
 
+            }
 
-            })
+            rows.append(data)
 
-        
+        final_factors_count+=1
+        invoice_total_price += float(inv.total_price)
 
-        if float(inv.peyk>0):
+        if float(inv.peyk>0) or float(inv.hazine_peyk)>0 :
             peyk_code,peyk_tafzil,peyk_vaset = vaset_convert_peyk_details(inv.peyk)
+
+
+            peyk_calc_code = 9200001
+
+            data = {
+                    'نوع قلم' : 'InvoiceItem',
+                    "فاكتور شماره": inv.invoice_number,
+                    "فاكتور نام مشتري": inv.name,
+                    'فاكتور كد مشتري': moshtarak,
+                    'فاكتور تخفيف': inv.discount,
+                    'فاكتور كد نوع فروش': 1,
+                    # "phone": inv.phone,
+                    "قلم فاكتور كد": peyk_calc_code,
+                    "فاكتور كل": inv.total_price ,
+                    "قلم فاكتور في": int(float(inv.hazine_peyk)),
+                    "قلم فاكتور واحد اصلي": 1,
+                    'قلم فاكتور تخفيف مشتري':0,
+                    'قلم فاكتور كد انبار':'',
+                    "قلم فاكتور كل": int(float(inv.hazine_peyk)),
+                    "فاكتور تاريخ": date_time,
+                    'فاكتور ارز1':'ريال',
+                    'فاكتور نرخ ارز':1,
+                    'فاكتور نوع تسويه':tasvie_model,
+                    'فاكتور محل  تحويل':'آدرس مشتري',
+                    'اطلاعات مبالغ دريافتي فاكتور مبلغ حواله' : float(inv.mablagh_pos),
+                    'اطلاعات مبالغ دريافتي فاكتور مبلغ نقد' : float(inv.naghdi),
+
+                }
+
+            rows.append(data)
+
 
             rows.append({
                 'نوع قلم' : 'InvoiceBroker',
                 "فاكتور شماره": inv.invoice_number,
                 'فاكتور كد نوع فروش': 1,
                 "فاكتور نام مشتري": inv.name,
-                'فاكتور كد مشتري': 10006,
+                'فاكتور كد مشتري': MOSHTARAK_DEFAULT_CODE,
                 # "phone": inv.phone,
-                'واسط مبلغ پورسانت':int(float(inv.hazine_peyk)),
+                'واسط مبلغ پورسانت':int(float(inv.hazine_peyk))*0.9,
                 'واسط تفصيلي واسط':peyk_code,
                 'واسط كد واسط':peyk_tafzil,
                 'واسط واسط':peyk_vaset,
-        
-                "فاكتور تاريخ": format_jalali_datetime(inv.created_at),
+                "فاكتور تاريخ": date_time,
                 'فاكتور ارز1':'ريال',
                 'فاكتور نرخ ارز':1,
                 'فاكتور نوع تسويه':tasvie_model,
                 'فاكتور محل  تحويل':'آدرس مشتري',
-
-
 
             })
 
@@ -595,7 +667,8 @@ def sepidar_download_excel(request):
     # 2) Template + mapping
     # -----------------------------
 
-
+    print('final_factors_count : ',final_factors_count)
+    print('invoice_total_price : ',invoice_total_price)
 
     # Load once at import time
     SERVER = check_server()
@@ -619,6 +692,8 @@ def sepidar_download_excel(request):
         "قلم فاكتور كد": 'F',
         'قلم فاكتور كد انبار':'G',
         "قلم فاكتور واحد اصلي": 'I',
+        'قلم فاكتور تخفيف مشتري':'T',
+
         "قلم فاكتور في": 'K',
         "قلم فاكتور كل": 'L',
         "فاكتور نام مشتري": 'R',
