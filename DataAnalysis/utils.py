@@ -60,9 +60,8 @@ from django.utils import timezone
 def get_date_range(selected_date):
     # Start at 03:00 of selected date
     start = datetime.combine(selected_date, time(7, 0))
-
     # End at 03:00 of next day
-    end = start + timedelta(days=1)
+    end = start + timedelta(days=10)
 
     return start, end
 

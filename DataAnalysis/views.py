@@ -513,6 +513,11 @@ def sepidar_download_excel(request):
     final_factors_count = 0
     invoice_total_price = 0
     MOSHTARAK_DEFAULT_CODE = 10012
+
+
+    CODE_MOIN_POS_MOTOFAREGHE = 121304
+    MOSTARAK_FANTEZI = 20142
+ 
     codes = (Profile.objects
             .exclude(code_vaset__isnull=True)
             .exclude(code_vaset__exact='')
@@ -520,6 +525,10 @@ def sepidar_download_excel(request):
             .distinct()
             .order_by('code_vaset'))
     codes = list(codes)
+
+
+
+
     for inv in invoices:
 
         tasvie_model = 1
@@ -540,10 +549,13 @@ def sepidar_download_excel(request):
                 _id = int(it.food_name)
             except:
                 _id=0
-            if int(code) == 2500013 or _id ==65 :
-                cancel = True
-            else:
-                break
+            try:
+                if int(code) == 2500013 or _id ==65 :
+                    cancel = True
+                else:
+                    break
+            except:
+                print("error in empty factor check")
         if cancel:
             continue
 
@@ -820,10 +832,13 @@ def tasvieh_sepidar_download_excel(request):
         .prefetch_related("items")
     )
 
+
+
     # -----------------------------
     # 1) Build rows (one row per invoice item)
     # -----------------------------
     rows = []
+    SKIPPED_SHOMARE_POS = [11,13,14]
     for inv in invoices:
 
         tafsil_bank,havale_bank = None , None
@@ -834,6 +849,13 @@ def tasvieh_sepidar_download_excel(request):
             continue
 
         today_payment = False
+
+        shomare_pos = int(inv.shomare_pos)
+
+        if shomare_pos in SKIPPED_SHOMARE_POS:
+            continue
+
+
 
 
         try:
@@ -874,7 +896,7 @@ def tasvieh_sepidar_download_excel(request):
             payment_date = format_jalali_datetime(inv.created_at)
         else:
             payment_date = havale_format_jalali_datetime(inv.created_at)
-
+  
         rows.append({
             'نوع قلم' : type,
             'رسيد دريافت نوع دريافت':1,
