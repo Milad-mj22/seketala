@@ -517,6 +517,8 @@ def sepidar_download_excel(request):
 
     CODE_MOIN_POS_MOTOFAREGHE = 121304
     MOSTARAK_FANTEZI = 20142
+
+
  
     codes = (Profile.objects
             .exclude(code_vaset__isnull=True)
@@ -540,6 +542,9 @@ def sepidar_download_excel(request):
                 tasvie_model = 2
             else:
                 tasvie_model = 3
+
+        if float(inv.hazine_peyk)>0:
+            tasvie_model = 1
 
         cancel=False
         for it in inv.items.all():
@@ -655,6 +660,12 @@ def sepidar_download_excel(request):
 
             rows.append(data)
 
+            if int(inv.peyk) == 4: ## Hafez Zamani
+                hazine_peyk = int(float(inv.hazine_peyk))*1
+            else:
+                hazine_peyk = int(float(inv.hazine_peyk))*0.9
+
+
 
             rows.append({
                 'نوع قلم' : 'InvoiceBroker',
@@ -663,7 +674,7 @@ def sepidar_download_excel(request):
                 "فاكتور نام مشتري": inv.name,
                 'فاكتور كد مشتري': MOSHTARAK_DEFAULT_CODE,
                 # "phone": inv.phone,
-                'واسط مبلغ پورسانت':int(float(inv.hazine_peyk))*0.9,
+                'واسط مبلغ پورسانت':hazine_peyk,
                 'واسط تفصيلي واسط':peyk_code,
                 'واسط كد واسط':peyk_tafzil,
                 'واسط واسط':peyk_vaset,
