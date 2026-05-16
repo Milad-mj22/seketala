@@ -422,9 +422,6 @@ def get_data_from_form(request):
             additional_form_dict.update({f'شرح_{i}': f2_value1})
             additional_form_dict.update({f'مبلغ - ریال_{i}': f2_value2})
 
-    
-
-
     return additional_form_dict
 
 
