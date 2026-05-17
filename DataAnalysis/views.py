@@ -847,6 +847,9 @@ def tasvieh_sepidar_download_excel(request):
     )
 
 
+    error_factors = []
+
+
 
     # -----------------------------
     # 1) Build rows (one row per invoice item)
@@ -854,6 +857,10 @@ def tasvieh_sepidar_download_excel(request):
     rows = []
     SKIPPED_SHOMARE_POS = [11,13,14]
     for inv in invoices:
+
+        if int(inv.invoice_number) == 16075:
+            pass
+
 
         tafsil_bank,havale_bank = None , None
 
@@ -884,7 +891,9 @@ def tasvieh_sepidar_download_excel(request):
                     today_payment = True
 
                 else:
+                    error_factors.append(inv.invoice_number)
                     print('Error New type Detected')
+                    continue
         except:
             pass
 
@@ -901,6 +910,11 @@ def tasvieh_sepidar_download_excel(request):
                 tafsil_bank,havale_bank = bank_vaset(int(inv.shomare_pos))
             type= 'ReceiptDraft'
             sandogh = ''
+
+            if tafsil_bank is None or havale_bank is None:
+                error_factors.append(inv.invoice_number)
+                continue
+
         else:
             mablagh_pos = ''
             type = ''
@@ -939,7 +953,7 @@ def tasvieh_sepidar_download_excel(request):
     # 2) Template + mapping
     # -----------------------------
 
-
+    print('error_factors',error_factors)
 
     # Load once at import time
     SERVER = check_server()
@@ -1008,6 +1022,7 @@ def tasvieh_sepidar_download_excel(request):
         content_type="application/vnd.ms-excel",  # مقدار جدید برای XLS
     )
     resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+    resp["X-Error-Factors"] = json.dumps(error_factors)
     return resp
 
 
