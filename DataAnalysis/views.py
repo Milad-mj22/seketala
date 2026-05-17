@@ -515,6 +515,13 @@ def sepidar_download_excel(request):
     final_factors_count = 0
     invoice_total_price = 0
     MOSHTARAK_DEFAULT_CODE = 10012
+
+
+    CODE_MOIN_POS_MOTOFAREGHE = 121304
+    MOSTARAK_FANTEZI = 20142
+
+
+ 
     codes = (Profile.objects
             .exclude(code_vaset__isnull=True)
             .exclude(code_vaset__exact='')
@@ -522,6 +529,10 @@ def sepidar_download_excel(request):
             .distinct()
             .order_by('code_vaset'))
     codes = list(codes)
+
+
+
+
     for inv in invoices:
 
         tasvie_model = 1
@@ -534,6 +545,9 @@ def sepidar_download_excel(request):
             else:
                 tasvie_model = 3
 
+        if float(inv.hazine_peyk)>0:
+            tasvie_model = 1
+
         cancel=False
         for it in inv.items.all():
             name = get_kname_by_kcod(it.food_name)
@@ -542,10 +556,13 @@ def sepidar_download_excel(request):
                 _id = int(it.food_name)
             except:
                 _id=0
-            if int(code) == 2500013 or _id ==65 :
-                cancel = True
-            else:
-                break
+            try:
+                if int(code) == 2500013 or _id ==65 :
+                    cancel = True
+                else:
+                    break
+            except:
+                print("error in empty factor check")
         if cancel:
             continue
 
@@ -645,6 +662,12 @@ def sepidar_download_excel(request):
 
             rows.append(data)
 
+            if int(inv.peyk) == 4: ## Hafez Zamani
+                hazine_peyk = int(float(inv.hazine_peyk))*1
+            else:
+                hazine_peyk = int(float(inv.hazine_peyk))*0.9
+
+
 
             rows.append({
                 'نوع قلم' : 'InvoiceBroker',
@@ -653,7 +676,7 @@ def sepidar_download_excel(request):
                 "فاكتور نام مشتري": inv.name,
                 'فاكتور كد مشتري': MOSHTARAK_DEFAULT_CODE,
                 # "phone": inv.phone,
-                'واسط مبلغ پورسانت':int(float(inv.hazine_peyk))*0.9,
+                'واسط مبلغ پورسانت':hazine_peyk,
                 'واسط تفصيلي واسط':peyk_code,
                 'واسط كد واسط':peyk_tafzil,
                 'واسط واسط':peyk_vaset,
@@ -822,10 +845,13 @@ def tasvieh_sepidar_download_excel(request):
         .prefetch_related("items")
     )
 
+
+
     # -----------------------------
     # 1) Build rows (one row per invoice item)
     # -----------------------------
     rows = []
+    SKIPPED_SHOMARE_POS = [11,13,14]
     for inv in invoices:
 
         tafsil_bank,havale_bank = None , None
@@ -836,6 +862,13 @@ def tasvieh_sepidar_download_excel(request):
             continue
 
         today_payment = False
+
+        shomare_pos = int(inv.shomare_pos)
+
+        if shomare_pos in SKIPPED_SHOMARE_POS:
+            continue
+
+
 
 
         try:
@@ -876,7 +909,7 @@ def tasvieh_sepidar_download_excel(request):
             payment_date = format_jalali_datetime(inv.created_at)
         else:
             payment_date = havale_format_jalali_datetime(inv.created_at)
-
+  
         rows.append({
             'نوع قلم' : type,
             'رسيد دريافت نوع دريافت':1,
