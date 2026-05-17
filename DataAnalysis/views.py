@@ -519,6 +519,7 @@ def sepidar_download_excel(request):
 
     CODE_MOIN_POS_MOTOFAREGHE = 121304
     MOSTARAK_FANTEZI = 20142
+    POS_FANTEZI = 11
 
 
  
@@ -586,10 +587,12 @@ def sepidar_download_excel(request):
                 int(inv.moshtarak)
             except:
                 inv.moshtarak = 0
-            if int(inv.moshtarak) ==1:
+            if int(inv.moshtarak) == 1:
                 moshtarak = 10059  ### SNAPP DEFAULT CODE
             elif 10000<int(inv.moshtarak)<=10140:
                 moshtarak = inv.moshtarak
+            elif int(inv.shomare_pos) == POS_FANTEZI :
+                moshtarak = MOSTARAK_FANTEZI
             else:
                 moshtarak = MOSHTARAK_DEFAULT_CODE
 
