@@ -513,7 +513,8 @@ def sepidar_download_excel(request):
     final_factors_count = 0
     invoice_total_price = 0
     MOSHTARAK_DEFAULT_CODE = 10012
-
+    FOODSOFT_SNAPP_CODE = 1
+    SEPIDAR_SNAPP_CODE = 10059
 
     CODE_MOIN_POS_MOTOFAREGHE = 121304
     MOSTARAK_FANTEZI = 20142
@@ -544,7 +545,7 @@ def sepidar_download_excel(request):
             else:
                 tasvie_model = 3
 
-        if float(inv.hazine_peyk)>0:
+        if float(inv.hazine_peyk)>0 and int(inv.moshtarak)!=FOODSOFT_SNAPP_CODE:
             tasvie_model = 1
 
         cancel=False
@@ -585,8 +586,8 @@ def sepidar_download_excel(request):
                 int(inv.moshtarak)
             except:
                 inv.moshtarak = 0
-            if int(inv.moshtarak) == 1:
-                moshtarak = 10059  ### SNAPP DEFAULT CODE
+            if int(inv.moshtarak) == FOODSOFT_SNAPP_CODE:
+                moshtarak = SEPIDAR_SNAPP_CODE  ### SNAPP DEFAULT CODE
             elif 10000<int(inv.moshtarak)<=10140:
                 moshtarak = inv.moshtarak
             elif int(inv.shomare_pos) == POS_FANTEZI :
@@ -595,6 +596,8 @@ def sepidar_download_excel(request):
                 moshtarak = MOSHTARAK_DEFAULT_CODE
 
             it.discount=0
+
+      
 
             if int(it.total)>int(inv.discount) and not it_discount_flag:
                 it.discount = inv.discount
@@ -606,7 +609,7 @@ def sepidar_download_excel(request):
                 "فاكتور نام مشتري": inv.name,
                 'فاكتور كد مشتري': moshtarak,
                 'فاكتور تخفيف': inv.discount,
-                'فاكتور كد نوع فروش': 1,
+                'فاكتور كد نوع فروش': tasvie_model,
                 # "phone": inv.phone,
                 "قلم فاكتور كد": code,
                 "فاكتور كل": inv.total_price,
@@ -642,7 +645,7 @@ def sepidar_download_excel(request):
                     "فاكتور نام مشتري": inv.name,
                     'فاكتور كد مشتري': moshtarak,
                     'فاكتور تخفيف': inv.discount,
-                    'فاكتور كد نوع فروش': 1,
+                    'فاكتور كد نوع فروش': tasvie_model,
                     # "phone": inv.phone,
                     "قلم فاكتور كد": peyk_calc_code,
                     "فاكتور كل": inv.total_price ,
@@ -673,7 +676,7 @@ def sepidar_download_excel(request):
             rows.append({
                 'نوع قلم' : 'InvoiceBroker',
                 "فاكتور شماره": inv.invoice_number,
-                'فاكتور كد نوع فروش': 1,
+                'فاكتور كد نوع فروش': tasvie_model,
                 "فاكتور نام مشتري": inv.name,
                 'فاكتور كد مشتري': MOSHTARAK_DEFAULT_CODE,
                 # "phone": inv.phone,
