@@ -154,9 +154,9 @@ tr.clickable:hover {
             <a href="{% url 'download_invoice_summary_excel' %}?date={{ selected_date }}">
                 <button type="button" class="secondary">Factors Sepidar</button>
             </a>
-            <a href="{% url 'tasvieh_download_invoice_summary_excel' %}?date={{ selected_date }}">
-                <button type="button" class="secondary">Resid Sepidar</button>
-            </a>
+
+            <button type="button" class="secondary" onclick="downloadResid()">Resid Sepidar</button>
+
 
 
             <a href="{% url 'phone_numbers' %}">
@@ -199,6 +199,10 @@ tr.clickable:hover {
         </table>
     </div>
 </div>
+
+
+
+
 
 <!-- Modal -->
 <div class="modal" id="invoiceModal" onclick="closeModal()">
@@ -294,6 +298,65 @@ function openModal(event, invoiceNumber) {
 function closeModal() {
     document.getElementById("invoiceModal").style.display = "none";
 }
+
+
+
+
+
+
+
+
+function downloadResid() {
+
+    const date = document.querySelector("input[name='date']").value;
+
+    fetch(`/data_analysis/report/tasvieh_download_summary/?date=${date}`)
+    .then(response => {
+
+        const errorFactors = response.headers.get("X-Error-Factors");
+
+        if (errorFactors) {
+            const list = JSON.parse(errorFactors);
+
+            if (list.length > 0) {
+                alert("Error Factors:\n" + list.join(", "));
+            }
+        }
+
+        return response.blob();
+    })
+    .then(blob => {
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+
+        a.href = url;
+        a.download = "resid_sepidar.xls";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Download failed");
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 
 {% endblock %}
