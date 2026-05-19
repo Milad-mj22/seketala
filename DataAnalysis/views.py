@@ -593,7 +593,11 @@ def sepidar_download_excel(request):
             elif 10000<int(inv.moshtarak)<=10140:
                 moshtarak = inv.moshtarak
             elif int(inv.shomare_pos) == POS_FANTEZI :
-                moshtarak = MOSTARAK_FANTEZI
+                if inv.created_at >= datetime(2026, 4, 21):
+                    moshtarak = MOSTARAK_FANTEZI
+                else:
+                    moshtarak = MOSHTARAK_DEFAULT_CODE
+
             else:
                 moshtarak = MOSHTARAK_DEFAULT_CODE
 
@@ -611,7 +615,7 @@ def sepidar_download_excel(request):
                 "فاكتور نام مشتري": inv.name,
                 'فاكتور كد مشتري': moshtarak,
                 'فاكتور تخفيف': inv.discount,
-                'فاكتور كد نوع فروش': tasvie_model,
+                'فاكتور كد نوع فروش': 1,
                 # "phone": inv.phone,
                 "قلم فاكتور كد": code,
                 "فاكتور كل": inv.total_price,
@@ -647,7 +651,7 @@ def sepidar_download_excel(request):
                     "فاكتور نام مشتري": inv.name,
                     'فاكتور كد مشتري': moshtarak,
                     'فاكتور تخفيف': inv.discount,
-                    'فاكتور كد نوع فروش': tasvie_model,
+                    'فاكتور كد نوع فروش': 1,
                     # "phone": inv.phone,
                     "قلم فاكتور كد": peyk_calc_code,
                     "فاكتور كل": inv.total_price ,
@@ -678,7 +682,7 @@ def sepidar_download_excel(request):
             rows.append({
                 'نوع قلم' : 'InvoiceBroker',
                 "فاكتور شماره": inv.invoice_number,
-                'فاكتور كد نوع فروش': tasvie_model,
+                'فاكتور كد نوع فروش': 1,
                 "فاكتور نام مشتري": inv.name,
                 'فاكتور كد مشتري': MOSHTARAK_DEFAULT_CODE,
                 # "phone": inv.phone,
