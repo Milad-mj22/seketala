@@ -210,65 +210,62 @@ class NightlySalesForm(forms.Form):
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'توضیحات را وارد کنید'})
     )
 
-
-        # Add default values via __init__ method
-    def __init__(self, *args,pardakht_data=None, **kwargs):
+    def __init__(self, *args, pardakht_data=None, **kwargs):
         super().__init__(*args, **kwargs)
-        # Set default values for all fields
-        self.initial.update({
-            'bank_mehr': 0,
-            'bank_parsian': 0,
-            'kiosk1': 0,
-            'kiosk2': 0,
-            'kiosk3': 0,
-            'bank_melli': 0,
-            'bank_maral': 0,
-            'bank_marina': 0,
-            'cash': 0,
-            'employee_salary': 0,
-            'snapp_food': 0,
-            'snapp_delivery': 0,
-            'discounts': 0,
-            'net_total': 0,
-            'gross_sales': 0,
-            'delivery_commission': 0,
-            'payment_to_shams': 0,
-            'refund_to_customer': 0,
-            'gross_total': 0,
-            'cashbox_adjustment': 0,
-            'other_expenses': 0,
-            'peyk_pos_1': 0,
-            'peyk_pos_2': 0,
-            'peyk_pos_3': 0,
-            'peyk_pos_4': 0,
-            'peyk_pos_5': 0,
-            'peyk_pos_6': 0,
-            'notes': '',
-        })
-        # اضافه کردن متن راهنما از داده‌های pardakht
+        
+        # تعریف نگاشت فیلدها به کلیدهای داده
+        field_mapping = {
+            'bank_mehr': 'مهر',
+            'bank_parsian': 'parsian_pain',
+            'kiosk1': 'کیوسک۱',
+            'kiosk2': 'کیوسک۲',
+            'kiosk3': 'کیوسک۳',
+            'bank_melli': 'ملی',
+            'snapp_food': 'اسنپ',
+            'snapp_delivery': 'اسنپ پیک',
+            'employee_salary': 'نسیه پرسنل',
+            'discounts': 'تخفیفات',
+            'bank_maral': 'واریز1',
+            'bank_marina': 'واریز',
+            'cash': 'نقدی',
+            'net_total': 'جمع خالص',
+            'delivery_commission': 'کمیسیون پیک',
+        }
+
+        # لیست تمام فیلدهایی که باید مقداردهی اولیه شوند
+        all_fields = [
+            'bank_mehr', 'bank_parsian', 'kiosk1', 'kiosk2', 'kiosk3', 
+            'bank_melli', 'bank_maral', 'bank_marina', 'cash', 
+            'employee_salary', 'snapp_food', 'snapp_delivery', 'discounts', 
+            'net_total', 'gross_sales', 'delivery_commission', 'payment_to_shams', 
+            'refund_to_customer', 'gross_total', 'cashbox_adjustment', 
+            'other_expenses', 'peyk_pos_1', 'peyk_pos_2', 'peyk_pos_3', 
+            'peyk_pos_4', 'peyk_pos_5', 'peyk_pos_6'
+        ]
+
+        # ایجاد دیکشنری مقادیر اولیه
+        initial_values = {}
+
+        # 1. مقداردهی بر اساس pardakht_data (اگر وجود داشت)
         if pardakht_data:
-            field_mapping = {
-                'bank_mehr': 'مهر',
-                'bank_parsian': 'parsian_pain',
-                'kiosk1': 'کیوسک۱',
-                'kiosk2': 'کیوسک۲',
-                'kiosk3': 'parsian_kiosk_3',
-                'bank_melli': 'ملی',
-                'snapp_food': 'اسنپ',
-                'snapp_delivery': 'اسنپ پیک',
-                'employee_salary': 'نسیه پرسنل',
-                'discounts': 'تخفیفات',
-                'bank_maral': 'واریز1',
-                'bank_marina': 'واریز',
-                'cash': 'نقدی',
-                'net_total': 'جمع خالص',
-                'delivery_commission': 'کمیسیون پیک',
-            }
-            
             for field_name, pardakht_key in field_mapping.items():
-                if field_name in self.fields and pardakht_key in pardakht_data:
-                    value = pardakht_data[pardakht_key]
-                    self.fields[field_name].help_text = f"💰 مبلغ ثبت شده: {value:,} ریال"
+                val = pardakht_data.get(pardakht_key)
+                if val is not None:
+                    initial_values[field_name] = val
+                    # تنظیم همان help_text که قبلاً داشتید
+                    if field_name in self.fields:
+                        self.fields[field_name].help_text = f"💰 مبلغ ثبت شده: {val:,} ریال"
+
+        # 2. پر کردن بقیه فیلدها با صفر (اگر در initial_values نبودند)
+        for field in all_fields:
+            if field not in initial_values:
+                initial_values[field] = 0
+        
+        # مقداردهی نهایی برای فیلدهای متنی
+        initial_values['notes'] = ''
+
+        # اعمال تمام مقادیر به فیلدها
+        self.initial.update(initial_values)
 
 
 

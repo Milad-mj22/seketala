@@ -180,7 +180,7 @@ def calc_pardakht(date = None):
         selected_date -= timedelta(days=1)
         
         if current_time.hour >= 18:
-            selected_date += timedelta(days=1)
+            selected_date += timedelta(days=2)
     start, end = get_date_range_night_form(selected_date)
 
     invoices = Invoice.objects.filter(
@@ -334,9 +334,11 @@ def nightly_sales_view(request):
             merged_dict = {**form.cleaned_data,**additional_form_dict}
             cleaned_data = convert_decimals_to_floats(merged_dict)
             cleaned_data = save_with_persian_labels(cleaned_data)
+            voice = request.FILES.get('voice_note',None)
             NightlyFormModel.objects.create(
                 user=request.user,
-                data=cleaned_data
+                data=cleaned_data,
+                voice_note = voice
             )
             
             sms_template = SMS_Template.objects.filter(name =SMSServiceTemplate_Enum.CLOSESANDOGH )

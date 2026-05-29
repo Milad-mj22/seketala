@@ -55,6 +55,25 @@
             color: #718096;
             font-size: 0.95rem;
         }
+
+
+.voice-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+.btn-outline-primary {
+    border: 1px solid #007bff;
+    color: #007bff;
+    transition: 0.3s;
+}
+.btn-outline-primary:hover {
+    background: #007bff;
+    color: white;
+}
+
+
+
     </style>
 </head>
 <body>
@@ -77,35 +96,52 @@
                                         <th>عملیات</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {% for form in forms %}
-                                    <tr>
-                                        <td>{{ form.data.date | default:form.date }}</td>
-
-                                        <td>{{ form.data|length }}</td>
-                                        <td>
-                                            {% if form.data.notes %}
-                                                {{ form.data.notes|truncatechars:30 }}
-                                            {% else %}
-                                                <span class="text-muted">بدون توضیحات</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <a href="{% url 'download_excel' form.id %}" 
-                                               class="btn btn-download">
-                                                <i class="fas fa-download me-1"></i> دانلود Excel
+                            <tbody>
+                                {% for form in forms %}
+                                <tr>
+                                    <td>{{ form.data.date | default:form.date }}</td>
+                                    <td>{{ form.data|length }}</td>
+                                    <td>
+                                        {% if form.data.notes %}
+                                            {{ form.data.notes|truncatechars:30 }}
+                                        {% else %}
+                                            <span class="text-muted">بدون توضیحات</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="width: 250px;">
+                                        <div class="d-flex flex-column gap-2">
+                                            <!-- دکمه دانلود اکسل -->
+                                            <a href="{% url 'download_excel' form.id %}" class="btn btn-download">
+                                                <i class="fas fa-file-excel me-1"></i> دانلود Excel
                                             </a>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center py-4">
-                                            <i class="fas fa-box-open fa-2x text-muted mb-3"></i>
-                                            <p class="text-muted">هنوز فرمی وجود ندارد</p>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
+
+                                            <!-- بخش ویس (فقط اگر ویس وجود داشت نمایش داده شود) -->
+                                            {% if form.voice_note %}
+                                                <div class="voice-section p-2 border rounded bg-light">
+                                                    <audio controls style="width: 100%; height: 30px; margin-bottom: 5px;">
+                                                        <source src="{{ form.voice_note.url }}" type="audio/webm">
+                                                        مرورگر شما از پخش صدا پشتیبانی نمی‌کند.
+                                                    </audio>
+                                                    <a href="{{ form.voice_note.url }}" download class="btn btn-sm btn-outline-primary w-100">
+                                                        <i class="fas fa-download"></i> دانلود ویس
+                                                    </a>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted small">ویسی ثبت نشده</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <i class="fas fa-box-open fa-2x text-muted mb-3"></i>
+                                        <p class="text-muted">هنوز فرمی وجود ندارد</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+
                             </table>
                         </div>
                         

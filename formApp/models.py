@@ -53,7 +53,12 @@ class NightlyFormModel(models.Model):
     data = models.JSONField(default=dict)      # داده‌های فرم (انعطاف‌پذیر برای تغییر تعداد فیلدها)
     created_at = models.DateTimeField(auto_now_add=True)  # زمان ارسال اولیه
     updated_at = models.DateTimeField(auto_now=True)      # آخرین ویرایش
-
+    voice_note = models.FileField(
+        upload_to='nightly_voices/',
+        blank=True,
+        null=True,
+        verbose_name='ویس توضیحات'
+    )
 
 class NightlyFormHistory(models.Model):
     form = models.ForeignKey(NightlyFormModel, on_delete=models.CASCADE, related_name='history')
