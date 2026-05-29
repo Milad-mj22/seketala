@@ -169,6 +169,21 @@
                 height: 50px;
             }
         }
+
+
+.recording-indicator {
+    color: #e53e3e;
+    font-weight: bold;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.35; }
+    100% { opacity: 1; }
+}
+
+
     </style>
 </head>
 <body>
@@ -181,7 +196,7 @@
                         <h6 style="text-align: right;">همکار گرامی اطلاعات مطابق با رویدادهای واقعی و بدون تهاتر ثبت گردد</h6>
                     </div>
                     <div class="card-body p-4 p-md-5">
-                        <form method="post" id="nightlyForm">
+                        <form method="post" id="nightlyForm" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row g-4">
                                 <input type="text" id="datepicker" name="date" class="form-control" placeholder="تاریخ را انتخاب کنید">
@@ -215,6 +230,43 @@
                                     </div>
                                 {% endfor %}
                             </div>
+
+
+<div class="mt-4">
+    <div class="form-group">
+        <label class="form-label">
+            <i class="fas fa-microphone"></i> توضیحات صوتی
+        </label>
+
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            <button type="button" class="btn btn-success" id="startRecordBtn">
+                <i class="fas fa-microphone"></i> شروع ضبط
+            </button>
+
+            <button type="button" class="btn btn-danger" id="stopRecordBtn" disabled>
+                <i class="fas fa-stop"></i> پایان ضبط
+            </button>
+
+            <button type="button" class="btn btn-secondary" id="deleteRecordBtn" disabled>
+                <i class="fas fa-trash"></i> حذف صدا
+            </button>
+        </div>
+
+        <div class="mt-3">
+            <audio id="audioPlayback" controls style="width:100%; display:none;"></audio>
+        </div>
+
+        <div class="form-text mt-2" id="recordingStatus">
+            هنوز صدایی ضبط نشده است.
+        </div>
+
+        <!-- فایل نهایی برای ارسال -->
+        <input type="file" id="voiceNoteInput" name="voice_note" hidden>
+    </div>
+</div>
+
+
+
                             <!-- دکمه‌های افزودن فرم جدید -->
                             <div class="text-center mt-4">
                                 <button type="button" class="btn btn-primary" id="addForm1">
@@ -287,6 +339,171 @@
             return words + " ریال";
         }
         
+// جداکننده سه‌رقمی
+function formatNumber(rawDigits) {
+  rawDigits = String(rawDigits || '').replace(/[^\d]/g, '');
+  if (!rawDigits) return '';
+  // حذف صفرهای ابتدایی (اختیاری)
+  rawDigits = rawDigits.replace(/^0+(?=\d)/, '');
+  return rawDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// تبدیل به عدد خام برای ارسال به بک‌اند
+function unformatNumber(formatted) {
+  return String(formatted || '').replace(/[^\d]/g, '');
+}
+
+// پیدا کردن number-display مرتبط با یک input (طبق ساختار شما)
+function findNumberDisplayEl(input) {
+  // حالت 1: input داخل input-group و number-display بلافاصله بعدش است
+  const inputGroup = input.closest('.input-group');
+  if (inputGroup) {
+    const next = inputGroup.nextElementSibling;
+    if (next && next.classList.contains('number-display')) return next;
+  }
+
+  // حالت 2: داخل فرم‌های داینامیک شما number-display ممکن است در همان form-group باشد
+  const formGroup = input.closest('.form-group');
+  if (formGroup) {
+    const display = formGroup.querySelector('.number-display');
+    if (display) return display;
+  }
+
+  return null;
+}
+
+// آپدیت متن ریالی (اگر numberToWords موجود باشد)
+function updateWordsDisplay(input) {
+  if (typeof numberToWords !== 'function') return;
+
+  const displayEl = findNumberDisplayEl(input);
+  if (!displayEl) return;
+
+  const digits = unformatNumber(input.value);
+  const amount = digits ? parseInt(digits, 10) : 0;
+  const words = numberToWords(amount);
+
+  // اگر span.number-text داشت
+  let span = displayEl.querySelector('.number-text');
+  if (!span) {
+    // اگر number-display خالی است یا ساختار متفاوت است، یک span اضافه می‌کنیم
+    span = document.createElement('span');
+    span.className = 'number-text';
+    displayEl.appendChild(span);
+  }
+  span.textContent = words;
+}
+
+/* =========================
+   Core formatter with caret
+========================= */
+
+function formatInputWithCaret(input) {
+  const oldValue = input.value;
+  const oldPos = input.selectionStart ?? oldValue.length;
+
+  // تعداد رقم‌های قبل از caret در مقدار قبلی
+  const digitsBeforeCaret = unformatNumber(oldValue.slice(0, oldPos)).length;
+
+  // مقدار جدید فرمت شده
+  const digits = unformatNumber(oldValue);
+  const formatted = formatNumber(digits);
+  input.value = formatted;
+
+  // برگرداندن caret نزدیک به جای قبلی (بر اساس تعداد رقم‌ها)
+  let newPos = 0;
+  let seenDigits = 0;
+  while (newPos < formatted.length && seenDigits < digitsBeforeCaret) {
+    if (/\d/.test(formatted[newPos])) seenDigits++;
+    newPos++;
+  }
+  input.setSelectionRange(newPos, newPos);
+
+  updateWordsDisplay(input);
+}
+
+// اتصال لیسنرها به یک input عددی
+function bindFormattedNumberInput(input) {
+  if (!input || input.dataset.formattedBound === "1") return;
+  input.dataset.formattedBound = "1";
+
+  // بهتره type="text" باشه
+  input.setAttribute('inputmode', 'numeric');
+  input.setAttribute('autocomplete', 'off');
+
+  // فرمت اولیه (برای initial های Django)
+  if (input.value) {
+    input.value = formatNumber(unformatNumber(input.value));
+  }
+  updateWordsDisplay(input);
+
+  // جلوگیری از کاراکترهای غیر عددی در تایپ (اختیاری)
+  input.addEventListener('beforeinput', (e) => {
+    // اجازه به delete/undo و ...
+    if (!e.data) return;
+    if (/^\d+$/.test(e.data)) return;
+    e.preventDefault();
+  });
+
+  // فرمت هنگام تایپ
+  input.addEventListener('input', () => formatInputWithCaret(input));
+
+  // فرمت هنگام paste
+  input.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    const digits = unformatNumber(text);
+    input.value = formatNumber(digits);
+    // caret آخر
+    input.setSelectionRange(input.value.length, input.value.length);
+    updateWordsDisplay(input);
+  });
+
+  // هنگام خروج از فیلد هم یک بار تمیز کن
+  input.addEventListener('blur', () => {
+    input.value = formatNumber(unformatNumber(input.value));
+    updateWordsDisplay(input);
+  });
+}
+
+/* =========================
+   Init + Dynamic support
+========================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+  // 1) همه input های موجود را bind کن
+  document.querySelectorAll('input.formatted-number').forEach(bindFormattedNumberInput);
+
+  // 2) هر input جدیدی که بعداً به DOM اضافه شد را هم bind کن (برای فرم‌های داینامیک)
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      for (const node of m.addedNodes) {
+        if (!(node instanceof HTMLElement)) continue;
+
+        // اگر خود node یک input بود
+        if (node.matches && node.matches('input.formatted-number')) {
+          bindFormattedNumberInput(node);
+        }
+
+        // اگر داخلش input دارد
+        const inputs = node.querySelectorAll ? node.querySelectorAll('input.formatted-number') : [];
+        inputs.forEach(bindFormattedNumberInput);
+      }
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // 3) قبل از submit: کاماها را حذف کن تا بک‌اند عدد خام بگیرد
+  const form = document.getElementById('nightlyForm');
+  if (form) {
+    form.addEventListener('submit', function () {
+      form.querySelectorAll('input.formatted-number').forEach((input) => {
+        input.value = unformatNumber(input.value);
+      });
+    });
+  }
+});
         // تابع فرمت کردن اعداد
         function formatNumber(num) {
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -548,6 +765,132 @@
             });
         });
     </script>
+
+
+
+
+
+
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const startRecordBtn = document.getElementById('startRecordBtn');
+    const stopRecordBtn = document.getElementById('stopRecordBtn');
+    const deleteRecordBtn = document.getElementById('deleteRecordBtn');
+    const audioPlayback = document.getElementById('audioPlayback');
+    const recordingStatus = document.getElementById('recordingStatus');
+    const voiceNoteInput = document.getElementById('voiceNoteInput');
+
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let stream = null;
+    let recordedBlob = null;
+
+    async function startRecording() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+            // mimeType مناسب مرورگر
+            let options = {};
+            if (MediaRecorder.isTypeSupported('audio/webm')) {
+                options.mimeType = 'audio/webm';
+            } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+                options.mimeType = 'audio/ogg';
+            }
+
+            mediaRecorder = new MediaRecorder(stream, options);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = function (event) {
+                if (event.data.size > 0) {
+                    audioChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = function () {
+                const mimeType = mediaRecorder.mimeType || 'audio/webm';
+                recordedBlob = new Blob(audioChunks, { type: mimeType });
+
+                const audioURL = URL.createObjectURL(recordedBlob);
+                audioPlayback.src = audioURL;
+                audioPlayback.style.display = 'block';
+
+                // تبدیل Blob به File و قرار دادن داخل input[file]
+                const extension = mimeType.includes('ogg') ? 'ogg' : 'webm';
+                const audioFile = new File([recordedBlob], `voice_note.${extension}`, {
+                    type: mimeType
+                });
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(audioFile);
+                voiceNoteInput.files = dataTransfer.files;
+
+                recordingStatus.textContent = '✅ فایل صوتی با موفقیت ضبط شد و آماده ارسال است.';
+                recordingStatus.classList.remove('recording-indicator');
+
+                deleteRecordBtn.disabled = false;
+
+                // بستن میکروفون
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            };
+
+            mediaRecorder.start();
+
+            startRecordBtn.disabled = true;
+            stopRecordBtn.disabled = false;
+            deleteRecordBtn.disabled = true;
+
+            recordingStatus.textContent = '🎙️ در حال ضبط صدا...';
+            recordingStatus.classList.add('recording-indicator');
+
+        } catch (error) {
+            console.error('خطا در دسترسی به میکروفون:', error);
+            alert('دسترسی به میکروفون داده نشد یا مرورگر پشتیبانی نمی‌کند.');
+        }
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+
+        startRecordBtn.disabled = false;
+        stopRecordBtn.disabled = true;
+    }
+
+    function deleteRecording() {
+        recordedBlob = null;
+        voiceNoteInput.value = '';
+        audioPlayback.src = '';
+        audioPlayback.style.display = 'none';
+        recordingStatus.textContent = 'فایل صوتی حذف شد.';
+        recordingStatus.classList.remove('recording-indicator');
+        deleteRecordBtn.disabled = true;
+    }
+
+    if (startRecordBtn) {
+        startRecordBtn.addEventListener('click', startRecording);
+    }
+
+    if (stopRecordBtn) {
+        stopRecordBtn.addEventListener('click', stopRecording);
+    }
+
+    if (deleteRecordBtn) {
+        deleteRecordBtn.addEventListener('click', deleteRecording);
+    }
+});
+</script>
+
+
+
+
+
 
 
 </body>
