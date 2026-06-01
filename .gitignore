@@ -14,6 +14,7 @@ myenv/
 sessions/
 
 media/preinvoices/
+media/nightly_voices/
 
 cameras/ai/Face/models/*
 cameras/ai/Face/models/
