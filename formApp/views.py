@@ -367,7 +367,7 @@ def nightly_sales_view(request):
 
 
             return redirect('success_page')
-        print('forem',form)
+
         return redirect('error_page')
     else:
         pardakht , nesieh = calc_pardakht()
