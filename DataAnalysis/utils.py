@@ -107,9 +107,16 @@ def read_excel(excel_name:str):
 def get_persian_date_string(date_obj):
     """تبدیل تاریخ میلادی به رشته شمسی فارسی"""
     import jdatetime
+
+    current_time = timezone.now()
+
+    if current_time.hour <= 3:
+        date_obj-= timedelta(days=1)
     
     persian_date = jdatetime.date.fromgregorian(date=date_obj)
     
+
+
     days_name = [ 'شنبه', 'یکشنبه','دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه']
     months_name = ['', 'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 
                    'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']
