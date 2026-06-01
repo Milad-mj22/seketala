@@ -34,13 +34,13 @@ class CommaDecimalField(forms.DecimalField):
 class NightlySalesForm(forms.Form):
     # فیلدهای فروش (20 مورد) با فیلد سفارشی برای پردازش کاما
     bank_mehr = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="کارتخوان بانک مهر",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     bank_parsian = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="کارتخوان بانک پارسیان پایین",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
@@ -48,118 +48,118 @@ class NightlySalesForm(forms.Form):
 
 
     kiosk1 = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="کارتخوان بانک پارسیان کیوسک۱",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
 
     kiosk2 = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="کارتخوان بانک پارسیان کیوسک۲",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
 
     kiosk3 = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="کارتخوان بانک پارسیان کیوسک۳",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
 
     bank_melli = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="کارتخوان بانک ملی",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     bank_maral = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="واریزی های بانک مارال",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     bank_marina = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="واریزی های بانک مارینا",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     cash = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="وجه نقد صندوق",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     employee_salary = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="نسیه پرسنل",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     snapp_food = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="اسنپ فود",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     snapp_delivery = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="پیک اسنپ فود",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     discounts = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="تخفیفات",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     net_total = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="جمع خالص",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     gross_sales = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="فروش ناخالص",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     delivery_commission = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="کمیسیون پیک ها",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     payment_to_shams = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="پرداختی به آقای شمس",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     refund_to_customer = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="استرداد به مشتری",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     gross_total = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="جمع ناخالص",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     cashbox_adjustment = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="کسر/اضافه صندوق",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     other_expenses = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="سایر هزینه ها",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
@@ -167,38 +167,38 @@ class NightlySalesForm(forms.Form):
 
 
     peyk_pos_1 = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="پیک ۱ پارسیان (99387213)",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
 
     peyk_pos_2 = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="پیک ۲ پارسیان (99387216)",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     peyk_pos_3 = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="پیک ۳ پارسیان (99387215)",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     peyk_pos_4 = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="پیک ۴ پارسیان (99387217)",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     peyk_pos_5 = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="پیک ۵ پارسیان (99387214)",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
     )
     peyk_pos_6 = CommaDecimalField(
-        max_digits=10,
+        max_digits=18,
         decimal_places=0,
         label="پیک 6 مهر (6546423)",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'مقدار را وارد کنید'})
