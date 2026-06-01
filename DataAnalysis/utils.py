@@ -73,9 +73,9 @@ def get_date_range_night_form(selected_date):
     start = datetime.combine(selected_date, time(3, 0))
 
     # End at 03:00 of next day
-    end = start + timedelta(days=-1)
+    end = start + timedelta(days=+1)
 
-    return end, start
+    return start, end
 
 
 from user_management.utils import check_server

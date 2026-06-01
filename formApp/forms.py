@@ -251,6 +251,13 @@ class NightlySalesForm(forms.Form):
             for field_name, pardakht_key in field_mapping.items():
                 val = pardakht_data.get(pardakht_key)
                 if val is not None:
+                    # حذف صفر انتهایی اگر عدد اعشاری باشد
+                    if isinstance(val, float) and val.is_integer():
+                        val = int(val)
+                    # یا اگر به صورت string است:
+                    elif isinstance(val, str) and val.endswith('.0'):
+                        val = val.rstrip('.0')
+                    
                     initial_values[field_name] = val
                     # تنظیم همان help_text که قبلاً داشتید
                     if field_name in self.fields:

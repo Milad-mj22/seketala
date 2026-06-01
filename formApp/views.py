@@ -171,16 +171,17 @@ from datetime import datetime, timedelta, time
 def calc_pardakht(date = None):
 
 
+
     date_str = date
     current_time = timezone.now()
     if date_str:
         selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
     else:
         selected_date = timezone.now().date()
-        selected_date -= timedelta(days=1)
-        
-        if current_time.hour >= 18:
-            selected_date += timedelta(days=2)
+        if current_time.hour <= 3:
+            selected_date-= timedelta(days=1)
+            
+
     start, end = get_date_range_night_form(selected_date)
 
     invoices = Invoice.objects.filter(
