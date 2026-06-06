@@ -52,7 +52,6 @@ def get_code_by_name(name: str, threshold: int = 90) -> str | None:
         matched_name = match[0]
         return _NAME_TO_CODE[matched_name]
 
-    print(name)
 
     return None
 
