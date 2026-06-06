@@ -138,6 +138,8 @@ tr.clickable:hover {
 }
 </style>
 
+
+
 <div class="page">
 
     <div class="header">
@@ -149,6 +151,11 @@ tr.clickable:hover {
 
             <a href="{% url 'download_invoice_excel' %}?date={{ selected_date }}">
                 <button type="button" class="secondary">Raw Excel</button>
+            </a>
+
+
+            <a href="{% url 'download_invoice_summary_excel' %}?date={{ selected_date }}&total=True">
+                <button type="button" class="secondary">Total Factors Sepidar</button>
             </a>
 
             <a href="{% url 'download_invoice_summary_excel' %}?date={{ selected_date }}">
