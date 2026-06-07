@@ -821,6 +821,7 @@ def sepidar_factor_total(rows):
             "items": defaultdict(lambda: {
                 "qty": 0,
                 "total": 0,
+                "takhfif": 0,
             }),
             "discount": 0,
             "pos": 0,
@@ -856,9 +857,11 @@ def sepidar_factor_total(rows):
 
             qty = float(row.get('قلم فاكتور واحد اصلي', 0))
             total = float(row.get('قلم فاكتور كل', 0))
+            takhfif = float(row.get('قلم فاكتور تخفيف مشتري', 0))
 
             data["items"][product_code]["qty"] += qty
             data["items"][product_code]["total"] += total
+            data["items"][product_code]["takhfif"] += takhfif
 
             data["discount"] += float(
                 row.get('قلم فاكتور تخفيف مشتري', 0)
@@ -911,10 +914,11 @@ def sepidar_factor_total(rows):
             else f'تجمیعی {customer_code}'
         )
 
-        for product_code, item in data["items"].items():
+        for product_code, item  in data["items"].items():
 
             qty = item["qty"]
             total = item["total"]
+            takhfif = item["takhfif"]
 
             fee = total / qty if qty else 0
 
@@ -931,7 +935,7 @@ def sepidar_factor_total(rows):
                 'قلم فاكتور كد': product_code,
                 'قلم فاكتور في': round(fee),
                 'قلم فاكتور واحد اصلي': qty,
-                'قلم فاكتور تخفيف مشتري': 0,
+                'قلم فاكتور تخفيف مشتري': takhfif,
                 'قلم فاكتور كد انبار': 3,
                 'قلم فاكتور كل': total,
 
