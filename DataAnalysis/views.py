@@ -592,7 +592,7 @@ def sepidar_download_excel(request):
                 inv.moshtarak = 0
             if int(inv.moshtarak) == FOODSOFT_SNAPP_CODE:
                 moshtarak = SEPIDAR_SNAPP_CODE  ### SNAPP DEFAULT CODE
-            elif 10000<int(inv.moshtarak)<=10140:
+            elif 10000<int(inv.moshtarak)<=20000:
                 moshtarak = inv.moshtarak
             elif int(inv.shomare_pos) == POS_FANTEZI :
                 if inv.created_at >= datetime(2026, 4, 21):
@@ -907,7 +907,7 @@ def sepidar_factor_total(rows):
             new_rows.append({
                 'نوع قلم': 'InvoiceItem',
 
-                'فاكتور شماره': '',
+                'فاكتور شماره': data["first_row"]['فاكتور شماره'],
                 'فاكتور نام مشتري': customer_name,
                 'فاكتور كد مشتري': customer_code,
 
@@ -947,7 +947,8 @@ def sepidar_factor_total(rows):
                     new_rows.append({
                         'نوع قلم': 'InvoiceBroker',
 
-                        'فاكتور شماره': '',
+                        'فاكتور شماره': data["first_row"]['فاكتور شماره'],
+
                         'فاكتور نام مشتري': customer_name,
                         'فاكتور كد نوع فروش': 1,
                         'فاكتور كد مشتري': customer_code,
