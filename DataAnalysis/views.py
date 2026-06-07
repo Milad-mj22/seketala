@@ -522,6 +522,8 @@ def sepidar_download_excel(request):
     rows = []
     final_factors_count = 0
     invoice_total_price = 0
+    snapp_total_price = 0
+    motofareghe_total_price = 0
 
 
 
@@ -554,6 +556,8 @@ def sepidar_download_excel(request):
 
         cancel=False
         for it in inv.items.all():
+            if it.food_name == '':
+                pass
             name = get_kname_by_kcod(it.food_name)
             code = get_code_by_name(name=name)
             try:
@@ -583,9 +587,11 @@ def sepidar_download_excel(request):
 
 
             name = get_kname_by_kcod(it.food_name)
+            if name is None or name=='':
+                pass
             code = get_code_by_name(name=name)
             if code is None:
-                print(f'food soft : {it.food_name}' )
+                print(f'food soft : {it.food_name} ',name )
             try:
                 int(inv.moshtarak)
             except:
@@ -640,6 +646,12 @@ def sepidar_download_excel(request):
 
         final_factors_count+=1
         invoice_total_price += float(inv.total_price)
+
+        if moshtarak==SEPIDAR_SNAPP_CODE:
+            snapp_total_price += float(inv.total_price)
+        if moshtarak == MOSHTARAK_DEFAULT_CODE:
+            motofareghe_total_price += float(inv.total_price)
+
 
         if float(inv.peyk>0) or float(inv.hazine_peyk)>0 :
             peyk_code,peyk_tafzil,peyk_vaset = vaset_convert_peyk_details(inv.peyk)
@@ -708,6 +720,8 @@ def sepidar_download_excel(request):
 
     print('final_factors_count : ',final_factors_count)
     print('invoice_total_price : ',invoice_total_price)
+    print('motofareghe_total_price : ',motofareghe_total_price)
+    print('snapp_total_price : ',snapp_total_price)
 
     # Load once at import time
     SERVER = check_server()
