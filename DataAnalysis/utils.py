@@ -1,3 +1,5 @@
+import os
+
 import jdatetime
 from datetime import datetime
 import re
@@ -127,3 +129,60 @@ def get_persian_date_string(date_obj):
         return ''.join(persian_digits[int(d)] for d in str(num))
     
     return f"{days_name[persian_date.weekday()]} {to_persian(persian_date.day)} {months_name[persian_date.month]} {to_persian(persian_date.year)}"
+
+
+
+
+import re
+
+def normalize_iranian_mobile(phone):
+   
+    clear_phone_number = []
+   
+    try:
+        phone = str(phone)
+    except Exception as e:
+        return False,clear_phone_number
+    phone = re.sub(r'\D', '', phone)
+
+
+    if phone.startswith('0098'):
+        phone = phone[4:]
+    elif phone.startswith('98'):
+        phone = phone[2:]
+    elif phone.startswith('0'):
+        phone = phone[1:]
+
+    if re.fullmatch(r'9\d{9}', phone):
+        clear_phone_number =  [f'+98{phone}']
+
+
+    if clear_phone_number:
+        if '1111111' not in phone:
+            return True , clear_phone_number
+
+    return False , clear_phone_number
+
+
+
+
+def check_personel_noght_order(ret, phones:list,data:dict):
+    new_ret = False
+    if 'علیرضا حلبیان' in data['name'] :
+        _,new_phones = normalize_iranian_mobile(os.getenv('ALIREZA_PHONE'))
+        if _:
+            phones.append(new_phones[0])
+            new_ret = True
+    if 'مجید حلبیان' in data['name']:
+        _,new_phones = normalize_iranian_mobile(os.getenv('MAJID_PHONE'))
+        if _:
+            phones.append(new_phones[0])
+            new_ret = True
+    if os.getenv('NIGHT_SMS_DEVELOPE'):
+        _,new_phones = normalize_iranian_mobile(os.getenv('MILAD_PHONE'))
+        if _:
+            phones.append(new_phones[0])
+
+
+    return (ret or new_ret),phones
+    

@@ -141,7 +141,13 @@ class Profile(models.Model):
             img.thumbnail(max_size, Image.Resampling.LANCZOS)
             img.save(self.avatar.path)
 
+    @property
+    def full_name(self):
+        first = (self.first_name or "").strip()
+        last = (self.last_name or "").strip()
 
+        full = f"{first} {last}".strip()
+        return full if full else self.user.username
 
 STATUS = (
     (0,"Draft"),
