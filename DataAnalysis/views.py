@@ -626,8 +626,7 @@ def sepidar_download_excel(request):
             code = get_code_by_name(name=name)
             if code is None:
                 print(
-                    f'food soft : {it.food_name} {name}'.encode('utf-8'),
-                    file=sys.stderr
+                    f'Error food soft : Empty code'
                 )
             try:
                 int(inv.moshtarak)
