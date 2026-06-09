@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render
 
 # Create your views here.
 # views.py
-import os
+import os , sys
 import sqlite3
 from django.shortcuts import render, redirect
 from django.conf import settings
@@ -172,7 +172,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Invoice
-from .utils import extract_payment_methods, jalali_date_time_to_gregorian, read_excel
+from .utils import check_personel_noght_order, extract_payment_methods, get_persian_date_string, jalali_date_time_to_gregorian, normalize_iranian_mobile, read_excel
 
 
 
@@ -228,8 +228,42 @@ class ReceiveInvoice(APIView):
                 quantity=item["quantity"],
                 total=item["price"] * item["quantity"]
             )
+        if created:
+            print(os.getenv('SMS_NIGHT_ORDER'))
+            if os.getenv('SMS_NIGHT_ORDER'):
+                moshtarak =  str(data['moshtarak'])
+                print('moshtarak',moshtarak)
+                profile_moshtarak = Profile.objects.filter(code_vaset=moshtarak).first()
+                ret , phones =  normalize_iranian_mobile(profile_moshtarak.phone)
+                
+                ret , phones = check_personel_noght_order(ret,phones,data)
+                
+                print('phones',phones)
+                
+                
+                if ret:
+                    current_time = timezone.now()
+                    selected_date = current_time.date()
+                    persian_date_str = get_persian_date_string(selected_date)
+                
+                    sms_template = SMS_Template.objects.filter(name =SMSServiceTemplate_Enum.PERSONEL_NIGHT_ORDER )
+                    if sms_template.exists():
+                        name = profile_moshtarak.full_name
+                        sms_template = sms_template.first()
+                        for phone in phones:
+                            if phone:
+                                ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.ORDERID:data["invoice_number"],OTPVar_Enum.PRICE:data["total_price"],})
+                            else:
+                                print('Phone not Exist for send')
+
+
+            
+
+
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
     
+
+
 
 from django.db.models import Max
 from collections import defaultdict
@@ -591,7 +625,10 @@ def sepidar_download_excel(request):
                 pass
             code = get_code_by_name(name=name)
             if code is None:
-                print(f'food soft : {it.food_name} ',name )
+                print(
+                    f'food soft : {it.food_name} {name}'.encode('utf-8'),
+                    file=sys.stderr
+                )
             try:
                 int(inv.moshtarak)
             except:
