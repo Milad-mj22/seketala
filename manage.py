@@ -3,6 +3,10 @@
 import os
 import sys
 
+os.environ["LANG"] = "en_US.UTF-8"
+os.environ["LC_ALL"] = "en_US.UTF-8"
+os.environ["PYTHONIOENCODING"] = "utf-8"
+
 global celery_process
 celery_process = None
 

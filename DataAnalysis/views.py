@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render
 
 # Create your views here.
 # views.py
-import os
+import os , sys
 import sqlite3
 from django.shortcuts import render, redirect
 from django.conf import settings
@@ -229,12 +229,16 @@ class ReceiveInvoice(APIView):
                 total=item["price"] * item["quantity"]
             )
         if created:
+            print(os.getenv('SMS_NIGHT_ORDER'))
             if os.getenv('SMS_NIGHT_ORDER'):
-                moshtarak =  data['moshtarak']
+                moshtarak =  str(data['moshtarak'])
+                print('moshtarak',moshtarak)
                 profile_moshtarak = Profile.objects.filter(code_vaset=moshtarak).first()
                 ret , phones =  normalize_iranian_mobile(profile_moshtarak.phone)
                 
                 ret , phones = check_personel_noght_order(ret,phones,data)
+                
+                print('phones',phones)
                 
                 
                 if ret:
@@ -621,7 +625,10 @@ def sepidar_download_excel(request):
                 pass
             code = get_code_by_name(name=name)
             if code is None:
-                print(f'food soft : {it.food_name} ',name )
+                print(
+                    f'food soft : {it.food_name} {name}'.encode('utf-8'),
+                    file=sys.stderr
+                )
             try:
                 int(inv.moshtarak)
             except:
