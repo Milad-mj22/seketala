@@ -3,17 +3,22 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.shortcuts import render
-
+from pathlib import Path
 # Create your views here.
+from openpyxl.utils import column_index_from_string
+import xlrd
+import xlwt
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from .utils import detect_gender, fix_persian_text
-
+import json
 import pandas as pd
 from django.shortcuts import render
 from .forms import CSVUploadForm
 from users.models import Buyer, Inventory, MaterialComposition, Warehouse , mother_material , raw_material , mode_raw_materials
-
+from .models import RawMaterialTransfer
+from user_management.utils import check_server
+SERVER = check_server()
 
 
 @login_required
@@ -431,3 +436,215 @@ def manage_inventory(request):
         "child_counts": child_counts,
         "child_stock": child_stock,
     })
+
+
+
+
+
+
+
+
+
+
+@login_required
+def convert_raw_materials2sepidar_format(request):
+
+    error_factors = []
+
+    if request.method == 'POST':
+        form = CSVUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = request.FILES['file']
+
+            try:
+                df = pd.read_csv(csv_file)
+            except Exception as e:
+                return render(request, 'import_csv.html', {
+                    'form': form,
+                    'error': 'خطا در خواندن فایل CSV: ' + str(e),
+                })
+            
+
+            first_row = df.iloc[0].to_dict()  # کل ردیف به صورت dict
+            
+            date = next((col for col in first_row.keys() if '/' in col), None)
+            
+            csv_file.seek(0)
+            df = pd.read_csv(csv_file, skiprows=1)
+            
+
+            col_id = request.POST.get('col_id')
+            col_name = request.POST.get('col_name')
+            col_unit = request.POST.get('col_unit')
+            col_source = request.POST.get('col_source')
+            col_dest = request.POST.get('col_destination')
+
+            col_names = {'id':col_id,'name':col_name,'unit':col_unit,'source':col_source,'dest':col_dest}
+            output,error_factors = create_excel_for_convert_data(col_names,df,date)
+
+
+            filename = f"inventory_movement.xls"
+            resp = HttpResponse(
+                output.getvalue(),
+                content_type="application/vnd.ms-excel",  # مقدار جدید برای XLS
+            )
+            resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+            resp["X-Error-Factors"] = json.dumps(error_factors)
+            return resp
+
+
+
+    else:
+        form = CSVUploadForm()
+
+    return render(request, 'import_csv_transfer.html', {'form': form})
+
+
+
+def create_excel_for_convert_data(col_names,df,date):
+            rows = []
+            error_factors = 0
+            for _, row in df.iterrows():
+                id_ = str(row.get(col_names['id'], '')).strip()
+                name =  str(row.get(col_names['name'], '')).strip()
+                source = str(row.get(col_names['source'], '')).strip()
+                dest = str(row.get(col_names['dest'], '')).strip()
+                count = str(row.get(col_names['unit'], '')).strip()
+                
+
+                try:
+                    id_ =  int(float(id_))
+                except:
+                    print('Error in id :',id_)
+                    continue
+
+
+                if(id_)==0:
+                    print(id_)
+                    continue
+
+                raw_object =  raw_material.objects.filter(id=id_).first()
+                if raw_object is None:
+                    raw_object = raw_material.objects.create(name=name,describe=id_,unit='کیلوگرم')
+                
+                transfer_obj=None
+                if source and dest:
+                    transfer_obj = RawMaterialTransfer.objects.get_or_create(material=raw_object,source=source,destination=dest)
+                else:
+                    transfer_obj = RawMaterialTransfer.objects.get_or_create(material=raw_object)
+                    if transfer_obj.exists():
+                        transfer_obj = transfer_obj.first()
+                        transfer_obj = transfer_obj[0]
+                if not transfer_obj:
+                    print('errror in get object transfer object')
+                    pass
+
+                if isinstance(transfer_obj, tuple):
+                    transfer_obj = transfer_obj[0]
+
+
+                    
+                rows.append({
+                    'نوع قلم' : 'InventoryDeliveryItem',
+                    "خروج انبار نوع": 4,
+                    "خروج انبار شماره": '',
+                    'خروج انبار تاريخ': date,
+                    'خروج انبار كد انبار': transfer_obj.source,
+                    'قلم خروج انبار كد': transfer_obj.material.describe,
+                    "قلم خروج انبار واحد اصلي": count,
+                    "قلم خروج انبار كد حساب معين": 121506,
+                    "خروج انبار كد انبار مقصد": transfer_obj.destination,  
+                })
+
+
+
+            output = export_excel(rows,'sepidar_inventory_movement_template.xlsx')
+
+            return output,error_factors
+
+
+
+
+
+
+from io import BytesIO
+from django.http import HttpResponse
+from openpyxl import load_workbook
+
+
+def export_excel(data, template_name):
+    # Load once at import time
+        
+    template_path = get_template_path(template_name)
+    wb = load_workbook(template_path)
+    ws = wb[wb.sheetnames[0]]  # or wb["Sheet1"]
+
+    START_ROW =2 # where the first data row begins in your template
+
+    # Only these columns will be filled; everything else stays unchanged
+    # مثال: اگر نمیخوای ستون C پر بشه، اصلا اینجا قرارش نده
+    COL_MAP = {
+            'نوع قلم' : 'A',
+            "خروج انبار نوع": 'B',
+            "خروج انبار شماره": 'C',
+            'خروج انبار تاريخ': 'D',
+            'خروج انبار كد انبار': 'E',
+            'قلم خروج انبار كد': 'G',
+            "قلم خروج انبار واحد اصلي": 'I',
+            "قلم خروج انبار كد حساب معين": 'K',
+            "خروج انبار كد انبار مقصد": 'L',  
+        }
+
+    # Precompute numeric column indexes (faster)
+    col_idx_map = {k: column_index_from_string(v) for k, v in COL_MAP.items()}
+
+    # -----------------------------
+    # 3) Write only mapped columns
+    # -----------------------------
+    for i, record in enumerate(data):
+        excel_row = START_ROW + i
+        for field, col_idx in col_idx_map.items():
+            ws.cell(row=excel_row, column=col_idx, value=record.get(field))
+
+    # -----------------------------
+    # 4) Return as download
+    # -----------------------------
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    output = convert_xlsx2xls(output=output)
+
+
+    return output
+
+
+def get_template_path(template_name):
+    if SERVER:
+        return f"/home/seketal1/Seketala_Kitchen_Flow/cache/{template_name}"
+
+    return Path("cache") / f"{template_name}"
+
+
+def convert_xlsx2xls(output):
+
+    wb_xlsx = load_workbook(output)
+    
+    # ایجاد فایل XLS جدید با xlwt
+    wb_xls = xlwt.Workbook()
+    
+    # کپی تمام صفحات به فرمت XLS
+    for sheet_name in wb_xlsx.sheetnames:
+        ws_xlsx = wb_xlsx[sheet_name]
+        ws_xls = wb_xls.add_sheet(sheet_name)
+        
+        # کپی داده‌ها از XLSX به XLS
+        for row_idx, row in enumerate(ws_xlsx.iter_rows()):
+            for col_idx, cell in enumerate(row):
+                ws_xls.write(row_idx, col_idx, cell.value)
+    
+    # ذخیره فایل XLS در BytesIO جدید
+    output_xls = BytesIO()
+    wb_xls.save(output_xls)
+    output_xls.seek(0)
+    return output_xls
