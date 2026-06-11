@@ -4,11 +4,12 @@ from django.shortcuts import get_object_or_404, render
 
 # Create your views here.
 # views.py
-import os
+import os , sys
 import sqlite3
 from django.shortcuts import render, redirect
 from django.conf import settings
 import jdatetime
+import numpy as np
 import xlrd
 import xlwt
 
@@ -229,12 +230,16 @@ class ReceiveInvoice(APIView):
                 total=item["price"] * item["quantity"]
             )
         if created:
+            print(os.getenv('SMS_NIGHT_ORDER'))
             if os.getenv('SMS_NIGHT_ORDER'):
-                moshtarak =  data['moshtarak']
+                moshtarak =  str(data['moshtarak'])
+                print('moshtarak',moshtarak)
                 profile_moshtarak = Profile.objects.filter(code_vaset=moshtarak).first()
                 ret , phones =  normalize_iranian_mobile(profile_moshtarak.phone)
                 
                 ret , phones = check_personel_noght_order(ret,phones,data)
+                
+                print('phones',phones)
                 
                 
                 if ret:
@@ -621,7 +626,9 @@ def sepidar_download_excel(request):
                 pass
             code = get_code_by_name(name=name)
             if code is None:
-                print(f'food soft : {it.food_name} ',name )
+                print(
+                    f'Error food soft : Empty code {code} , it.food_name : {it.food_name} , name : {name}'
+                )
             try:
                 int(inv.moshtarak)
             except:
@@ -684,8 +691,11 @@ def sepidar_download_excel(request):
 
 
         if float(inv.peyk>0) or float(inv.hazine_peyk)>0 :
+            if inv.peyk>6:
+                pass
             peyk_code,peyk_tafzil,peyk_vaset = vaset_convert_peyk_details(inv.peyk)
-
+            if peyk_tafzil==157:
+                pass
 
             peyk_calc_code = 9200001
 
@@ -721,14 +731,13 @@ def sepidar_download_excel(request):
             else:
                 hazine_peyk = int(float(inv.hazine_peyk))*0.9
 
-
-
+            print(moshtarak)
             rows.append({
                 'نوع قلم' : 'InvoiceBroker',
                 "فاكتور شماره": inv.invoice_number,
                 'فاكتور كد نوع فروش': 1,
                 "فاكتور نام مشتري": inv.name,
-                'فاكتور كد مشتري': MOSHTARAK_DEFAULT_CODE,
+                'فاكتور كد مشتري': moshtarak,
                 # "phone": inv.phone,
                 'واسط مبلغ پورسانت':hazine_peyk,
                 'واسط تفصيلي واسط':peyk_code,
@@ -840,7 +849,15 @@ def sepidar_factor_total(rows):
     MERGE_CUSTOMER_CODES = [
         SEPIDAR_SNAPP_CODE,
         MOSHTARAK_DEFAULT_CODE,
-    ]
+]
+
+    broker_items = defaultdict(
+        lambda: defaultdict(
+            lambda: {
+                "commission": 0
+            }
+        )
+    )
 
     new_rows = []
 
@@ -861,9 +878,7 @@ def sepidar_factor_total(rows):
             "first_row": None,
         }
 
-        broker_items = defaultdict(lambda: {
-            "commission": 0
-        })
+
 
     for row in rows:
 
@@ -926,8 +941,15 @@ def sepidar_factor_total(rows):
                 peyk_vaset
             )
 
-            broker_items[key]["commission"]+= float(
-                row.get('واسط مبلغ پورسانت', 0)
+  
+
+            if int(customer_code) == 10059:
+                pass
+
+            print('customer_code',customer_code,'key',key)
+
+            broker_items[customer_code][key]["commission"] += float(
+                row.get('واسط مبلغ پورسانت', 0) or 0
             )
 
     # ساخت فاکتور تجمیعی هر مشتری
@@ -949,8 +971,9 @@ def sepidar_factor_total(rows):
             qty = item["qty"]
             total = item["total"]
             takhfif = item["takhfif"]
-
-            fee = total / qty if qty else 0
+            if int(product_code) == 9200001:
+                pass
+            fee = np.round(total / qty if qty else 0)
 
             new_rows.append({
                 'نوع قلم': 'InvoiceItem',
@@ -982,41 +1005,40 @@ def sepidar_factor_total(rows):
                 'فاكتور تاريخ': data["first_row"]['فاكتور تاريخ']
             })
 
-        if customer_code==MOSHTARAK_DEFAULT_CODE:
+        # if customer_code==MOSHTARAK_DEFAULT_CODE:
 
-            for (
-                    peyk_code,
-                    peyk_tafzil,
-                    peyk_vaset
-                ), item in broker_items.items():
+        # for (
+        #         peyk_code,
+        #         peyk_tafzil,
+        #         peyk_vaset
+        #     ), item in broker_items.items():
+        if customer_code in broker_items and broker_items[customer_code]:
 
-                    hazine_peyk = item["commission"]
+            for (peyk_code, peyk_tafzil, peyk_vaset), item in broker_items[customer_code].items():
+                print('new proker', (peyk_code, peyk_tafzil, peyk_vaset))
+                hazine_peyk = item["commission"]
 
-                    new_rows.append({
-                        'نوع قلم': 'InvoiceBroker',
+                new_rows.append({
+                    'نوع قلم': 'InvoiceBroker',
 
-                        'فاكتور شماره': data["first_row"]['فاكتور شماره'],
+                    'فاكتور شماره': data["first_row"]['فاكتور شماره'],
+                    'فاكتور نام مشتري': customer_name,
+                    'فاكتور كد نوع فروش': 1,
+                    'فاكتور كد مشتري': customer_code,
 
-                        'فاكتور نام مشتري': customer_name,
-                        'فاكتور كد نوع فروش': 1,
-                        'فاكتور كد مشتري': customer_code,
+                    'واسط تفصيلي واسط': peyk_code,
+                    'واسط كد واسط': peyk_tafzil,
+                    'واسط واسط': peyk_vaset,
 
-                        'واسط تفصيلي واسط': peyk_code,
-                        'واسط كد واسط': peyk_tafzil,
-                        'واسط واسط': peyk_vaset,
+                    'واسط مبلغ پورسانت': hazine_peyk,
 
-                        'واسط مبلغ پورسانت': hazine_peyk,
+                    'فاكتور تاريخ': data["first_row"]['فاكتور تاريخ'],
 
-                        'فاكتور تاريخ': data["first_row"]['فاكتور تاريخ'],
-
-
-                        'فاكتور ارز1':'ريال',
-                        'فاكتور نرخ ارز':1,
-                        'فاكتور نوع تسويه':1,
-                        'فاكتور محل  تحويل':'آدرس مشتري',
-
-                    })
-                    
+                    'فاكتور ارز1': 'ريال',
+                    'فاكتور نرخ ارز': 1,
+                    'فاكتور نوع تسويه': 1,
+                    'فاكتور محل  تحويل': 'آدرس مشتري',
+                })
 
     return new_rows
 

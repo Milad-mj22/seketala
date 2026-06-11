@@ -21,7 +21,7 @@ import json
 
 @csrf_exempt
 def receive_sms(request):
-    sender = request.GET.get("sender", "Unknown")
+    sender = request.GET.get("sender", "")
     message = request.GET.get("message", "")
     if sender=='Unknown':
         sender = request.GET.get("from", "Unknown")
