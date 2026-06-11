@@ -21,20 +21,18 @@ import json
 
 @csrf_exempt
 def receive_sms(request):
-    sender = request.GET.get("sender", "Unknown")
+    sender = request.GET.get("sender", "")
     message = request.GET.get("message", "")
     if sender=='Unknown':
         sender = request.GET.get("from", "Unknown")
     if message=='':
         message = request.GET.get("text", "")
 
-    print('sender,message',sender,message)
     if message:
         SMS.objects.create(sender=sender, message=message)
         # Replace the number that comes after "مانده"
         message = clean_message(message=message)
         content = {'sender':sender,'message':message}
-        print(content)
         message_signal.send(sender=None, values = content)
 
         return JsonResponse({"status": "success"}, status=201)
