@@ -28,13 +28,11 @@ def receive_sms(request):
     if message=='':
         message = request.GET.get("text", "")
 
-    print('sender,message',sender,message)
     if message:
         SMS.objects.create(sender=sender, message=message)
         # Replace the number that comes after "مانده"
         message = clean_message(message=message)
         content = {'sender':sender,'message':message}
-        print(content)
         message_signal.send(sender=None, values = content)
 
         return JsonResponse({"status": "success"}, status=201)
