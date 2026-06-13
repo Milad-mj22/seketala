@@ -1,4 +1,5 @@
 import difflib
+import os
 from django.shortcuts import render
 
 # Create your views here.
@@ -455,23 +456,40 @@ def convert_raw_materials2sepidar_format(request):
         form = CSVUploadForm(request.POST, request.FILES)
         if form.is_valid():
             csv_file = request.FILES['file']
+            filename = csv_file.name.lower()
+            ext = os.path.splitext(filename)[1]
 
             try:
-                df = pd.read_csv(csv_file)
+                if ext == ".csv":
+                    df = pd.read_csv(csv_file)
+
+                elif ext in [".xlsx", ".xls"]:
+                    df = pd.read_excel(csv_file)
+
+                else:
+                    return render(request, 'import_csv.html', {
+                        'form': form,
+                        'error': 'فرمت فایل پشتیبانی نمی‌شود. فقط CSV یا Excel.',
+                    })
+
             except Exception as e:
                 return render(request, 'import_csv.html', {
                     'form': form,
-                    'error': 'خطا در خواندن فایل CSV: ' + str(e),
+                    'error': 'خطا در خواندن فایل: ' + str(e),
                 })
-            
+                        
 
             first_row = df.iloc[0].to_dict()  # کل ردیف به صورت dict
             
             date = next((col for col in first_row.keys() if '/' in col), None)
             
             csv_file.seek(0)
-            df = pd.read_csv(csv_file, skiprows=1)
-            
+
+            if ext == ".csv":
+                df = pd.read_csv(csv_file, skiprows=1)
+            else:
+                df = pd.read_excel(csv_file, skiprows=1)
+
 
             col_id = request.POST.get('col_id')
             col_name = request.POST.get('col_name')
@@ -481,17 +499,18 @@ def convert_raw_materials2sepidar_format(request):
 
             col_names = {'id':col_id,'name':col_name,'unit':col_unit,'source':col_source,'dest':col_dest}
             outputs = create_excel_for_convert_data(col_names,df,date)
-
-            import io
-            import zipfile
-
+            import zipfile,io
             zip_buffer = io.BytesIO()
 
             with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-
                 for filename, output in outputs:
-                    zf.writestr(filename, output.getvalue())
+                    # CRITICAL FIX: Reset the pointer to the start of the Excel file
+                    output.seek(0) 
+                    
+                    # Write to zip
+                    zf.writestr(filename, output.read())
 
+            # CRITICAL FIX: Reset the ZIP buffer to the start before returning
             zip_buffer.seek(0)
 
             resp = HttpResponse(
@@ -499,11 +518,28 @@ def convert_raw_materials2sepidar_format(request):
                 content_type="application/zip"
             )
 
-            resp["Content-Disposition"] = (
-                'attachment; filename="inventory_movements.zip"'
-            )
 
-            resp["X-Error-Factors"] = json.dumps(error_factors)
+
+
+            # ... inside your view, after generating 'outputs' ...
+
+            # # If you want to download only the FIRST file:
+            # if outputs:
+            #     filename, output = outputs[0]  # Take only the first one
+                
+            #     resp = HttpResponse(
+            #         output.getvalue(),
+            #         content_type="application/vnd.ms-excel" # Use excel content type
+            #     )
+            #     resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+            #     return resp
+            # else:
+            #     return render(request, 'import_csv_transfer.html', {'form': form, 'error': 'فایلی تولید نشد'})
+
+
+
+
+
 
             return resp
 
