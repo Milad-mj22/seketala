@@ -731,7 +731,6 @@ def sepidar_download_excel(request):
             else:
                 hazine_peyk = int(float(inv.hazine_peyk))*0.9
 
-            print(moshtarak)
             rows.append({
                 'نوع قلم' : 'InvoiceBroker',
                 "فاكتور شماره": inv.invoice_number,
@@ -946,7 +945,7 @@ def sepidar_factor_total(rows):
             if int(customer_code) == 10059:
                 pass
 
-            print('customer_code',customer_code,'key',key)
+            # print('customer_code',customer_code,'key',key)
 
             broker_items[customer_code][key]["commission"] += float(
                 row.get('واسط مبلغ پورسانت', 0) or 0
@@ -1015,7 +1014,7 @@ def sepidar_factor_total(rows):
         if customer_code in broker_items and broker_items[customer_code]:
 
             for (peyk_code, peyk_tafzil, peyk_vaset), item in broker_items[customer_code].items():
-                print('new proker', (peyk_code, peyk_tafzil, peyk_vaset))
+                # print('new proker', (peyk_code, peyk_tafzil, peyk_vaset))
                 hazine_peyk = item["commission"]
 
                 new_rows.append({
