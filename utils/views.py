@@ -539,18 +539,24 @@ def create_excel_for_convert_data(col_names,df,date):
                     print(id_)
                     continue
 
-                raw_object =  raw_material.objects.filter(id=id_).first()
+                raw_object =  raw_material.objects.filter(name=name).last()
                 if raw_object is None:
                     raw_object = raw_material.objects.create(name=name,describe=id_,unit='کیلوگرم')
                 
                 transfer_obj=None
                 if source and dest:
-                    transfer_obj = RawMaterialTransfer.objects.get_or_create(material=raw_object,source=source,destination=dest)
+                    transfer_obj = RawMaterialTransfer.objects.get_or_create(material=raw_object,source=int(float(source)),destination=int(float(dest)))
                 else:
-                    transfer_obj = RawMaterialTransfer.objects.get_or_create(material=raw_object)
+                    transfer_obj = RawMaterialTransfer.objects.filter(material=raw_object)
                     if transfer_obj.exists():
-                        transfer_obj = transfer_obj.first()
-                        transfer_obj = transfer_obj[0]
+                        # if transfer_obj
+                        transfer_obj = transfer_obj.last()
+                    #     transfer_obj = transfer_obj.first()
+                    else:
+                        print('raw material not exist')
+                        continue
+
+
                 if not transfer_obj:
                     print('errror in get object transfer object')
                     pass
