@@ -168,12 +168,13 @@ def normalize_iranian_mobile(phone):
 
 def check_personel_noght_order(ret, phones:list,data:dict):
     new_ret = False
-    if 'علیرضا حلبیان' in data['name'] :
+    phones = []
+    if 'عليرضا حلبيان فر ' in data['name'] :
         _,new_phones = normalize_iranian_mobile(os.getenv('ALIREZA_PHONE'))
         if _:
             phones.append(new_phones[0])
             new_ret = True
-    if 'مجید حلبیان' in data['name']:
+    if 'مجيد حلبيان فر ' in data['name']:
         _,new_phones = normalize_iranian_mobile(os.getenv('MAJID_PHONE'))
         if _:
             phones.append(new_phones[0])
@@ -182,6 +183,7 @@ def check_personel_noght_order(ret, phones:list,data:dict):
         _,new_phones = normalize_iranian_mobile(os.getenv('MILAD_PHONE'))
         if _:
             phones.append(new_phones[0])
+            new_ret = True
 
 
     return (ret or new_ret),phones
