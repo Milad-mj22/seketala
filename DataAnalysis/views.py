@@ -637,11 +637,11 @@ def sepidar_download_excel(request):
                 moshtarak = SEPIDAR_SNAPP_CODE  ### SNAPP DEFAULT CODE
             elif 10000<int(inv.moshtarak)<=20000:
                 moshtarak = inv.moshtarak
-            elif int(inv.shomare_pos) == POS_FANTEZI :
-                if inv.created_at >= datetime(2026, 4, 21):
-                    moshtarak = MOSTARAK_FANTEZI
-                else:
-                    moshtarak = MOSHTARAK_DEFAULT_CODE
+            # elif int(inv.shomare_pos) == POS_FANTEZI :
+            #     if inv.created_at >= datetime(2026, 4, 21):
+            #         moshtarak = MOSTARAK_FANTEZI
+            #     else:
+                    # moshtarak = MOSHTARAK_DEFAULT_CODE
 
             else:
                 moshtarak = MOSHTARAK_DEFAULT_CODE
