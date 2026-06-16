@@ -17,9 +17,11 @@ from otp_manager.models import OTPVar_Enum, SMS_Recievers, SMS_Template, SMSServ
 from otp_manager.service import send_sms
 from .folder_utils.sepidar_date import format_jalali_date, format_jalali_datetime, havale_format_jalali_datetime
 from .forms import DBUploadForm
-from .models import InvoiceItem, Sale
+from .models import InvoiceItem, Sale,SMSLog
 from persiantools.jdatetime import JalaliDate
 from user_management.utils import check_server
+
+
 SERVER = check_server()
 
 
@@ -187,11 +189,30 @@ class ReceiveInvoice(APIView):
             return Response({"error": "unauthorized"}, status=403)
     
 
-        
+        print(f"DEBUG: Invoice Number Type: {type(data['invoice_number'])}")
+        print(f"DEBUG: Invoice Number Value: '{data['invoice_number']}'")
+
         
         date_time = jalali_date_time_to_gregorian(data['date'],data['time'])
+        exists = Invoice.objects.filter(invoice_number=data["invoice_number"]).exists()
+        print(f"DEBUG: Record exists in DB? {exists}")
+        # استفاده از update_or_create بر
         
-        # استفاده از update_or_create برای جایگزینی اطلاعات قبلی با جدید
+        
+        try:
+            invoice_num = int(data["invoice_number"])
+            # چون فیلد شما CharField است، دوباره آن را به استرینگ تمیز تبدیل می‌کنیم
+            # تا صفرهای اضافه حذف شوند (مثلاً '00123' تبدیل به '123' می‌شود)
+            invoice_num_str = str(invoice_num) 
+        except (ValueError, TypeError):
+            # اگر شماره فاکتور اصلاً عدد نیست، همان مقدار اصلی را بفرستید یا خطا دهید
+            invoice_num_str = str(data["invoice_number"]).strip()
+
+        
+        Invoice.objects.filter(invoice_number=data["invoice_number"]).delete()
+
+        
+      
         invoice, created = Invoice.objects.update_or_create(
             invoice_number=data["invoice_number"],
             defaults={
@@ -216,10 +237,10 @@ class ReceiveInvoice(APIView):
 
             }
         )
-        print('created : ',created)
+        print('created : ',created,'Invoice :',data["invoice_number"])
         # اگر فاکتور قبلاً وجود داشته است، آیتم‌های قدیمی آن را پاک می‌کنیم تا آیتم‌های جدید جایگزین شوند
-        if not created:
-            InvoiceItem.objects.filter(invoice=invoice).delete()
+      
+        InvoiceItem.objects.filter(invoice=invoice).delete()
             
         for item in data["items"]:
             InvoiceItem.objects.create(
@@ -229,7 +250,16 @@ class ReceiveInvoice(APIView):
                 quantity=item["quantity"],
                 total=item["price"] * item["quantity"]
             )
-        if created:
+            
+            
+        sms_log, created = SMSLog.objects.get_or_create(invoice_number=data["invoice_number"])
+        
+        return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
+    
+        if not sms_log.is_sent:
+            sms_log.is_sent = True
+            sms_log.save()
+            
             print(os.getenv('SMS_NIGHT_ORDER'))
             if os.getenv('SMS_NIGHT_ORDER'):
                 moshtarak =  str(data['moshtarak'])
@@ -257,7 +287,7 @@ class ReceiveInvoice(APIView):
                             for phone in phones:
                                 if phone:
                                     pass
-                                    ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.ORDERID:data["invoice_number"],OTPVar_Enum.PRICE:data["total_price"],})
+                                    # ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.ORDERID:data["invoice_number"],OTPVar_Enum.PRICE:data["total_price"],})
                                 else:
                                     print('Phone not Exist for send')
 
@@ -641,11 +671,11 @@ def sepidar_download_excel(request):
                 moshtarak = SEPIDAR_SNAPP_CODE  ### SNAPP DEFAULT CODE
             elif 10000<int(inv.moshtarak)<=20000:
                 moshtarak = inv.moshtarak
-            elif int(inv.shomare_pos) == POS_FANTEZI :
-                if inv.created_at >= datetime(2026, 4, 21):
-                    moshtarak = MOSTARAK_FANTEZI
-                else:
-                    moshtarak = MOSHTARAK_DEFAULT_CODE
+            # elif int(inv.shomare_pos) == POS_FANTEZI :
+            #     if inv.created_at >= datetime(2026, 4, 21):
+            #         moshtarak = MOSTARAK_FANTEZI
+            #     else:
+                    # moshtarak = MOSHTARAK_DEFAULT_CODE
 
             else:
                 moshtarak = MOSHTARAK_DEFAULT_CODE

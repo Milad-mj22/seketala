@@ -567,7 +567,7 @@ def create_excel_for_convert_data(col_names,df,date):
                 try:
                     id_ =  int(float(id_))
                 except:
-                    print('Error in id :',id_)
+                    print('Error in id :')
                     continue
 
 

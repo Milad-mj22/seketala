@@ -36,19 +36,18 @@ from Constatns import Constants
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
+# Media files
 
-MEDIA_URL = '/media/'  # URL for accessing media files
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Directory where uploaded files are stored
 
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/users/static/'
-STATIC_ROOT = '/users/static/' # در سرور
-# STATIC_ROOT = r'C:\Users\Administrator\Desktop\Kitchen_Flow\staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Use a single definition
 
-
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 ALLOWED_HOSTS = ['37.191.77.130','192.168.1.107','172.20.10.4','127.0.0.1','0.0.0.0','192.168.1.30','94.183.166.188','192.168.1.211','37.255.213.180',"seketalamanager.ir", "www.seketalamanager.ir", "*"]
 
@@ -200,22 +199,6 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-# #print('MEDIA_ROOT',MEDIA_ROOT)
-
-
-# Define the directory where static files will be collected
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-
-# settings.py
-
-# STATIC_URL = '/static/'
-
-# Ensure that this path is where your static files will be collected
-# STATIC_ROOT = r'C:\Users\Administrator\Desktop\Kitchen_Flow\staticfiles'
-
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'login'
@@ -354,3 +337,19 @@ PWA_APP_ICONS_APPLE = [
     }
 ]
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static/js', 'serviceworker.js')
+
+
+
+
+# Add font MIME types to Whitenoise
+WHITENOISE_MIMETYPES = {
+    '.woff': 'font/woff',
+    '.woff2': 'font/woff2',
+    '.ttf': 'font/ttf',
+    '.otf': 'font/otf',
+    '.eot': 'application/vnd.ms-fontobject',
+}
+
+# Ensure Whitenoise handles font files
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = False
