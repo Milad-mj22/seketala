@@ -1,3 +1,4 @@
+import base64
 import difflib
 import os
 from django.shortcuts import render
@@ -498,7 +499,7 @@ def convert_raw_materials2sepidar_format(request):
             col_dest = request.POST.get('col_destination')
 
             col_names = {'id':col_id,'name':col_name,'unit':col_unit,'source':col_source,'dest':col_dest}
-            outputs = create_excel_for_convert_data(col_names,df,date)
+            outputs,error_factors = create_excel_for_convert_data(col_names,df,date)
             import zipfile,io
             zip_buffer = io.BytesIO()
 
@@ -519,6 +520,14 @@ def convert_raw_materials2sepidar_format(request):
             )
 
 
+            file_base64 = base64.b64encode(zip_buffer.read()).decode()
+
+            return JsonResponse({
+                "file": file_base64,
+                "filename": "sepidar_output.zip",
+                "errors": error_factors
+            })
+
 
 
             # ... inside your view, after generating 'outputs' ...
@@ -536,11 +545,6 @@ def convert_raw_materials2sepidar_format(request):
             # else:
             #     return render(request, 'import_csv_transfer.html', {'form': form, 'error': 'فایلی تولید نشد'})
 
-
-
-
-
-
             return resp
 
 
@@ -555,8 +559,9 @@ def create_excel_for_convert_data(col_names,df,date):
             total_rows = {}
     
             
-            error_factors = 0
-            for _, row in df.iterrows():
+            error_factors = [] 
+            for index, row in df.iterrows():
+                row_number = index + 2
                 id_ = str(row.get(col_names['id'], '')).strip()
                 name =  str(row.get(col_names['name'], '')).strip()
                 source = str(row.get(col_names['source'], '')).strip()
@@ -564,16 +569,31 @@ def create_excel_for_convert_data(col_names,df,date):
                 count = str(row.get(col_names['unit'], '')).strip()
                 
 
+                if not id_ or id_.lower() == 'nan':
+                    error_factors.append(f'ردیف {row_number}: کد کالا خالی است.')
+                    continue
+
                 try:
-                    id_ =  int(float(id_))
-                except:
-                    print('Error in id :')
+                    id_ = int(float(id_))
+                except Exception:
+                    error_factors.append(f'ردیف {row_number}: کد کالا معتبر نیست: {id_}')
+                    continue
+
+                if id_ == 0:
+                    error_factors.append(f'ردیف {row_number}: کد کالا صفر است.')
+                    continue
+
+                if not name or name.lower() == 'nan':
+                    error_factors.append(f'ردیف {row_number}: نام کالا خالی است.')
                     continue
 
 
-                if(id_)==0:
-                    print(id_)
+                try:
+                    count_value = float(count)
+                except Exception:
+                    error_factors.append(f'ردیف {row_number}: مقدار کالا معتبر نیست: {count}')
                     continue
+
 
                 raw_object =  raw_material.objects.filter(name=name).last()
                 if raw_object is None:
@@ -589,7 +609,9 @@ def create_excel_for_convert_data(col_names,df,date):
                         transfer_obj = transfer_obj.last()
                     #     transfer_obj = transfer_obj.first()
                     else:
-                        print('raw material not exist')
+                        error_factors.append(
+                            f'ردیف {row_number}: برای کالای "{name}" انتقال انبار تعریف نشده است.'
+                        )
                         continue
 
 
@@ -601,20 +623,30 @@ def create_excel_for_convert_data(col_names,df,date):
                     transfer_obj = transfer_obj[0]
 
 
-                if transfer_obj.source not in total_rows:
-                    total_rows[transfer_obj.source] = []
+                try:
+                    sourece = int(float(transfer_obj.source))
+                    destination = int(float(transfer_obj.destination))
+                except Exception:
+                    error_factors.append(
+                        f'ردیف {row_number}: مبدا یا مقصد انتقال برای کالای "{name}" معتبر نیست.'
+                    )
+                    continue
+
+
+                if sourece not in total_rows:
+                    total_rows[sourece] = []
                 
                 if float(count)>0:
-                    total_rows[transfer_obj.source].append({
+                    total_rows[sourece].append({
                         'نوع قلم' : 'InventoryDeliveryItem',
                         "خروج انبار نوع": 4,
                         "خروج انبار شماره": '',
                         'خروج انبار تاريخ': date,
-                        'خروج انبار كد انبار': transfer_obj.source,
+                        'خروج انبار كد انبار': sourece,
                         'قلم خروج انبار كد': transfer_obj.material.describe,
                         "قلم خروج انبار واحد اصلي": count,
                         "قلم خروج انبار كد حساب معين": 121506,
-                        "خروج انبار كد انبار مقصد": transfer_obj.destination,  
+                        "خروج انبار كد انبار مقصد": destination,  
                     })
 
 
@@ -629,7 +661,7 @@ def create_excel_for_convert_data(col_names,df,date):
 
 
 
-            return total_outputs
+            return total_outputs , error_factors
 
 
 
@@ -637,7 +669,7 @@ def create_excel_for_convert_data(col_names,df,date):
 
 
 from io import BytesIO
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from openpyxl import load_workbook
 
 
