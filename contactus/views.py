@@ -9,7 +9,7 @@ def contact_us(request):
 
 
 from django.http import JsonResponse
-from .models import Feedback
+from .models import BankCard, Feedback
 
 def submit_feedback(request):
     if request.method == 'POST':
@@ -37,3 +37,13 @@ def submit_feedback(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
     
+
+
+def bank_card_list(request):
+    cards = BankCard.objects.select_related('bank').all().order_by('-is_active', 'bank__name')
+    active_card = BankCard.objects.filter(is_active=True).select_related('bank').first()
+
+    return render(request, 'bank_cards/card_list.html', {
+        'cards': cards,
+        'active_card': active_card,
+    })
