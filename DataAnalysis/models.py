@@ -17,7 +17,7 @@ class Sale(models.Model):
 
 
 class Invoice(models.Model):
-    invoice_number = models.CharField(max_length=50, unique=True)
+    invoice_number = models.IntegerField(unique=True)
     name = models.CharField(max_length=200,default='')
     nahveh = models.CharField(max_length=300,default='')
     phone = models.CharField(max_length=20)
@@ -79,4 +79,15 @@ class Payment(models.Model):
 
     amount = models.BigIntegerField()
     created_at = models.DateTimeField()
+    
+    
+    
+class SMSLog(models.Model):
+    invoice_number = models.CharField(max_length=50, unique=True, verbose_name="شماره فاکتور")
+    is_sent = models.BooleanField(default=False, verbose_name="آیا ارسال شده؟")
+    sent_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان ارسال")
+
+    def __str__(self):
+        return f"{self.invoice_number} - {'ارسال شده' if self.is_sent else 'ارسال نشده'}"
+
 
