@@ -1,0 +1,36 @@
+/* صفحه راست‌به‌چپ؛ اگر bootstrap-rtl استفاده نمی‌کنی، این خط را فعال کن */
+/* html { direction: rtl; } */
+
+.page-icon{
+  width: 44px; height: 44px; border-radius: 12px;
+  display: inline-flex; align-items:center; justify-content:center;
+  background: var(--bs-light); color: var(--bs-primary); font-size: 1.25rem;
+}
+
+.sticky-filters{
+  position: sticky; top: 12px; z-index: 2;
+}
+
+.avatar{
+  width: 34px; height: 34px; border-radius: 50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-weight:700;
+}
+
+.select2-container-reset .select2-container{ width: 100% !important; }
+
+/* رنگ‌های نرم Bootstrap 5.3 با data-bs-theme سازگار می‌شوند */
+.bg-success-subtle{ background: rgba(25, 135, 84, .12) !important; }
+.text-success{ color: #198754 !important; }
+.bg-danger-subtle{ background: rgba(220, 53, 69, .12) !important; }
+.text-danger{ color: #dc3545 !important; }
+.bg-secondary-subtle{ background: rgba(108,117,125,.12) !important; }
+
+.table > :not(caption) > * > * {
+  vertical-align: middle;
+}
+
+/* حالت تیره ریزبهینه */
+:root[data-bs-theme="dark"] .page-icon{
+  background: rgba(255,255,255,.05);
+}
