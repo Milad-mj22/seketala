@@ -18,7 +18,7 @@
         }
         body {
             background: #f0f4fa;
-            font-family: 'Vazirmatn', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'B Nazanin';
             padding: 12px 0 30px;
             min-height: 100vh;
         }
@@ -379,14 +379,13 @@
         </div>
 
         <div class="card-container" id="cardContainer">
-            {% for card in cards %}
-            <div class="bank-card" style="background: linear-gradient(145deg, {{ card.bank.color }}, {{ card.bank.color|add:'cc' }});">
+            <div class="bank-card" style="background: linear-gradient(145deg, {{ active_card.bank.color }}, {{ active_card.bank.color|add:'cc' }});">
                 <div>
                     <div class="bank-card-header">
-                        {% if card.bank.logo %}
-                            <img src="{{ card.bank.logo.url }}" alt="{{ card.bank.name }}" class="bank-card-logo" loading="lazy">
+                        {% if active_card.bank.logo %}
+                            <img src="{{ active_card.bank.logo.url }}" alt="{{ active_card.bank.name }}" class="bank-card-logo" loading="lazy">
                         {% else %}
-                            <span class="bank-name-title">{{ card.bank.name }}</span>
+                            <span class="bank-name-title">{{ active_card.bank.name }}</span>
                         {% endif %}
                         <span class="badge-number">
                             <i class="far fa-id-card"></i> {{ forloop.counter }}
@@ -394,27 +393,21 @@
                     </div>
 
                     <div class="card-number ltr-card" dir="ltr">
-                        {{ card.card_number|slice:"0:4" }} {{ card.card_number|slice:"4:8" }} {{ card.card_number|slice:"8:12" }} {{ card.card_number|slice:"12:16" }}
+                        {{ active_card.card_number|slice:"0:4" }} {{ active_card.card_number|slice:"4:8" }} {{ active_card.card_number|slice:"8:12" }} {{ active_card.card_number|slice:"12:16" }}
                     </div>
 
                     <div class="account-holder">
-                        <i class="fas fa-user-circle me-1"></i> {{ card.account_holder_name }}
+                        <i class="fas fa-user-circle me-1"></i> {{ active_card.account_holder_name }}
                     </div>
                 </div>
 
                 <div class="card-actions">
-                    <button class="copy-button" data-card-number="{{ card.card_number }}" onclick="handleCopy(this)" type="button">
+                    <button class="copy-button" data-card-number="{{ active_card.card_number }}" onclick="handleCopy(this)" type="button">
                         <i class="fas fa-copy"></i> کپی شماره کارت
                     </button>
                 </div>
             </div>
-            {% empty %}
-            <div class="empty-state">
-                <i class="fas fa-credit-card"></i>
-                <h4 class="mt-2">هیچ کارت بانکی ثبت نشده است.</h4>
-                <p class="text-muted" style="font-family: 'Vazirmatn', sans-serif;">برای افزودن کارت جدید به بخش مدیریت مراجعه کنید.</p>
-            </div>
-            {% endfor %}
+
         </div>
     </div>
 

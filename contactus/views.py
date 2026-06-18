@@ -39,6 +39,7 @@ def submit_feedback(request):
     
 
 
+
 def bank_card_list(request):
     cards = BankCard.objects.select_related('bank').all().order_by('-is_active', 'bank__name')
     active_card = BankCard.objects.filter(is_active=True).select_related('bank').first()
