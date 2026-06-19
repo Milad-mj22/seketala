@@ -209,11 +209,11 @@ class ReceiveInvoice(APIView):
             invoice_num_str = str(data["invoice_number"]).strip()
 
         
-        Invoice.objects.filter(invoice_number=data["invoice_number"]).delete()
+        # Invoice.objects.filter(invoice_number=data["invoice_number"]).delete()
 
         
       
-        invoice, created = Invoice.objects.update_or_create(
+        invoice, created_invoice = Invoice.objects.update_or_create(
             invoice_number=data["invoice_number"],
             defaults={
                 "name": data["name"],
@@ -237,7 +237,7 @@ class ReceiveInvoice(APIView):
 
             }
         )
-        print('created : ',created,'Invoice :',data["invoice_number"])
+        print('created : ',created_invoice,'Invoice :',data["invoice_number"])
         # اگر فاکتور قبلاً وجود داشته است، آیتم‌های قدیمی آن را پاک می‌کنیم تا آیتم‌های جدید جایگزین شوند
       
         InvoiceItem.objects.filter(invoice=invoice).delete()
@@ -254,45 +254,45 @@ class ReceiveInvoice(APIView):
             
         sms_log, created = SMSLog.objects.get_or_create(invoice_number=data["invoice_number"])
         
-        return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
-    
-        if not sms_log.is_sent:
-            sms_log.is_sent = True
-            sms_log.save()
-            
-            print(os.getenv('SMS_NIGHT_ORDER'))
-            if os.getenv('SMS_NIGHT_ORDER'):
-                moshtarak =  str(data['moshtarak'])
-                print('moshtarak',moshtarak)
-                profile_moshtarak = Profile.objects.filter(code_vaset=moshtarak).first()
-                if profile_moshtarak is None:
-                    pass
-                else:
-                    ret , phones =  normalize_iranian_mobile(profile_moshtarak.phone)
-                    
-                    ret , phones = check_personel_noght_order(ret,phones,data)
-                    
-                    print('phones',phones)
-                    
-                    
-                    if ret:
-                        current_time = timezone.now()
-                        selected_date = current_time.date()
-                        persian_date_str = get_persian_date_string(selected_date)
-                    
-                        sms_template = SMS_Template.objects.filter(name =SMSServiceTemplate_Enum.PERSONEL_NIGHT_ORDER )
-                        if sms_template.exists():
-                            name = profile_moshtarak.full_name
-                            sms_template = sms_template.first()
-                            for phone in phones:
-                                if phone:
-                                    pass
-                                    # ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.ORDERID:data["invoice_number"],OTPVar_Enum.PRICE:data["total_price"],})
-                                else:
-                                    print('Phone not Exist for send')
+        if created_invoice:
+            if not sms_log.is_sent:
+                sms_log.is_sent = True
+                sms_log.save()
+                
+                print(os.getenv('SMS_NIGHT_ORDER'))
+                if os.getenv('SMS_NIGHT_ORDER'):
+                    moshtarak =  str(data['moshtarak'])
+                    print('moshtarak',moshtarak)
+                    profile_moshtarak = Profile.objects.filter(code_vaset=moshtarak).first()
+                    if profile_moshtarak is None:
+                        pass
+                    else:
+                        ret , phones =  normalize_iranian_mobile(profile_moshtarak.phone)
+                        
+                        ret , phones = check_personel_noght_order(ret,phones,data)
+                        
+                        print('phones',phones)
+                        
+                        
+                        if ret:
+                            current_time = timezone.now()
+                            selected_date = current_time.date()
+                            persian_date_str = get_persian_date_string(selected_date)
+                        
+                            sms_template = SMS_Template.objects.filter(name =SMSServiceTemplate_Enum.PERSONEL_NIGHT_ORDER )
+                            if sms_template.exists():
+                                name = profile_moshtarak.full_name
+                                sms_template = sms_template.first()
+                                for phone in phones:
+                                    if phone:
+                                        pass
+                                        ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.ORDERID:data["invoice_number"],OTPVar_Enum.PRICE:data["total_price"],})
+                                        print('SMS Send to : ',phone, 'ret:',ret)
+                                    else:
+                                        print('Phone not Exist for send')
 
 
-            
+                
 
 
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)

@@ -4,7 +4,7 @@ import json
 import time
 
 # ================== CONFIG ==================
-API_URL = "https://seketalamanager.ir/data_analysis/api/receive-invoice/"
+API_URL = "http://172.20.10.2:8900/data_analysis/api/receive-invoice/"
 API_KEY = "SECRET123"
 
 TEST_MODE = True  # always test
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def get_test_invoices():
     return [
         {
-            "invoice_number": "INV-1036",
+            "invoice_number": "25360000000000000",
             "name": "فثسسیب",
             "nahveh": "delivery",
             "phone": "09123456789",
