@@ -561,7 +561,11 @@ CODE_MOIN_POS_MOTOFAREGHE = 121304
 MOSTARAK_FANTEZI = 20142
 POS_FANTEZI = 11
 
+
+
 def sepidar_download_excel(request):
+    SERVER = check_server()
+
     date_str = request.GET.get('date')
     is_total = request.GET.get('total', '').lower() == 'true'
     if date_str:
@@ -594,6 +598,8 @@ def sepidar_download_excel(request):
     snapp_total_price = 0
     motofareghe_total_price = 0
 
+    errors = []
+    error_factors = []  # List to track which invoices had errors
 
 
  
@@ -639,6 +645,8 @@ def sepidar_download_excel(request):
                 else:
                     break
             except:
+                error_factors.append(f'Error in Check emoty factor :',{inv.invoice_number}  )  # Add invoice number to error list
+
                 print("error in empty factor check")
         if cancel:
             continue
@@ -657,12 +665,21 @@ def sepidar_download_excel(request):
 
             name = get_kname_by_kcod(it.food_name)
             if name is None or name=='':
+                error_factors.append(f'{str(inv.invoice_number)} , Food in fodsoft with name {name} not exist in Code'  )  # Add invoice number to error list
+
                 pass
             code = get_code_by_name(name=name)
             if code is None:
-                print(
-                    f'Error food soft : Empty code {code} , it.food_name : {it.food_name} , name : {name}'
-                )
+                error_text = f'Error food soft : Empty code {code} , it.food_name : {it.food_name} , name : {name}'
+                if not SERVER:
+                    print(error_text)
+                errors.append(error_text)
+                invoice_has_error = True  # Mark invoice as having error
+                error_factors.append(f'{str(inv.invoice_number)} , {error_text}'  )  # Add invoice number to error list
+
+
+                
+
             try:
                 int(inv.moshtarak)
             except:
@@ -865,14 +882,21 @@ def sepidar_download_excel(request):
     j_date = jdatetime.date.fromgregorian(date=selected_date)
     filename = f"sepidar_{j_date.strftime('%Y-%m-%d')}.xls"  # تغییر پسوند به .xls
     
+
     resp = HttpResponse(
         output.getvalue(),
-        content_type="application/vnd.ms-excel",  # مقدار جدید برای XLS
+        content_type="application/vnd.ms-excel",
     )
     resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+    
+    # Add errors to response headers (only if there are errors)
+    if error_factors:
+        # Remove duplicates and limit to first 50 to avoid header size issues
+        unique_errors = list(set(error_factors))[:50]
+        import json
+        resp["X-Error-Factors"] = json.dumps(unique_errors)
+    
     return resp
-
-
 
 
 
