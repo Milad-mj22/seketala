@@ -154,9 +154,9 @@ tr.clickable:hover {
             </a>
 
 
-            <a href="{% url 'download_invoice_summary_excel' %}?date={{ selected_date }}&total=True">
-                <button type="button" class="secondary">Total Factors Sepidar</button>
-            </a>
+
+            <button type="button" class="secondary" onclick="totalFactorSepidar()">Total Factors Sepidar</button>
+
 
             <a href="{% url 'download_invoice_summary_excel' %}?date={{ selected_date }}">
                 <button type="button" class="secondary">Factors Sepidar</button>
@@ -350,10 +350,119 @@ function downloadResid() {
     });
 }
 
-
-
-
-
+function totalFactorSepidar() {
+    const date = document.querySelector("input[name='date']").value;
+    
+    // Construct URL with the date parameter
+    const url = `{% url 'download_invoice_summary_excel' %}?date=${date}&total=True`;
+    
+    fetch(url)
+    .then(response => {
+        const errorFactors = response.headers.get("X-Error-Factors");
+        console.log('errorFactors:',errorFactors);
+        if (errorFactors) {
+            try {
+                const list = JSON.parse(errorFactors);
+                
+                if (list.length > 0) {
+                    // Show errors in a custom modal instead of alert
+                    showErrorModal(list);
+                }
+            } catch (e) {
+                console.error("Error parsing error factors:", e);
+            }
+        }
+        
+        return response.blob();
+    })
+    .then(blob => {
+        if (blob.size === 0) {
+            showErrorModal(["No data available for download."]);
+            return;
+        }
+        
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "resid_sepidar.xls";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(err => {
+        console.error(err);
+        showErrorModal(["Download failed. Please try again."]);
+    });
+}
+// Function to show errors in a modal
+function showErrorModal(errors) {
+    // Check if error modal exists, if not create it
+    let errorModal = document.getElementById('errorModal');
+    if (!errorModal) {
+        errorModal = document.createElement('div');
+        errorModal.id = 'errorModal';
+        errorModal.style.cssText = `
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 10000;
+            justify-content: center;
+            align-items: flex-start; /* Changed from 'center' to 'flex-start' */
+            padding-top: 80px; /* Add top padding to position it below the top edge */
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin: 0 auto; /* Center horizontally */
+        `;
+        content.innerHTML = `
+            <h3 style="color: #dc2626; margin-bottom: 12px;">⚠️ Error Factors</h3>
+            <div id="errorList" style="margin: 12px 0; max-height: 300px; overflow-y: auto;"></div>
+            <button onclick="closeErrorModal()" style="
+                margin-top: 12px;
+                padding: 8px 16px;
+                background: #4f46e5;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+            ">Close</button>
+        `;
+        
+        errorModal.appendChild(content);
+        document.body.appendChild(errorModal);
+        
+        // Add click outside to close
+        errorModal.addEventListener('click', function(e) {
+            if (e.target === this) closeErrorModal();
+        });
+    }
+    
+    // Update error list
+    const listContainer = document.getElementById('errorList');
+    listContainer.innerHTML = `
+        <p style="color: #6b7280; margin-bottom: 8px;">The following invoices have errors:</p>
+        <ul style="list-style: none; padding: 0;">
+            ${errors.map(err => `<li style="padding: 6px 0; border-bottom: 1px solid #f3f4f6;">🔴 ${err}</li>`).join('')}
+        </ul>
+        <p style="color: #6b7280; margin-top: 12px; font-size: 14px;">Please check these invoices and try again.</p>
+    `;
+    
+    errorModal.style.display = 'flex';
+}
+function closeErrorModal() {
+    document.getElementById('errorModal').style.display = 'none';
+}
 
 
 

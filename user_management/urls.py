@@ -47,8 +47,8 @@ urlpatterns = [
      path('FoodManagment/', include('FoodPrice.urls')),
      path('vault/', include('vault.urls')),
      path('contact_us/', include('contactus.urls')),
+     path('landing/', include('landing.urls')),
 
-     
      path('', include('pwa.urls')),  # اضافه کردن URL های PWA
 
      path('', include('users.urls')),

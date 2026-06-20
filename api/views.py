@@ -47,13 +47,11 @@ def sms_page(request):
 
 
 def clean_message(message):
-    # Replace the number that comes after "مانده"
     try:
-        cleaned_message = re.sub(r"(مانده)\d[\d,]*", r"\1", message)
+        cleaned_message = re.sub(r"مانده\s*:\s*[\d,]+", "", message)
     except:
         cleaned_message = message
     return cleaned_message
-
 
 def get_last_sms(request, count):
     try:

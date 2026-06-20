@@ -36,7 +36,7 @@ from Constatns import Constants
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 # Media files
@@ -102,7 +102,8 @@ INSTALLED_APPS = [
     'vault',
     'pwa',
     'contactus',
-    'otp_manager'
+    'otp_manager',
+    'landing',
 
 ]
 
@@ -353,3 +354,9 @@ WHITENOISE_MIMETYPES = {
 # Ensure Whitenoise handles font files
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = False
+
+
+
+import os
+
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # یا os.getenv('OPENAI_API_KEY')

@@ -75,6 +75,9 @@
       <div class="alert alert-danger text-center">{{ error }}</div>
     {% endif %}
 
+    <div id="errors-box"></div>
+
+
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
 
@@ -125,5 +128,47 @@
     </form>
   </div>
 </div>
+
+
+<script>
+document.querySelector("form").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const response = await fetch("", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+
+    // دانلود فایل
+    const link = document.createElement("a");
+    link.href = "data:application/zip;base64," + data.file;
+    link.download = data.filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    // نمایش خطاها
+    const errorBox = document.getElementById("errors-box");
+    errorBox.innerHTML = "";
+
+    if(data.errors.length){
+        let html = "<div class='alert alert-warning'><ul>";
+
+        data.errors.forEach(e=>{
+            html += "<li>"+e+"</li>";
+        });
+
+        html += "</ul></div>";
+        errorBox.innerHTML = html;
+    }
+});
+</script>
+
+
 
 {% endblock %}

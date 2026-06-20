@@ -209,11 +209,11 @@ class ReceiveInvoice(APIView):
             invoice_num_str = str(data["invoice_number"]).strip()
 
         
-        Invoice.objects.filter(invoice_number=data["invoice_number"]).delete()
+        # Invoice.objects.filter(invoice_number=data["invoice_number"]).delete()
 
         
       
-        invoice, created = Invoice.objects.update_or_create(
+        invoice, created_invoice = Invoice.objects.update_or_create(
             invoice_number=data["invoice_number"],
             defaults={
                 "name": data["name"],
@@ -237,7 +237,7 @@ class ReceiveInvoice(APIView):
 
             }
         )
-        print('created : ',created,'Invoice :',data["invoice_number"])
+        print('created : ',created_invoice,'Invoice :',data["invoice_number"])
         # اگر فاکتور قبلاً وجود داشته است، آیتم‌های قدیمی آن را پاک می‌کنیم تا آیتم‌های جدید جایگزین شوند
       
         InvoiceItem.objects.filter(invoice=invoice).delete()
@@ -254,45 +254,45 @@ class ReceiveInvoice(APIView):
             
         sms_log, created = SMSLog.objects.get_or_create(invoice_number=data["invoice_number"])
         
-        return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
-    
-        if not sms_log.is_sent:
-            sms_log.is_sent = True
-            sms_log.save()
-            
-            print(os.getenv('SMS_NIGHT_ORDER'))
-            if os.getenv('SMS_NIGHT_ORDER'):
-                moshtarak =  str(data['moshtarak'])
-                print('moshtarak',moshtarak)
-                profile_moshtarak = Profile.objects.filter(code_vaset=moshtarak).first()
-                if profile_moshtarak is None:
-                    pass
-                else:
-                    ret , phones =  normalize_iranian_mobile(profile_moshtarak.phone)
-                    
-                    ret , phones = check_personel_noght_order(ret,phones,data)
-                    
-                    print('phones',phones)
-                    
-                    
-                    if ret:
-                        current_time = timezone.now()
-                        selected_date = current_time.date()
-                        persian_date_str = get_persian_date_string(selected_date)
-                    
-                        sms_template = SMS_Template.objects.filter(name =SMSServiceTemplate_Enum.PERSONEL_NIGHT_ORDER )
-                        if sms_template.exists():
-                            name = profile_moshtarak.full_name
-                            sms_template = sms_template.first()
-                            for phone in phones:
-                                if phone:
-                                    pass
-                                    # ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.ORDERID:data["invoice_number"],OTPVar_Enum.PRICE:data["total_price"],})
-                                else:
-                                    print('Phone not Exist for send')
+        if created_invoice:
+            if not sms_log.is_sent:
+                sms_log.is_sent = True
+                sms_log.save()
+                
+                print(os.getenv('SMS_NIGHT_ORDER'))
+                if os.getenv('SMS_NIGHT_ORDER'):
+                    moshtarak =  str(data['moshtarak'])
+                    print('moshtarak',moshtarak)
+                    profile_moshtarak = Profile.objects.filter(code_vaset=moshtarak).first()
+                    if profile_moshtarak is None:
+                        pass
+                    else:
+                        ret , phones =  normalize_iranian_mobile(profile_moshtarak.phone)
+                        
+                        ret , phones = check_personel_noght_order(ret,phones,data)
+                        
+                        print('phones',phones)
+                        
+                        
+                        if ret:
+                            current_time = timezone.now()
+                            selected_date = current_time.date()
+                            persian_date_str = get_persian_date_string(selected_date)
+                        
+                            sms_template = SMS_Template.objects.filter(name =SMSServiceTemplate_Enum.PERSONEL_NIGHT_ORDER )
+                            if sms_template.exists():
+                                name = profile_moshtarak.full_name
+                                sms_template = sms_template.first()
+                                for phone in phones:
+                                    if phone:
+                                        pass
+                                        ret = send_sms(sms_template,phone_number=phone,vars={OTPVar_Enum.NAME:name,OTPVar_Enum.DATE:persian_date_str,OTPVar_Enum.ORDERID:data["invoice_number"],OTPVar_Enum.PRICE:data["total_price"],})
+                                        print('SMS Send to : ',phone, 'ret:',ret)
+                                    else:
+                                        print('Phone not Exist for send')
 
 
-            
+                
 
 
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
@@ -561,7 +561,11 @@ CODE_MOIN_POS_MOTOFAREGHE = 121304
 MOSTARAK_FANTEZI = 20142
 POS_FANTEZI = 11
 
+
+
 def sepidar_download_excel(request):
+    SERVER = check_server()
+
     date_str = request.GET.get('date')
     is_total = request.GET.get('total', '').lower() == 'true'
     if date_str:
@@ -594,6 +598,8 @@ def sepidar_download_excel(request):
     snapp_total_price = 0
     motofareghe_total_price = 0
 
+    errors = []
+    error_factors = []  # List to track which invoices had errors
 
 
  
@@ -639,6 +645,8 @@ def sepidar_download_excel(request):
                 else:
                     break
             except:
+                error_factors.append(f'Error in Check emoty factor :',{inv.invoice_number}  )  # Add invoice number to error list
+
                 print("error in empty factor check")
         if cancel:
             continue
@@ -657,12 +665,21 @@ def sepidar_download_excel(request):
 
             name = get_kname_by_kcod(it.food_name)
             if name is None or name=='':
+                error_factors.append(f'{str(inv.invoice_number)} , Food in fodsoft with name {name} not exist in Code'  )  # Add invoice number to error list
+
                 pass
             code = get_code_by_name(name=name)
             if code is None:
-                print(
-                    f'Error food soft : Empty code {code} , it.food_name : {it.food_name} , name : {name}'
-                )
+                error_text = f'Error food soft : Empty code {code} , it.food_name : {it.food_name} , name : {name}'
+                if not SERVER:
+                    print(error_text)
+                errors.append(error_text)
+                invoice_has_error = True  # Mark invoice as having error
+                error_factors.append(f'{str(inv.invoice_number)} , {error_text}'  )  # Add invoice number to error list
+
+
+                
+
             try:
                 int(inv.moshtarak)
             except:
@@ -865,14 +882,21 @@ def sepidar_download_excel(request):
     j_date = jdatetime.date.fromgregorian(date=selected_date)
     filename = f"sepidar_{j_date.strftime('%Y-%m-%d')}.xls"  # تغییر پسوند به .xls
     
+
     resp = HttpResponse(
         output.getvalue(),
-        content_type="application/vnd.ms-excel",  # مقدار جدید برای XLS
+        content_type="application/vnd.ms-excel",
     )
     resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+    
+    # Add errors to response headers (only if there are errors)
+    if error_factors:
+        # Remove duplicates and limit to first 50 to avoid header size issues
+        unique_errors = list(set(error_factors))[:50]
+        import json
+        resp["X-Error-Factors"] = json.dumps(unique_errors)
+    
     return resp
-
-
 
 
 
