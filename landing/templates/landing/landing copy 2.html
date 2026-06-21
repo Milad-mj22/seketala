@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
 <meta name="theme-color" content="#0b0b0c">
-<title>Dorsa</title>
+<title>سکه طلا | سفارش طلایی، تحویل فوری</title>
 <meta name="description" content="رستوران فست‌فود سکه طلا - سفارش آنلاین با تحویل زیر ۲۰ دقیقه و کیفیت طلایی">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -169,14 +169,6 @@
     100% {
       transform: scale(1);
       opacity: 1;
-    }
-  }
-  @keyframes typingBounce {
-    0%, 60%, 100% {
-      transform: translateY(0);
-    }
-    30% {
-      transform: translateY(-6px);
     }
   }
 
@@ -725,7 +717,7 @@
     opacity: 1;
   }
 
-  /* ========== Chat Modal ========== */
+  /* ========== Voice Modal ========== */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -754,20 +746,18 @@
   .modal-box {
     background: var(--white);
     width: 100%;
-    max-width: 520px;
+    max-width: 480px;
     border-radius: 26px 26px 0 0;
-    padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
+    padding: 28px 24px calc(28px + env(safe-area-inset-bottom));
     transform: translateY(40px);
     transition: transform .35s var(--ease);
-    max-height: 92vh;
-    display: flex;
-    flex-direction: column;
+    max-height: 88vh;
+    overflow-y: auto;
   }
   @media (min-width: 760px) {
     .modal-box {
       border-radius: 26px;
-      padding: 28px 24px;
-      max-height: 80vh;
+      padding: 32px 30px;
     }
   }
   .modal-overlay.open .modal-box {
@@ -779,8 +769,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 4px;
-    flex-shrink: 0;
+    margin-bottom: 6px;
   }
   .modal-head h3 {
     font-size: 1.2rem;
@@ -803,302 +792,188 @@
 
   .modal-sub {
     color: var(--text-muted-dark);
-    font-size: .85rem;
-    margin-bottom: 12px;
-    flex-shrink: 0;
+    font-size: .88rem;
+    margin-bottom: 24px;
   }
 
-  /* ========== Chat Styles ========== */
-  .chat-container {
+  .mic-stage {
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-height: 300px;
-    max-height: 400px;
-    border: 1px solid #ece6d6;
-    border-radius: var(--radius-md);
-    background: #faf8f5;
-    overflow: hidden;
+    align-items: center;
+    padding: 26px 0 10px;
   }
-
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .chat-message {
-    display: flex;
-    flex-direction: column;
-    animation: slideUp .3s var(--ease);
-  }
-
-  .chat-message.user {
-    align-items: flex-end;
-  }
-
-  .chat-message.system {
-    align-items: flex-start;
-  }
-
-  .message-bubble {
-    max-width: 88%;
-    padding: 10px 14px;
-    border-radius: 16px;
-    font-size: .9rem;
-    line-height: 1.7;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-  }
-
-  .chat-message.user .message-bubble {
+  .mic-big-btn {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
     background: var(--gold-line);
-    color: #1a1404;
-    border-bottom-right-radius: 4px;
-  }
-
-  .chat-message.system .message-bubble {
-    background: var(--white);
-    border: 1px solid #ece6d6;
-    color: var(--black);
-    border-bottom-left-radius: 4px;
-  }
-
-  .message-time {
-    font-size: .65rem;
-    color: var(--text-muted-dark);
-    margin-top: 3px;
-    padding: 0 4px;
-  }
-
-  .chat-message.user .message-time {
-    padding-right: 4px;
-  }
-
-  .chat-message.system .message-time {
-    padding-left: 4px;
-  }
-
-  /* Chat Input Area */
-  .chat-input-area {
-    margin-top: 10px;
-    border-top: 1px solid #ece6d6;
-    padding-top: 10px;
-    flex-shrink: 0;
-  }
-
-  .input-wrapper {
     display: flex;
-    gap: 8px;
-    align-items: flex-end;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 16px 34px -10px rgba(184, 144, 47, .7);
+    transition: transform .25s var(--ease);
+    margin-bottom: 18px;
+  }
+  .mic-big-btn svg {
+    width: 36px;
+    height: 36px;
+    stroke: #1a1404;
+  }
+  .mic-big-btn.recording {
+    animation: pulseRing 1.4s ease-out infinite;
+    background: linear-gradient(135deg, #ff6b6b, #c0392b);
+  }
+  .mic-big-btn:active {
+    transform: scale(.93);
+  }
+  .mic-status {
+    font-weight: 700;
+    font-size: .98rem;
+    margin-bottom: 4px;
+  }
+  .mic-hint {
+    font-size: .82rem;
+    color: var(--text-muted-dark);
+    text-align: center;
+    max-width: 280px;
   }
 
-  .chat-input {
-    flex: 1;
-    border: 1px solid #e3ddca;
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    font-family: inherit;
+  .transcript-box {
+    background: #f7f4ec;
+    border: 1px solid #ece6d6;
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 18px;
+    font-size: .92rem;
+    line-height: 1.8;
+    display: none;
+  }
+  .transcript-box.show {
+    display: block;
+    animation: fadeIn .4s var(--ease);
+  }
+  .transcript-box .label {
+    font-size: .74rem;
+    font-weight: 700;
+    color: var(--gold-matte);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .ai-reply-box {
+    background: #101010;
+    color: #f1ece0;
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 14px;
     font-size: .9rem;
-    resize: none;
-    min-height: 44px;
-    max-height: 100px;
-    transition: border-color .3s;
-    background: var(--white);
-    line-height: 1.5;
+    line-height: 1.8;
+    display: none;
+  }
+  .ai-reply-box.show {
+    display: block;
+    animation: fadeIn .4s var(--ease);
+  }
+  .ai-reply-box .label {
+    font-size: .74rem;
+    font-weight: 700;
+    color: var(--gold-bright);
+    display: block;
+    margin-bottom: 6px;
   }
 
-  .chat-input:focus {
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .modal-actions button {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .fallback-input {
+    width: 100%;
+    border: 1px solid #e3ddca;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: .92rem;
+    margin-top: 14px;
+    resize: vertical;
+    min-height: 70px;
+    display: none;
+    transition: border-color .3s;
+  }
+  .fallback-input:focus {
     outline: none;
     border-color: var(--gold-matte);
     box-shadow: 0 0 0 3px rgba(184, 144, 47, .1);
   }
-
-  .chat-input:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  .fallback-input.show {
+    display: block;
   }
 
-  .mic-btn-small {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--gold-line);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: transform .25s var(--ease), background .25s var(--ease);
-    color: #1a1404;
-  }
-
-  .mic-btn-small:hover {
-    transform: scale(1.05);
-  }
-
-  .mic-btn-small:active {
-    transform: scale(.95);
-  }
-
-  .mic-btn-small.recording {
-    background: linear-gradient(135deg, #ff6b6b, #c0392b);
-    animation: pulseRing 1.4s ease-out infinite;
-  }
-
-  .mic-btn-small:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .send-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--black);
-    color: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: transform .25s var(--ease), background .25s var(--ease);
-  }
-
-  .send-btn:hover {
-    transform: scale(1.05);
-    background: #000;
-  }
-
-  .send-btn:active {
-    transform: scale(.95);
-  }
-
-  .send-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .send-btn svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  /* Recording Status */
-  .recording-status {
+  /* Recording Indicator */
+  .recording-indicator {
     display: none;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 14px;
-    margin-top: 8px;
+    text-align: center;
+    margin-top: 10px;
+    padding: 8px 16px;
     background: #f8f0e8;
-    border-radius: var(--radius-sm);
+    border-radius: 12px;
     border: 1px solid #e8ddd0;
-    font-size: .85rem;
-    color: var(--text-muted-dark);
   }
-
-  .recording-status.show {
-    display: flex;
+  .recording-indicator.show {
+    display: block;
     animation: fadeIn .3s var(--ease);
   }
-
-  .recording-status .dot {
+  .recording-indicator .dot {
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: #ff4444;
     animation: recordingPulse 1s ease-out infinite;
+    vertical-align: middle;
   }
-
-  .recording-status .timer {
-    font-weight: 700;
-    color: var(--gold-matte);
-    margin-right: auto;
-  }
-
-  /* Loading / Typing Indicator */
-  .chat-loading {
-    display: none;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 0 4px;
-    flex-shrink: 0;
-  }
-
-  .chat-loading.show {
-    display: flex;
-  }
-
-  .typing-dots {
-    display: flex;
-    gap: 4px;
-  }
-
-  .typing-dots span {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--gold-matte);
-    animation: typingBounce 1.4s infinite;
-  }
-
-  .typing-dots span:nth-child(2) {
-    animation-delay: .2s;
-  }
-
-  .typing-dots span:nth-child(3) {
-    animation-delay: .4s;
-  }
-
-  .loading-text {
-    font-size: .82rem;
-    color: var(--text-muted-dark);
-  }
-
-  /* Order Summary */
-  .order-summary {
-    display: none;
-    background: #f7f4ec;
-    border: 1px solid #ece6d6;
-    border-radius: var(--radius-sm);
-    padding: 12px 16px;
-    margin-top: 8px;
-    flex-shrink: 0;
-  }
-
-  .order-summary.show {
-    display: block;
-    animation: fadeIn .4s var(--ease);
-  }
-
-  .order-summary .label {
-    font-size: .75rem;
-    font-weight: 700;
-    color: var(--gold-matte);
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .order-summary .content {
-    font-size: .9rem;
-    line-height: 1.7;
-  }
-
-  .order-summary .actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-  }
-
-  .order-summary .actions button {
-    flex: 1;
-    min-width: 80px;
+  .recording-indicator .label {
+    margin-right: 8px;
     font-size: .85rem;
-    padding: 8px 16px;
+    color: var(--text-muted-dark);
+    vertical-align: middle;
+  }
+  .recording-indicator .timer {
+    font-size: .85rem;
+    color: var(--gold-matte);
+    font-weight: 700;
+    vertical-align: middle;
+  }
+  .recording-indicator .wave {
+    display: inline-block;
+    font-size: 1.2rem;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+
+  .voice-mode-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: 700;
+    background: #e8e0d4;
+    color: #6b6660;
+    margin-bottom: 10px;
+  }
+  .voice-mode-badge.fallback {
+    background: #f0e6d8;
+    color: #b8902f;
+  }
+  .voice-mode-badge.recognition {
+    background: #d4e8e0;
+    color: #2f8b7b;
   }
 
   /* ========== Toast ========== */
@@ -1189,34 +1064,6 @@
       padding: 14px 28px;
       font-size: .95rem;
     }
-    .modal-box {
-      padding: 16px 14px calc(14px + env(safe-area-inset-bottom));
-      max-height: 95vh;
-    }
-    .chat-container {
-      min-height: 240px;
-      max-height: 320px;
-    }
-    .message-bubble {
-      max-width: 92%;
-      font-size: .85rem;
-      padding: 8px 12px;
-    }
-    .chat-input {
-      font-size: .85rem;
-      padding: 8px 12px;
-      min-height: 40px;
-    }
-    .mic-btn-small,
-    .send-btn {
-      width: 40px;
-      height: 40px;
-    }
-    .mic-btn-small svg,
-    .send-btn svg {
-      width: 18px;
-      height: 18px;
-    }
   }
 
   @media (max-width: 380px) {
@@ -1229,13 +1076,6 @@
       font-size: .7rem;
       right: 14px;
     }
-    .chat-container {
-      min-height: 200px;
-      max-height: 260px;
-    }
-    .modal-head h3 {
-      font-size: 1rem;
-    }
   }
 
   button,
@@ -1247,19 +1087,6 @@
   button:focus-visible {
     outline: 3px solid var(--gold-bright);
     outline-offset: 3px;
-  }
-
-  /* Scrollbar Styling */
-  .chat-messages::-webkit-scrollbar {
-    width: 4px;
-  }
-  .chat-messages::-webkit-scrollbar-track {
-    background: #f1efe9;
-    border-radius: 4px;
-  }
-  .chat-messages::-webkit-scrollbar-thumb {
-    background: var(--gold-matte);
-    border-radius: 4px;
   }
 </style>
 </head>
@@ -1295,7 +1122,7 @@
         <p class="hero-sub reveal">طعم اصیل، مواد تازه و کیفیت طلایی؛ سفارش شما در کمتر از ۲۰ دقیقه به دستتان می‌رسد.</p>
         <div class="hero-actions reveal">
           <a href="/menu" class="btn-cta" id="ctaOrder">ثبت سفارش آنلاین</a>
-          <button class="btn-outline-gold" id="ctaVoiceHero">💬 چت با سکه طلا</button>
+          <button class="btn-outline-gold" id="ctaVoiceHero">🎙️ سفارش با صدا</button>
         </div>
       </div>
       <div class="hero-image reveal">
@@ -1460,77 +1287,72 @@
     </div>
   </footer>
 
-  <!-- ========== Chat FAB ========== -->
-  <button class="mic-fab" id="micFab" aria-label="چت با سکه طلا">
-    <span class="mic-fab-label">چت با سکه طلا</span>
+  <!-- ========== Voice FAB ========== -->
+  <button class="mic-fab" id="micFab" aria-label="سفارش صوتی - باز کردن دستیار صوتی">
+    <span class="mic-fab-label">سفارش با صدا</span>
     <svg viewBox="0 0 24 24" fill="none" stroke="#1a1404" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+      <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0"/><path d="M12 18v4"/><path d="M8 22h8"/>
     </svg>
   </button>
 
-  <!-- ========== Chat Modal ========== -->
+  <!-- ========== Voice Modal ========== -->
   <div class="modal-overlay" id="voiceModal" role="dialog" aria-modal="true" aria-labelledby="voiceModalTitle">
     <div class="modal-box">
       <div class="modal-head">
-        <h3 id="voiceModalTitle">💬 چت با سکه طلا</h3>
+        <h3 id="voiceModalTitle">🎙️ سفارش صوتی سکه طلا</h3>
         <button class="modal-close" id="modalCloseBtn" aria-label="بستن">✕</button>
       </div>
-      <p class="modal-sub">پیام خود را بنویسید یا از دکمه میکروفون برای ارسال صوتی استفاده کنید.</p>
+      <p class="modal-sub">روی دکمه زیر بزنید، سفارش خودتون رو با صدا بگید و بعد تأیید کنید.</p>
 
-      <!-- Chat Container -->
-      <div class="chat-container">
-        <div class="chat-messages" id="chatMessages">
-          <div class="chat-message system">
-            <div class="message-bubble">
-              👋 سلام! به رستوران سکه طلا خوش آمدید.<br>
-              من دستیار هوشمند سفارش‌گیری هستم.<br>
-              می‌توانید سفارش خود را ثبت کنید یا سوال بپرسید.
-            </div>
-            <div class="message-time">همین الان</div>
-          </div>
-        </div>
-
-        <!-- Loading Indicator -->
-        <div class="chat-loading" id="chatLoading">
-          <div class="typing-dots">
-            <span></span><span></span><span></span>
-          </div>
-          <span class="loading-text">دستیار در حال تایپ...</span>
-        </div>
-      </div>
-
-      <!-- Order Summary -->
-      <div class="order-summary" id="orderSummary">
-        <span class="label">📋 خلاصه سفارش</span>
-        <div class="content" id="orderSummaryContent"></div>
-        <div class="actions">
-          <button class="btn-solid-dark" id="confirmOrderBtn">✅ ثبت نهایی سفارش</button>
-          <button class="btn-outline-gold" id="editOrderBtn">✏️ ویرایش سفارش</button>
-        </div>
-      </div>
-
-      <!-- Input Area -->
-      <div class="chat-input-area">
-        <div class="input-wrapper">
-          <textarea class="chat-input" id="chatInput" placeholder="پیام خود را بنویسید..." rows="1"></textarea>
-          <button class="mic-btn-small" id="micSmallBtn" aria-label="ضبط صدا">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0"/><path d="M12 18v4"/><path d="M8 22h8"/>
-            </svg>
-          </button>
-          <button class="send-btn" id="sendBtn" aria-label="ارسال پیام">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-            </svg>
-          </button>
-        </div>
-        <div class="recording-status" id="recordingStatus">
+      <div class="mic-stage">
+        <div id="voiceModeBadge" class="voice-mode-badge">🔊 تشخیص گفتار</div>
+        
+        <button class="mic-big-btn" id="micBigBtn" aria-label="شروع مکالمه صوتی">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1a1404" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0"/><path d="M12 18v4"/><path d="M8 22h8"/>
+          </svg>
+        </button>
+        <div class="mic-status" id="micStatusText">شروع مکالمه صوتی</div>
+        <div class="mic-hint" id="micHintText">دکمه را لمس کنید و سفارش خود را به فارسی بگویید</div>
+        
+        <!-- Recording Indicator -->
+        <div class="recording-indicator" id="recordingIndicator">
           <span class="dot"></span>
-          <span>در حال ضبط...</span>
-          <span class="timer" id="chatRecordingTimer">۱۵</span>
+          <span class="wave">🎤</span>
+          <span class="label">در حال ضبط...</span>
+          <span class="timer" id="recordingTimer">۱۵</span>
         </div>
       </div>
 
+      <textarea class="fallback-input" id="fallbackInput" placeholder="📝 در صورت عدم دسترسی به میکروفون، سفارش خود را اینجا تایپ کنید..."></textarea>
+
+      <div class="transcript-box" id="transcriptBox">
+        <span class="label">📝 متن سفارش شما</span>
+        <span id="transcriptText"></span>
+      </div>
+
+      <div class="ai-reply-box" id="aiReplyBox">
+        <span class="label">🤖 پاسخ دستیار هوشمند</span>
+        <span id="aiReplyText"></span>
+      </div>
+
+      <div class="modal-actions" id="modalActions" style="display:none;">
+        <button class="btn-solid-dark" id="confirmOrderBtn">✅ تأیید و ثبت نهایی</button>
+        <button class="btn-outline-gold" id="retryOrderBtn">🔄 ضبط دوباره</button>
+        <button class="btn-outline-gold" id="typeManuallyBtn" style="display:none;">✏️ تایپ دستی</button>
+      </div>
+
+      <details class="advanced" style="margin-top:18px;">
+        <summary style="font-size:.82rem; color:var(--text-muted-dark); cursor:pointer;">⚙️ تنظیمات پیشرفته</summary>
+        <div style="margin-top:10px;">
+          <input type="password" class="key-input" id="openaiKeyInput" placeholder="sk-... (کلید OpenAI API برای Whisper)" style="width:100%; border:1px solid #e3ddca; border-radius:10px; padding:10px 12px; font-family:inherit; font-size:.85rem; direction:ltr; text-align:left;">
+          <p style="font-size:.74rem; color:var(--text-muted-dark); line-height:1.7; margin-top:8px;">
+            🔒 این کلید فقط در حافظه‌ی مرورگر شما و برای همین نشست نگه‌داری می‌شود.
+            در نسخه‌ی نهایی، این فراخوانی باید از طریق سرور انجام شود.
+          </p>
+          <button id="testWhisperBtn" class="btn-outline-gold" style="margin-top:10px; font-size:.8rem; padding:6px 16px;">🧪 تست Whisper (با کلید وارد شده)</button>
+        </div>
+      </details>
     </div>
   </div>
 
@@ -1588,27 +1410,55 @@
         });
       });
 
-      // ===== Chat Modal =====
+      // ===== Voice Assistant =====
       var micFab = document.getElementById('micFab');
       var voiceModal = document.getElementById('voiceModal');
       var modalCloseBtn = document.getElementById('modalCloseBtn');
+      var micBigBtn = document.getElementById('micBigBtn');
+      var micStatusText = document.getElementById('micStatusText');
+      var micHintText = document.getElementById('micHintText');
+      var fallbackInput = document.getElementById('fallbackInput');
+      var transcriptBox = document.getElementById('transcriptBox');
+      var transcriptText = document.getElementById('transcriptText');
+      var aiReplyBox = document.getElementById('aiReplyBox');
+      var aiReplyText = document.getElementById('aiReplyText');
+      var modalActions = document.getElementById('modalActions');
+      var confirmOrderBtn = document.getElementById('confirmOrderBtn');
+      var retryOrderBtn = document.getElementById('retryOrderBtn');
+      var typeManuallyBtn = document.getElementById('typeManuallyBtn');
+      var openaiKeyInput = document.getElementById('openaiKeyInput');
       var ctaVoiceHero = document.getElementById('ctaVoiceHero');
+      var recordingIndicator = document.getElementById('recordingIndicator');
+      var recordingTimer = document.getElementById('recordingTimer');
+      var voiceModeBadge = document.getElementById('voiceModeBadge');
+      var testWhisperBtn = document.getElementById('testWhisperBtn');
+
+      // ===== Recording Variables =====
+      var mediaRecorder = null;
+      var audioChunks = [];
+      var isRecordingFallback = false;
+      var recordTimer = null;
+      var recorderStartTime = 0;
+      var recorderInterval = null;
+
+      function isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      }
 
       function openModal() {
         voiceModal.classList.add('open');
         document.body.style.overflow = 'hidden';
-        // Focus on input
-        setTimeout(function() {
-          chatInput.focus();
-        }, 400);
+        updateUI();
       }
 
       function closeModal() {
         voiceModal.classList.remove('open');
         document.body.style.overflow = '';
-        // Stop recording if active
-        if (isChatRecording) {
-          stopChatRecording();
+        resetVoiceUI();
+        // Stop any ongoing recording
+        if (isRecordingFallback) {
+          stopFallbackRecording();
         }
       }
 
@@ -1619,388 +1469,556 @@
         if (e.target === voiceModal) closeModal();
       });
 
-      // ===== Chat Functionality =====
-      var chatMessages = document.getElementById('chatMessages');
-      var chatInput = document.getElementById('chatInput');
-      var sendBtn = document.getElementById('sendBtn');
-      var micSmallBtn = document.getElementById('micSmallBtn');
-      var chatLoading = document.getElementById('chatLoading');
-      var recordingStatus = document.getElementById('recordingStatus');
-      var chatRecordingTimer = document.getElementById('chatRecordingTimer');
-      var orderSummary = document.getElementById('orderSummary');
-      var orderSummaryContent = document.getElementById('orderSummaryContent');
-      var confirmOrderBtn = document.getElementById('confirmOrderBtn');
-      var editOrderBtn = document.getElementById('editOrderBtn');
-
-      var isProcessing = false;
-      var orderItems = [];
-
-      // Auto-resize textarea
-      chatInput.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-      });
-
-      // Send message on Enter (without Shift)
-      chatInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendMessage();
+      function resetVoiceUI() {
+        micBigBtn.classList.remove('recording');
+        micStatusText.textContent = 'شروع مکالمه صوتی';
+        micHintText.textContent = 'دکمه را لمس کنید و سفارش خود را به فارسی بگویید';
+        transcriptBox.classList.remove('show');
+        aiReplyBox.classList.remove('show');
+        modalActions.style.display = 'none';
+        fallbackInput.value = '';
+        recordingIndicator.classList.remove('show');
+        if (recorderInterval) {
+          clearInterval(recorderInterval);
+          recorderInterval = null;
         }
-      });
-
-      // Send message on button click
-      sendBtn.addEventListener('click', sendMessage);
-
-      // ===== Send Message =====
-      function sendMessage() {
-        var text = chatInput.value.trim();
-        if (!text || isProcessing) return;
-
-        // Add user message
-        addMessage('user', text);
-        chatInput.value = '';
-        chatInput.style.height = 'auto';
-        chatInput.disabled = true;
-        sendBtn.disabled = true;
-        micSmallBtn.disabled = true;
-        isProcessing = true;
-
-        // Show loading
-        chatLoading.classList.add('show');
-        scrollToBottom();
-
-        // Send to chat API
-        sendToChatAPI(text);
+        isRecordingFallback = false;
+        updateUI();
       }
 
-      // ===== Add Message to Chat =====
-      function addMessage(type, text, time) {
-        var messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message ' + type;
-
-        var bubble = document.createElement('div');
-        bubble.className = 'message-bubble';
-        bubble.textContent = text;
-
-        var timeSpan = document.createElement('div');
-        timeSpan.className = 'message-time';
-        timeSpan.textContent = time || getCurrentTime();
-
-        messageDiv.appendChild(bubble);
-        messageDiv.appendChild(timeSpan);
-
-        chatMessages.appendChild(messageDiv);
-        scrollToBottom();
+      function updateUI() {
+        // Update badge and hint based on available features
+        if (supportsSpeech && !micPermissionDenied) {
+          voiceModeBadge.textContent = '🔊 تشخیص گفتار (Web Speech)';
+          voiceModeBadge.className = 'voice-mode-badge recognition';
+          micHintText.textContent = 'دکمه را لمس کنید و سفارش خود را به فارسی بگویید';
+        } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          voiceModeBadge.textContent = '🎙️ ضبط صدا (Fallback)';
+          voiceModeBadge.className = 'voice-mode-badge fallback';
+          micHintText.textContent = 'دکمه را بزنید و تا ۱۵ ثانیه صحبت کنید';
+        } else {
+          voiceModeBadge.textContent = '✏️ ورود تایپی';
+          voiceModeBadge.className = 'voice-mode-badge fallback';
+          micHintText.textContent = 'لطفاً سفارش خود را تایپ کنید';
+          fallbackInput.classList.add('show');
+        }
       }
 
-      function getCurrentTime() {
-        var now = new Date();
-        return now.getHours().toString().padStart(2, '0') + ':' +
-          now.getMinutes().toString().padStart(2, '0');
+      // ===== Speech Recognition =====
+      function isStandalonePWA() {
+        return window.navigator.standalone === true ||
+          (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
       }
 
-      function scrollToBottom() {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+      var SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      var recognition = null;
+      var isRecording = false;
+      var micPermissionDenied = false;
+      var supportsSpeech = !!SpeechRecognitionAPI && !(isIOS() && isStandalonePWA());
+
+      if (!supportsSpeech) {
+        if (isIOS() && isStandalonePWA()) {
+          micHintText.textContent = '📱 در حالت PWA، از ضبط صدا استفاده می‌شود.';
+        } else {
+          micHintText.textContent = '📝 مرورگر شما از تشخیص گفتار پشتیبانی نمی‌کند. از ضبط صدا استفاده می‌شود.';
+        }
+        fallbackInput.classList.add('show');
+        updateUI();
       }
 
-      // ===== Send to Chat API =====
-      function sendToChatAPI(text) {
-        fetch('/api/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ message: text })
-        })
-        .then(function(response) {
-          if (!response.ok) {
-            return response.json().then(function(errorData) {
-              throw new Error(errorData.message || 'خطا در ارتباط با سرور (کد ' + response.status + ')');
-            });
-          }
-          return response.json();
-        })
-        .then(function(data) {
-          chatLoading.classList.remove('show');
-          isProcessing = false;
-          chatInput.disabled = false;
-          sendBtn.disabled = false;
-          micSmallBtn.disabled = false;
-          chatInput.focus();
+      if (supportsSpeech) {
+        recognition = new SpeechRecognitionAPI();
+        recognition.lang = 'fa-IR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.continuous = false;
 
-          if (data.success && data.reply) {
-            addMessage('system', data.reply);
+        recognition.onstart = function() {
+          isRecording = true;
+          micBigBtn.classList.add('recording');
+          micStatusText.textContent = '🎤 در حال شنیدن... صحبت کنید';
+          micHintText.textContent = 'برای پایان، دوباره دکمه را بزنید یا صبر کنید.';
+        };
 
-            // Check if order is complete
-            if (data.order_complete && data.order_summary) {
-              showOrderSummary(data.order_summary);
+        recognition.onresult = function(event) {
+          var text = event.results[0][0].transcript;
+          handleTranscript(text);
+        };
+
+        recognition.onerror = function(event) {
+          isRecording = false;
+          micBigBtn.classList.remove('recording');
+          console.log('SpeechRecognition error:', event.error);
+          
+          if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            micPermissionDenied = true;
+            micStatusText.textContent = '🎙️ استفاده از ضبط صدا (تشخیص گفتار در دسترس نیست)';
+            micHintText.textContent = 'روی دکمه بزنید و سفارش خود را بگویید (حداکثر ۱۵ ثانیه)';
+            fallbackInput.classList.remove('show');
+            updateUI();
+            // Switch to fallback recording mode
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+              showToast('🎙️ از حالت ضبط صدا استفاده می‌شود.', 3000);
+            } else {
+              fallbackInput.classList.add('show');
             }
+          } else if (event.error === 'audio-capture' || event.error === 'microphone') {
+            micStatusText.textContent = '🎤 میکروفون در دسترس نیست';
+            micHintText.textContent = 'لطفاً میکروفون را وصل کنید یا سفارش را تایپ کنید.';
+            fallbackInput.classList.add('show');
+          } else if (event.error === 'no-speech') {
+            micStatusText.textContent = '🔇 صدایی تشخیص داده نشد';
+            micHintText.textContent = 'لطفاً دوباره امتحان کنید یا از ضبط صدا استفاده کنید.';
           } else {
-            addMessage('system', '⚠️ متاسفانه پاسخ دریافت نشد. لطفاً دوباره تلاش کنید.');
+            micStatusText.textContent = '❌ متوجه نشدم، دوباره تلاش کنید';
+            micHintText.textContent = 'مطمئن شوید واضح صحبت می‌کنید یا از ضبط صدا استفاده کنید.';
+            fallbackInput.classList.add('show');
           }
-        })
-        .catch(function(err) {
-          chatLoading.classList.remove('show');
-          isProcessing = false;
-          chatInput.disabled = false;
-          sendBtn.disabled = false;
-          micSmallBtn.disabled = false;
-          console.error('Chat error:', err);
-          addMessage('system', '⚠️ خطا در ارتباط با سرور: ' + err.message);
-          showToast('❌ خطا در ارسال پیام', 3000);
-        });
+        };
+
+        recognition.onend = function() {
+          isRecording = false;
+          micBigBtn.classList.remove('recording');
+        };
       }
 
-      // ===== Show Order Summary =====
-      function showOrderSummary(summary) {
-        orderSummaryContent.textContent = summary;
-        orderSummary.classList.add('show');
-        showToast('📋 خلاصه سفارش شما آماده است!', 3000);
-      }
-
-      // ===== Confirm Order =====
-      confirmOrderBtn.addEventListener('click', function() {
-        if (!orderSummary.classList.contains('show')) {
-          showToast('⚠️ هنوز سفارشی برای ثبت وجود ندارد.', 3000);
-          return;
-        }
-
-        // Send confirmation to server
-        fetch('/api/confirm-order', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ order: orderSummaryContent.textContent })
-        })
-        .then(function(response) {
-          if (!response.ok) {
-            return response.json().then(function(errorData) {
-              throw new Error(errorData.message || 'خطا در ثبت سفارش');
-            });
-          }
-          return response.json();
-        })
-        .then(function(data) {
-          if (data.success) {
-            showToast('🎉 سفارش شما با موفقیت ثبت شد! طلایی‌ها در راهند.', 4000);
-            // Add system message
-            addMessage('system', '✅ سفارش شما ثبت شد! منتظر تحویل طلایی باشید. 🎉');
-            orderSummary.classList.remove('show');
-            // Reset order items
-            orderItems = [];
-          } else {
-            throw new Error(data.message || 'خطا در ثبت سفارش');
-          }
-        })
-        .catch(function(err) {
-          showToast('❌ خطا در ثبت سفارش: ' + err.message, 3000);
-        });
-      });
-
-      // ===== Edit Order =====
-      editOrderBtn.addEventListener('click', function() {
-        orderSummary.classList.remove('show');
-        showToast('✏️ سفارش خود را ویرایش کنید.', 2000);
-        chatInput.focus();
-      });
-
-      // ===== Recording =====
-      var chatRecorder = null;
-      var chatAudioChunks = [];
-      var isChatRecording = false;
-      var chatRecordTimer = null;
-      var chatRecorderInterval = null;
-
-      micSmallBtn.addEventListener('click', function() {
-        if (isProcessing) {
-          showToast('⏳ لطفاً صبر کنید تا پاسخ دریافت شود.', 2000);
-          return;
-        }
-
-        if (isChatRecording) {
-          stopChatRecording();
-          return;
-        }
-
+      // ===== Fallback Recording =====
+      function startFallbackRecording() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          showToast('❌ مرورگر از ضبط صدا پشتیبانی نمی‌کند.', 3000);
+          micStatusText.textContent = '❌ مرورگر از ضبط صدا پشتیبانی نمی‌کند';
+          fallbackInput.classList.add('show');
           return;
         }
 
-        startChatRecording();
-      });
-
-      function startChatRecording() {
         navigator.mediaDevices.getUserMedia({ audio: true })
           .then(function(stream) {
-            chatRecorder = new MediaRecorder(stream);
-            chatAudioChunks = [];
-
-            chatRecorder.ondataavailable = function(event) {
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            
+            mediaRecorder.ondataavailable = function(event) {
               if (event.data.size > 0) {
-                chatAudioChunks.push(event.data);
+                audioChunks.push(event.data);
               }
             };
 
-            chatRecorder.onstop = function() {
-              var audioBlob = new Blob(chatAudioChunks, { type: 'audio/wav' });
-              sendChatAudioToServer(audioBlob);
+            mediaRecorder.onstop = function() {
+              var audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+              sendAudioToServer(audioBlob);
               stream.getTracks().forEach(function(track) {
                 track.stop();
               });
-              recordingStatus.classList.remove('show');
-              if (chatRecorderInterval) {
-                clearInterval(chatRecorderInterval);
-                chatRecorderInterval = null;
+              recordingIndicator.classList.remove('show');
+              if (recorderInterval) {
+                clearInterval(recorderInterval);
+                recorderInterval = null;
               }
-              isChatRecording = false;
-              micSmallBtn.classList.remove('recording');
             };
 
-            chatRecorder.start();
-            isChatRecording = true;
-            micSmallBtn.classList.add('recording');
-
-            recordingStatus.classList.add('show');
+            mediaRecorder.start();
+            isRecordingFallback = true;
+            recorderStartTime = Date.now();
+            
+            micBigBtn.classList.add('recording');
+            micStatusText.textContent = '🎙️ در حال ضبط...';
+            micHintText.textContent = 'در حال صحبت کنید، ضبط خودکار متوقف می‌شود.';
+            
+            // Show recording indicator with timer
+            recordingIndicator.classList.add('show');
             var remaining = 15;
-            chatRecordingTimer.textContent = remaining;
-
-            if (chatRecorderInterval) clearInterval(chatRecorderInterval);
-            chatRecorderInterval = setInterval(function() {
-              remaining = Math.max(0, remaining - 1);
-              chatRecordingTimer.textContent = remaining;
+            recordingTimer.textContent = remaining;
+            
+            if (recorderInterval) clearInterval(recorderInterval);
+            recorderInterval = setInterval(function() {
+              remaining = Math.max(0, 15 - Math.floor((Date.now() - recorderStartTime) / 1000));
+              recordingTimer.textContent = remaining;
               if (remaining <= 0) {
-                clearInterval(chatRecorderInterval);
-                chatRecorderInterval = null;
-                if (chatRecorder && chatRecorder.state === 'recording') {
-                  stopChatRecording();
-                }
+                clearInterval(recorderInterval);
+                recorderInterval = null;
               }
-            }, 1000);
-
-            chatRecordTimer = setTimeout(function() {
-              if (chatRecorder && chatRecorder.state === 'recording') {
-                stopChatRecording();
+            }, 100);
+            
+            // Auto-stop after 15 seconds
+            recordTimer = setTimeout(function() {
+              if (mediaRecorder && mediaRecorder.state === 'recording') {
+                stopFallbackRecording();
               }
             }, 15000);
           })
           .catch(function(err) {
             console.error('Mic error:', err);
-            showToast('⛔ خطا در دسترسی به میکروفون', 3000);
+            micStatusText.textContent = '⛔ خطا در دسترسی به میکروفون';
+            micHintText.textContent = 'لطفاً تنظیمات میکروفون را بررسی کنید یا سفارش را تایپ کنید.';
+            fallbackInput.classList.add('show');
           });
       }
 
-      function stopChatRecording() {
-        if (chatRecorder && chatRecorder.state === 'recording') {
-          chatRecorder.stop();
-          clearTimeout(chatRecordTimer);
-          if (chatRecorderInterval) {
-            clearInterval(chatRecorderInterval);
-            chatRecorderInterval = null;
+      function stopFallbackRecording() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+          isRecordingFallback = false;
+          micBigBtn.classList.remove('recording');
+          clearTimeout(recordTimer);
+          if (recorderInterval) {
+            clearInterval(recorderInterval);
+            recorderInterval = null;
           }
+          micStatusText.textContent = '⏳ در حال پردازش صدای شما...';
+          micHintText.textContent = 'لطفاً چند لحظه صبر کنید.';
+          recordingIndicator.classList.remove('show');
         }
       }
 
-// ===== Send Audio to Server =====
-function sendChatAudioToServer(audioBlob) {
-    var formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.wav');
-
-    // Show loading
-    chatLoading.classList.add('show');
-    isProcessing = true;
-    chatInput.disabled = true;
-    sendBtn.disabled = true;
-    micSmallBtn.disabled = true;
-
-    // استفاده از مسیر کامل با اسلش آخر
-    const apiUrl = '/api/speech-to-text';  // حتماً با اسلش آخر
-    
-    console.log('Sending request to:', apiUrl);
-    console.log('FormData entries:');
-    for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-    }
-
-    fetch(apiUrl, {
-        method: 'POST',
-        body: formData,
-        // اضافه کردن headers برای دیباگ
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-        }
-    })
-    .then(function(response) {
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
+      // ===== Send Audio to Server =====
+      function sendAudioToServer(audioBlob) {
+        transcriptBox.classList.add('show');
+        transcriptText.textContent = '⏳ در حال تبدیل گفتار به متن...';
+        micStatusText.textContent = '🔄 در حال پردازش...';
         
-        // ابتدا محتوای پاسخ را به صورت متن بگیرید
-        return response.text().then(function(text) {
-            console.log('Raw response (first 500 chars):', text.substring(0, 500));
-            
-            // اگر پاسخ با <!DOCTYPE شروع شد، یعنی HTML برگشته
-            if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
-                console.error('Server returned HTML instead of JSON');
-                throw new Error('سرور صفحه HTML برگردانده است. مسیر API اشتباه است یا خطای 500 رخ داده است.');
+        // Try OpenAI Whisper API first if key is provided
+        var apiKey = (openaiKeyInput.value || '').trim();
+        if (apiKey) {
+          sendToWhisperAPI(audioBlob, apiKey);
+          return;
+        }
+        
+        // Otherwise send to your own server
+        var formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.wav');
+        
+
+        // ارسال به سرور
+        fetch('/api/speech-to-text', {
+            method: 'POST',
+            body: formData,
+            // timeout: 30000 // 30 seconds timeout
+        })
+        .then(function(response) {
+            // بررسی وضعیت پاسخ
+            if (!response.ok) {
+                return response.json().then(function(errorData) {
+                    throw new Error(errorData.message || 'خطا در ارتباط با سرور (کد ' + response.status + ')');
+                });
             }
-            
-            // تلاش برای تبدیل به JSON
-            try {
-                var data = JSON.parse(text);
-                console.log('Parsed JSON:', data);
-                return data;
-            } catch (e) {
-                console.error('Failed to parse JSON:', text.substring(0, 200));
-                throw new Error('پاسخ سرور JSON معتبر نیست: ' + text.substring(0, 100));
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                if (data.text) {
+                    handleTranscript(data.text);
+                } else {
+                    throw new Error('متن تبدیل شده دریافت نشد');
+                }
+            } else {
+                throw new Error(data.message || 'پردازش در سرور با خطا مواجه شد');
             }
+        })
+        .catch(function(err) {
+          console.error('Server error:', err);
+          transcriptText.textContent = '⚠️ تبدیل صدا ناموفق: ' + err.message;
+          micStatusText.textContent = '❌ خطا در پردازش صدا';
+          micHintText.textContent = 'لطفاً سفارش را به صورت تایپی وارد کنید.';
+          fallbackInput.classList.add('show');
+          // Show manual typing option
+          if (typeManuallyBtn) typeManuallyBtn.style.display = 'inline-flex';
         });
-    })
-    .then(function(data) {
-        console.log('Speech-to-text response:', data);
-        
-        if (data.success && data.text) {
-            // Add the transcribed text as user message
-            addMessage('user', data.text);
-            // Then send to chat API
-            sendToChatAPI(data.text);
-        } else {
-            throw new Error(data.message || 'متن تبدیل شده دریافت نشد');
-        }
-    })
-    .catch(function(err) {
-        chatLoading.classList.remove('show');
-        isProcessing = false;
-        chatInput.disabled = false;
-        sendBtn.disabled = false;
-        micSmallBtn.disabled = false;
-        
-        console.error('Speech-to-text error:', err);
-        console.error('Error stack:', err.stack);
-        
-        showToast('⚠️ تبدیل صدا ناموفق: ' + err.message, 4000);
-        addMessage('system', '⚠️ متاسفانه صدای شما تشخیص داده نشد. لطفاً دوباره تلاش کنید یا پیام خود را تایپ کنید.');
-    });
-}
+      }
 
-// ===== Keyboard shortcut for chat (Ctrl+Shift+C) =====
+      // ===== OpenAI Whisper API =====
+      function sendToWhisperAPI(audioBlob, apiKey) {
+        var formData = new FormData();
+        formData.append('file', audioBlob, 'recording.wav');
+        formData.append('model', 'whisper-1');
+        formData.append('language', 'fa');
+        formData.append('response_format', 'json');
+        
+        micStatusText.textContent = '🔄 ارسال به Whisper...';
+        
+        fetch('https://api.openai.com/v1/audio/transcriptions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + apiKey
+          },
+          body: formData
+        })
+        .then(function(response) {
+          if (!response.ok) {
+            return response.json().then(function(errData) {
+              throw new Error(errData.error?.message || 'خطا در ارتباط با OpenAI (کد ' + response.status + ')');
+            });
+          }
+          return response.json();
+        })
+        .then(function(data) {
+          if (data.text) {
+            handleTranscript(data.text);
+            showToast('✅ تبدیل صدا با Whisper انجام شد.', 2000);
+          } else {
+            throw new Error('پاسخی از OpenAI دریافت نشد');
+          }
+        })
+        .catch(function(err) {
+          console.error('Whisper error:', err);
+          transcriptText.textContent = '⚠️ تبدیل صدا با Whisper ناموفق: ' + err.message;
+          micStatusText.textContent = '❌ خطا در پردازش صدا';
+          micHintText.textContent = 'لطفاً سفارش را به صورت تایپی وارد کنید.';
+          fallbackInput.classList.add('show');
+          if (typeManuallyBtn) typeManuallyBtn.style.display = 'inline-flex';
+        });
+      }
+
+      // ===== Test Whisper =====
+      if (testWhisperBtn) {
+        testWhisperBtn.addEventListener('click', function() {
+          var apiKey = (openaiKeyInput.value || '').trim();
+          if (!apiKey) {
+            showToast('⚠️ لطفاً کلید OpenAI API را وارد کنید.', 3000);
+            return;
+          }
+          showToast('🧪 در حال تست Whisper... (یک فایل صوتی نمونه ارسال می‌شود)', 3000);
+          // Create a small test audio blob (silence) - just to test connection
+          var ctx = new (window.AudioContext || window.webkitAudioContext)();
+          var buffer = ctx.createBuffer(1, 16000, 16000);
+          var data = buffer.getChannelData(0);
+          for (var i = 0; i < data.length; i++) {
+            data[i] = Math.sin(i * 2 * Math.PI * 440 / 16000) * 0.1;
+          }
+          var wavBlob = bufferToWav(buffer);
+          sendToWhisperAPI(wavBlob, apiKey);
+        });
+      }
+
+      function bufferToWav(buffer) {
+        var numChannels = 1;
+        var sampleRate = 16000;
+        var format = 1;
+        var bitDepth = 16;
+        var numSamples = buffer.length;
+        var dataLength = numSamples * numChannels * (bitDepth / 8);
+        var bufferLength = 44 + dataLength;
+        var arrayBuffer = new ArrayBuffer(bufferLength);
+        var view = new DataView(arrayBuffer);
+        
+        // RIFF header
+        writeString(view, 0, 'RIFF');
+        view.setUint32(4, bufferLength - 8, true);
+        writeString(view, 8, 'WAVE');
+        writeString(view, 12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, format, true);
+        view.setUint16(22, numChannels, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * numChannels * (bitDepth / 8), true);
+        view.setUint16(32, numChannels * (bitDepth / 8), true);
+        view.setUint16(34, bitDepth, true);
+        writeString(view, 36, 'data');
+        view.setUint32(40, dataLength, true);
+        
+        // Audio data
+        var offset = 44;
+        for (var i = 0; i < numSamples; i++) {
+          var sample = Math.max(-1, Math.min(1, buffer.getChannelData(0)[i]));
+          var val = sample * 0x7FFF;
+          view.setInt16(offset, val, true);
+          offset += 2;
+        }
+        
+        return new Blob([arrayBuffer], { type: 'audio/wav' });
+      }
+
+      function writeString(view, offset, string) {
+        for (var i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      }
+
+      // ===== Prime Mic Permission =====
+      var micPermissionPrimed = false;
+
+      function primeMicPermissionThenStart() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          startRecognition();
+          return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(function(stream) {
+            stream.getTracks().forEach(function(t) { t.stop(); });
+            micPermissionPrimed = true;
+            startRecognition();
+          })
+          .catch(function(err) {
+            micPermissionDenied = true;
+            console.log('Mic permission denied, using fallback recording');
+            micStatusText.textContent = '🎙️ ضبط صدا (بدون دسترسی به تشخیص گفتار)';
+            micHintText.textContent = 'روی دکمه بزنید و سفارش خود را بگویید (حداکثر ۱۵ ثانیه)';
+            fallbackInput.classList.remove('show');
+            updateUI();
+            showToast('🎙️ از حالت ضبط صدا استفاده می‌شود.', 3000);
+          });
+      }
+
+      function startRecognition() {
+        try {
+          recognition.start();
+        } catch (err) {
+          showToast('⚠️ لطفاً دسترسی میکروفون را فعال کنید.');
+        }
+      }
+
+      // ===== Main Button Click Handler =====
+      micBigBtn.addEventListener('click', function() {
+        // If currently recording fallback
+        if (isRecordingFallback) {
+          stopFallbackRecording();
+          return;
+        }
+        
+        // If speech recognition is supported and permission not denied
+        if (supportsSpeech && !micPermissionDenied) {
+          if (isRecording) {
+            recognition.stop();
+          } else if (micPermissionPrimed) {
+            startRecognition();
+          } else {
+            primeMicPermissionThenStart();
+          }
+          return;
+        }
+        
+        // If fallback recording is available
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          // Check if we already have permission
+          navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+              stream.getTracks().forEach(function(t) { t.stop(); });
+              startFallbackRecording();
+            })
+            .catch(function(err) {
+              // Still try to start recording - some browsers will ask for permission
+              startFallbackRecording();
+            });
+        } else {
+          // No recording available, focus on text input
+          fallbackInput.classList.add('show');
+          fallbackInput.focus();
+          showToast('✏️ لطفاً سفارش خود را تایپ کنید.', 3000);
+        }
+      });
+
+      // ===== Type Manually Button =====
+      if (typeManuallyBtn) {
+        typeManuallyBtn.addEventListener('click', function() {
+          fallbackInput.classList.add('show');
+          fallbackInput.focus();
+          typeManuallyBtn.style.display = 'none';
+          micStatusText.textContent = '✏️ در حال تایپ سفارش';
+          micHintText.textContent = 'سفارش خود را تایپ کنید و منتظر تحلیل باشید.';
+        });
+      }
+
+      // ===== Fallback Input =====
+      fallbackInput.addEventListener('input', function() {
+        if (fallbackInput.value.trim().length > 2) {
+          clearTimeout(fallbackInput._timer);
+          fallbackInput._timer = setTimeout(function() {
+            handleTranscript(fallbackInput.value.trim());
+          }, 800);
+        }
+      });
+
+      // ===== Handle Transcript =====
+      function handleTranscript(text) {
+        if (!text || text.length < 2) {
+          showToast('⚠️ متن کوتاه است، لطفاً سفارش کامل را بیان کنید.');
+          return;
+        }
+
+        transcriptText.textContent = text;
+        transcriptBox.classList.add('show');
+        micStatusText.textContent = '✅ سفارش شما شناسایی شد';
+        micHintText.textContent = 'لطفاً خلاصه سفارش را بررسی و تأیید کنید.';
+        modalActions.style.display = 'flex';
+        if (typeManuallyBtn) typeManuallyBtn.style.display = 'none';
+        analyzeOrderWithOpenAI(text);
+      }
+
+      // ===== OpenAI Analysis =====
+      function analyzeOrderWithOpenAI(orderText) {
+        var apiKey = (openaiKeyInput.value || '').trim();
+        if (!apiKey) {
+          // Still show the transcript but without AI analysis
+          aiReplyBox.classList.add('show');
+          aiReplyText.textContent = '💡 برای تحلیل هوشمند، کلید OpenAI API را در بخش تنظیمات وارد کنید.';
+          return;
+        }
+
+        aiReplyBox.classList.add('show');
+        aiReplyText.innerHTML = '🔄 در حال تحلیل سفارش... <span class="spinner"></span>';
+
+        fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + apiKey
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [{
+                role: 'system',
+                content: 'تو دستیار سفارش‌گیری رستوران فست‌فود «سکه طلا» هستی. متن گفتاری مشتری را تحلیل کن، آیتم‌های غذایی و تعداد آن‌ها را استخراج کن و یک پاسخ کوتاه، دوستانه و به فارسی بده که خلاصه سفارش را تأیید کند یا در صورت ابهام سؤال بپرسد.'
+              }, { role: 'user', content: orderText }],
+              max_tokens: 200
+            })
+          })
+          .then(function(res) {
+            if (!res.ok) throw new Error('خطا در ارتباط با OpenAI (کد ' + res.status + ')');
+            return res.json();
+          })
+          .then(function(data) {
+            var reply = data && data.choices && data.choices[0] && data.choices[0].message ?
+              data.choices[0].message.content :
+              'پاسخی دریافت نشد.';
+            aiReplyText.textContent = reply;
+          })
+          .catch(function(err) {
+            aiReplyText.textContent = '⚠️ تحلیل هوشمند انجام نشد: ' + err.message;
+          });
+      }
+
+      // ===== Confirm Order =====
+      confirmOrderBtn.addEventListener('click', function() {
+        showToast('🎉 سفارش شما با موفقیت ثبت شد! طلایی‌ها در راهند.');
+        setTimeout(closeModal, 1400);
+      });
+
+      retryOrderBtn.addEventListener('click', function() {
+        resetVoiceUI();
+        if (supportsSpeech && !micPermissionDenied) {
+          micStatusText.textContent = '🔄 آماده برای ضبط مجدد';
+          micHintText.textContent = 'دکمه را لمس کنید و سفارش خود را به فارسی بگویید';
+        } else {
+          micStatusText.textContent = '🔄 آماده برای ضبط صدا';
+          micHintText.textContent = 'دکمه را بزنید و تا ۱۵ ثانیه صحبت کنید';
+        }
+        if (typeManuallyBtn) typeManuallyBtn.style.display = 'none';
+        fallbackInput.classList.remove('show');
+      });
+
+      // ===== Close modal with ESC =====
       document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
+        if (e.key === 'Escape' && voiceModal.classList.contains('open')) closeModal();
+      });
+
+      // ===== Keyboard shortcut for voice (Ctrl+Shift+V) =====
+      document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && (e.key === 'V' || e.key === 'v')) {
           e.preventDefault();
           openModal();
         }
       });
 
-      // ===== Close modal with ESC =====
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && voiceModal.classList.contains('open')) {
-          closeModal();
-        }
-      });
-
-      // ===== Initial focus =====
-      // Focus input when modal opens (already handled in openModal)
+      // ===== Initial UI Update =====
+      updateUI();
 
     })();
   </script>
