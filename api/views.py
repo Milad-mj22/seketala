@@ -149,3 +149,69 @@ def account_list(request):
         "start_date": start_date,
         "end_date": end_date,
     })
+
+
+
+
+
+
+
+
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+import os
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def speech_to_text(request):
+    """
+    دریافت فایل صوتی از فرانت‌اند و برگرداندن متن تبدیل شده
+    
+    ساختار پاسخ موفق:
+    {
+        'success': True,
+        'text': 'متن تبدیل شده',
+        'record_id': 123  # اختیاری
+    }
+    
+    ساختار پاسخ ناموفق:
+    {
+        'success': False,
+        'message': 'پیام خطا'
+    }
+    """
+    # try:
+        # 1. بررسی وجود فایل
+    if 'audio' not in request.FILES:
+        return JsonResponse({
+            'success': False,
+            'message': 'فایل صوتی ارسال نشده است'
+        }, status=400)
+    
+    audio_file = request.FILES['audio']
+    
+    # 2. بررسی حجم فایل (حداکثر 25MB)
+    if audio_file.size > 25 * 1024 * 1024:
+        return JsonResponse({
+            'success': False,
+            'message': 'حجم فایل بیشتر از 25MB است'
+        }, status=400)
+    
+    # 3. بررسی فرمت فایل
+    allowed_extensions = ['.wav', '.mp3', '.webm', '.ogg', '.flac', '.aac', '.m4a']
+    file_ext = os.path.splitext(audio_file.name)[1].lower()
+    if file_ext not in allowed_extensions:
+        return JsonResponse({
+            'success': False,
+            'message': f'فرمت فایل {file_ext} پشتیبانی نمی‌شود'
+        }, status=400)
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'پیام موقت'
+    }, status=400)
