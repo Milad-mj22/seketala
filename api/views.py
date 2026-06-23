@@ -167,7 +167,8 @@ from vosk import Model, KaldiRecognizer
 
 # فقط یکبار لود شود
 VOSK_MODEL_PATH = os.path.join('models', 'vosk-model-fa-0.42')
-model = Model(VOSK_MODEL_PATH)
+if os.path.exists(VOSK_MODEL_PATH):
+    model = Model(VOSK_MODEL_PATH)
 
 # 🎯 Keyword boosting مخصوص فست فود
 # 1. تعریف کلمات کلیدی به صورت رشته JSON

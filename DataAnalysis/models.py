@@ -17,7 +17,8 @@ class Sale(models.Model):
 
 
 class Invoice(models.Model):
-    invoice_number = models.IntegerField(unique=True)
+    unique_invoice_number =  models.IntegerField(default=-1)
+    invoice_number = models.IntegerField()
     name = models.CharField(max_length=200,default='')
     nahveh = models.CharField(max_length=300,default='')
     phone = models.CharField(max_length=20)
